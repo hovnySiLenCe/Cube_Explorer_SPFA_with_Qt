@@ -1,0 +1,12 @@
+54
+cntjudge = 9
+i = 9
+cntjudge = 54
+size = 18
+mapsize = 6
+yellow orange blue yellow white red yellow blue white 
+orange white red red blue green white orange blue 
+orange white blue green red yellow blue orange green 
+red white red blue yellow blue green blue yellow 
+green green green orange green white white yellow white 
+yellow yellow red red orange green orange red orange 

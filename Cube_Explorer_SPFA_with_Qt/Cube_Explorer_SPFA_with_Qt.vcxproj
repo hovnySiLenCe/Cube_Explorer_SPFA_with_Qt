@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Algorithm\CubeExplorer.cpp" />
+    <ClCompile Include="Algorithm\CubeExplorerSPFA.cpp" />
+    <ClCompile Include="Algorithm\CubePoseTransformer.cpp" />
+    <ClCompile Include="Algorithm\CubeRecognizer.cpp" />
+    <ClCompile Include="Algorithm\MultiSolver.cpp" />
+    <ClCompile Include="Algorithm\threadSafeKociemba.cpp" />
+    <ClCompile Include="Kociemba\coordcube.c" />
+    <ClCompile Include="Kociemba\cubiecube.c" />
+    <ClCompile Include="Kociemba\facecube.c" />
+    <ClCompile Include="Kociemba\prunetable_helpers.c" />
+    <ClCompile Include="Kociemba\search.c" />
+    <ClCompile Include="Kociemba\solve.c" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Mainbody\CubeExplorerWithQt.cpp" />
+    <ClCompile Include="Mainbody\DataSheetWidget.cpp" />
+    <ClCompile Include="Mainbody\DebugWidget.cpp" />
+    <ClCompile Include="Mainbody\HSVDataDialog.cpp" />
+    <ClCompile Include="Mainbody\HSVThresholdDialog.cpp" />
+    <ClCompile Include="Mainbody\LastSampleDialog.cpp" />
+    <ClCompile Include="Mainbody\QMyGraphicsView.cpp" />
+    <ClCompile Include="Mainbody\RecogAreaDialog.cpp" />
+    <ClCompile Include="qtWindows\qrc_CubicExplorerWithQt.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Algorithm\CubeExplorer.h" />
+    <ClInclude Include="Algorithm\CubeExplorerSPFA.h" />
+    <ClInclude Include="Algorithm\CubePoseTransformer.h" />
+    <ClInclude Include="Algorithm\CubeRecognizer.h" />
+    <ClInclude Include="Algorithm\MultiSolver.h" />
+    <ClInclude Include="Algorithm\threadSafeKociemba.h" />
+    <ClInclude Include="Kociemba\color.h" />
+    <ClInclude Include="Kociemba\coordcube.h" />
+    <ClInclude Include="Kociemba\corner.h" />
+    <ClInclude Include="Kociemba\cubiecube.h" />
+    <ClInclude Include="Kociemba\edge.h" />
+    <ClInclude Include="Kociemba\facecube.h" />
+    <ClInclude Include="Kociemba\facelet.h" />
+    <ClInclude Include="Kociemba\prunetable_helpers.h" />
+    <ClInclude Include="Kociemba\search.h" />
+    <ClInclude Include="Kociemba\solve.h" />
+    <ClInclude Include="Mainbody\MyTimer.h" />
+    <QtMoc Include="Mainbody\RecogAreaDialog.h" />
+    <QtMoc Include="Mainbody\QMyGraphicsView.h" />
+    <QtMoc Include="Mainbody\LastSampleDialog.h" />
+    <QtMoc Include="Mainbody\HSVThresholdDialog.h" />
+    <QtMoc Include="Mainbody\HSVDataDialog.h" />
+    <QtMoc Include="Mainbody\DebugWidget.h" />
+    <QtMoc Include="Mainbody\DataSheetWidget.h" />
+    <QtMoc Include="Mainbody\CubeExplorerWithQt.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="qtWindows\CubicExplorerWithQt.ui" />
+    <QtUic Include="qtWindows\DataSheetWidget.ui" />
+    <QtUic Include="qtWindows\DebugWidget.ui" />
+    <QtUic Include="qtWindows\HSVDataDialog.ui" />
+    <QtUic Include="qtWindows\HSVThresholdDialog.ui" />
+    <QtUic Include="qtWindows\LastSampleDialog.ui" />
+    <QtUic Include="qtWindows\RecogAreaDialog.ui">
+      <QtUicDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">GeneratedFiles\</QtUicDir>
+    </QtUic>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2DEA0096-C06D-49F5-A028-4A07672F2BFD}</ProjectGuid>
+    <Keyword>QtVS_v303</Keyword>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <OutDir>Execution\</OutDir>
+    <IntDir>GeneratedFiles\$(Configuration)\</IntDir>
+    <IncludePath>.\Algorithm;.\Mainbody;C:\OpenCV\opencv\build\include\opencv;C:\OpenCV\opencv\build\include;C:\OpenCV\opencv\build\include\opencv2;.\Kociemba;.\GeneratedFiles;C:\Qt\Qt5.9.1\5.9.1\msvc2017_64\bin;C:\Qt\Qt5.9.1\5.9.1\msvc2017_64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Qt\Qt5.9.1\5.9.1\msvc2017_64\lib;C:\OpenCV\opencv\build\x64\vc15\lib;C:\OpenCV\opencv\build\x64\vc15\bin;C:\OpenCV\opencv\build\x64\vc14\lib;C:\OpenCV\opencv\build\x64\vc14\bin;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>qtmaind.lib;opencv_world3416.lib;opencv_world3416d.lib;Qt53DQuick.lib;Qt53DQuickAnimation.lib;Qt53DQuickExtras.lib;Qt53DQuickInput.lib;Qt53DQuickRender.lib;Qt53DQuickScene2D.lib;opengl32.lib;glu32.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Multimediad.lib;Qt5MultimediaWidgetsd.lib;Qt5OpenGLd.lib;Qt5OpenGLExtensionsd.lib;Qt5SerialPortd.lib;Qt5UiToolsd.lib;Qt5Widgetsd.lib;Qt53DCored.lib;Qt53DAnimationd.lib;Qt53DExtrasd.lib;Qt53DInputd.lib;Qt53DLogicd.lib;Qt53DRenderd.lib;Qt53DQuickd.lib;Qt53DQuickAnimationd.lib;Qt53DQuickExtrasd.lib;Qt53DQuickInputd.lib;Qt53DQuickRenderd.lib;Qt53DQuickScene2Dd.lib;Qt5DataVisualizationd.lib;Qt5Helpd.lib;Qt5Locationd.lib;Qt5Networkd.lib;Qt5NetworkAuthd.lib;Qt5Nfcd.lib;Qt5Positioningd.lib;Qt5PrintSupportd.lib;Qt5Qmld.lib;Qt5Quickd.lib;Qt5QuickWidgetsd.lib;Qt5QuickControls2d.lib;Qt5QuickTestd.lib;Qt5RemoteObjectsd.lib;Qt5Scxmld.lib;Qt5Sensorsd.lib;Qt5SerialBusd.lib;Qt5TextToSpeechd.lib;Qt5Sqld.lib;Qt5Svgd.lib;Qt5Testd.lib;Qt5WebChanneld.lib;Qt5WebSocketsd.lib;Qt5WebEngined.lib;Qt5WebEngineCored.lib;Qt5WebEngineWidgetsd.lib;Qt5WinExtrasd.lib;Qt5Xmld.lib;Qt5XmlPatternsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;.\GeneratedFiles;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtMultimedia;$(QTDIR)\include\QtMultimediaWidgets;$(QTDIR)\include\QtOpenGL;$(QTDIR)\include\QtOpenGLExtensions;$(QTDIR)\include\QtSerialPort;$(QTDIR)\include\QtUiTools;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\Qt3DCore;$(QTDIR)\include\Qt3DAnimation;$(QTDIR)\include\Qt3DExtras;$(QTDIR)\include\Qt3DInput;$(QTDIR)\include\Qt3DLogic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <QtMoc>
+      <Include>%(FullPath)</Include>
+    </QtMoc>
+    <QtUic>
+      <QtUicDir>GeneratedFiles\</QtUicDir>
+    </QtUic>
+  </ItemDefinitionGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
+    <QtInstall>qt</QtInstall>
+    <QtModules>3danimation;3dcore;3dextras;3dinput;3dlogic;3dquick;3drender;axcontainer;axserver;bluetooth;charts;concurrent;core;datavisualization;dbus;gamepad;gui;help;location;multimedia;multimediawidgets;network;networkauth;nfc;opengl;openglextensions;positioning;printsupport;qml;qmltest;quick;quickcontrols2;quickwidgets;remoteobjects;scxml;sensors;serialbus;serialport;sql;svg;testlib;texttospeech;uitools;webchannel;webengine;webenginewidgets;websockets;widgets;winextras;xml;xmlpatterns</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
+    <QtInstall>qt</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+    <QtBuildConfig>release</QtBuildConfig>
+  </PropertyGroup>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
+    <Import Project="$(QtMsBuild)\qt.props" />
+  </ImportGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

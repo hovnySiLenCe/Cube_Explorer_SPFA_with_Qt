@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.34601.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cube_Explorer_SPFA_with_Qt", "Cube_Explorer_SPFA_with_Qt\Cube_Explorer_SPFA_with_Qt.vcxproj", "{2DEA0096-C06D-49F5-A028-4A07672F2BFD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2DEA0096-C06D-49F5-A028-4A07672F2BFD}.Debug|x64.ActiveCfg = Debug|x64
+		{2DEA0096-C06D-49F5-A028-4A07672F2BFD}.Debug|x64.Build.0 = Debug|x64
+		{2DEA0096-C06D-49F5-A028-4A07672F2BFD}.Release|x64.ActiveCfg = Release|x64
+		{2DEA0096-C06D-49F5-A028-4A07672F2BFD}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FDB03441-3C15-4DEC-9591-E7A367516A1D}
+	EndGlobalSection
+EndGlobal
