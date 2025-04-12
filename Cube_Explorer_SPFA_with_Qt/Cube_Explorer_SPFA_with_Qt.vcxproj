@@ -46,6 +46,13 @@
     <ClInclude Include="Algorithm\CubeRecognizer.h" />
     <ClInclude Include="Algorithm\MultiSolver.h" />
     <ClInclude Include="Algorithm\threadSafeKociemba.h" />
+    <ClInclude Include="GeneratedFiles\ui_CubicExplorerWithQt.h" />
+    <ClInclude Include="GeneratedFiles\ui_DataSheetWidget.h" />
+    <ClInclude Include="GeneratedFiles\ui_DebugWidget.h" />
+    <ClInclude Include="GeneratedFiles\ui_HSVDataDialog.h" />
+    <ClInclude Include="GeneratedFiles\ui_HSVThresholdDialog.h" />
+    <ClInclude Include="GeneratedFiles\ui_LastSampleDialog.h" />
+    <ClInclude Include="GeneratedFiles\ui_RecogAreaDialog.h" />
     <ClInclude Include="Kociemba\color.h" />
     <ClInclude Include="Kociemba\coordcube.h" />
     <ClInclude Include="Kociemba\corner.h" />

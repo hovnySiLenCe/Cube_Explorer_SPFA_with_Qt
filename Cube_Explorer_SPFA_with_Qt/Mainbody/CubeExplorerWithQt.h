@@ -27,6 +27,7 @@
 #include "qdebug.h"
 
 #include "DebugWidget.h"
+#include "DataSheetWidget.h"
 #include "RecogAreaDialog.h"
 #include "HSVDataDialog.h"
 #include "HSVThresholdDialog.h"
@@ -58,7 +59,7 @@ public:
 	//void openCamera();
 	
 	void cameraInit();
-	void capture();
+	void CaptureImage();
 	void showRecogResult(string strRec);
 	void Sleep(int);
 	void continueRestore();
@@ -92,6 +93,7 @@ private:
 	QTimer* timeoutTimer;
 	QTimer* handReleaseDalayTimer;
 	QByteArray* byteTmp;
+	QByteArray* comByteBuffer;
 
 	QSerialPort* serialPort;							//串口控制
 	QSerialPortInfo currentPortInfo;
@@ -120,6 +122,8 @@ private:
 	cv::Mat captureMatSet[4];
 
 	QList<QGraphicsRectItem*> list_samRecItems;			//存储显示在窗口上的采样框指针QByteArray byteTmp;
+	
+	void ProcessDataFrame(QByteArray dataFrame);
 
 public slots:
 	//界面按钮槽函数
@@ -132,6 +136,9 @@ public slots:
 	void on_btnShowSamRecsClicked();
 	void on_btnRecogClicked();
 	void on_btnSetHSVClicked();
+	void on_btnStopClicked();
+	void on_btnSetDataSheetClicked();
+
 	//摄像头View鼠标响应槽函数
 	void slot_mouseReleasedInCameraViews(QRect rec_select);
 	void slot_menuSetRecTriggered();

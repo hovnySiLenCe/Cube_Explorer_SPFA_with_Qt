@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1680</width>
+    <width>1726</width>
     <height>960</height>
    </rect>
   </property>
@@ -30,8 +30,8 @@
     <rect>
      <x>9</x>
      <y>9</y>
-     <width>1680</width>
-     <height>941</height>
+     <width>1738</width>
+     <height>971</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -44,7 +44,7 @@
     <item>
      <widget class="QGroupBox" name="verticalLayout_9">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -81,6 +81,11 @@
            <width>1500</width>
            <height>16777215</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
          </property>
          <property name="title">
           <string>摄像头</string>
@@ -280,6 +285,11 @@
            <width>1500</width>
            <height>250</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
          </property>
          <property name="title">
           <string>识别结果</string>
@@ -833,6 +843,18 @@
                  <pointsize>11</pointsize>
                 </font>
                </property>
+               <property name="documentTitle">
+                <string/>
+               </property>
+               <property name="cursorWidth">
+                <number>1</number>
+               </property>
+               <property name="maximumBlockCount">
+                <number>5000</number>
+               </property>
+               <property name="centerOnScroll">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
             </layout>
@@ -845,6 +867,11 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
             </property>
             <property name="title">
              <string>串口</string>
@@ -1151,7 +1178,7 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>140</width>
+        <width>160</width>
         <height>0</height>
        </size>
       </property>
@@ -1181,30 +1208,50 @@
          </property>
         </spacer>
        </item>
-       <item>
+       <item alignment="Qt::AlignHCenter">
         <widget class="QGroupBox" name="groupBox_normal">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>140</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="title">
           <string/>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
            <widget class="QPushButton" name="btn_camSwitch">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>50</width>
+              <height>38</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>1321331</width>
+              <height>50</height>
              </size>
             </property>
             <property name="font">
              <font>
               <family>Adobe Arabic</family>
-              <pointsize>14</pointsize>
+              <pointsize>13</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
              </font>
             </property>
             <property name="text">
@@ -1214,22 +1261,30 @@
           </item>
           <item>
            <widget class="QPushButton" name="btn_showSamRecs">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>50</width>
+              <height>38</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>1321331</width>
+              <height>50</height>
              </size>
             </property>
             <property name="font">
              <font>
               <family>Adobe Arabic</family>
-              <pointsize>14</pointsize>
+              <pointsize>13</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
              </font>
             </property>
             <property name="text">
@@ -1239,22 +1294,30 @@
           </item>
           <item>
            <widget class="QPushButton" name="btn_debug">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>50</width>
+              <height>38</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>1321331</width>
+              <height>50</height>
              </size>
             </property>
             <property name="font">
              <font>
               <family>Adobe Arabic</family>
-              <pointsize>14</pointsize>
+              <pointsize>13</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
              </font>
             </property>
             <property name="text">
@@ -1264,16 +1327,112 @@
           </item>
           <item>
            <widget class="QPushButton" name="btn_setHSV">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>50</width>
+              <height>38</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>1321331</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Adobe Arabic</family>
+              <pointsize>13</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>HSV设置</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_setDataSheet">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>38</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>1321331</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>宋体</family>
+              <pointsize>13</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>数据表设置</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignHCenter">
+        <widget class="QGroupBox" name="groupBox_operation">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>140</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="title">
+          <string/>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QPushButton" name="btn_stop">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>38</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>45</height>
              </size>
             </property>
             <property name="font">
@@ -1283,31 +1442,28 @@
              </font>
             </property>
             <property name="text">
-             <string>HSV设置</string>
+             <string>急停</string>
             </property>
            </widget>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox_operation">
-         <property name="title">
-          <string/>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
            <widget class="QPushButton" name="btn_reset">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>0</width>
+              <height>38</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>16777215</width>
+              <height>45</height>
              </size>
             </property>
             <property name="font">
@@ -1324,24 +1480,42 @@
          </layout>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignHCenter">
         <widget class="QGroupBox" name="groupBox_recog_send">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>140</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="title">
           <string/>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
            <widget class="QPushButton" name="btn_recog">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>0</width>
+              <height>38</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>16777215</width>
+              <height>45</height>
              </size>
             </property>
             <property name="font">
@@ -1357,16 +1531,22 @@
           </item>
           <item>
            <widget class="QPushButton" name="btn_sendSingle">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>0</width>
+              <height>38</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>16777215</width>
+              <height>45</height>
              </size>
             </property>
             <property name="font">
@@ -1382,16 +1562,22 @@
           </item>
           <item>
            <widget class="QPushButton" name="btn_sendAll">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>0</width>
+              <height>38</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>16777215</width>
+              <height>45</height>
              </size>
             </property>
             <property name="font">
@@ -1408,22 +1594,27 @@
          </layout>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignHCenter">
         <widget class="QGroupBox" name="groupBox_checkBox">
          <property name="enabled">
           <bool>true</bool>
          </property>
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>10</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
           <size>
-           <width>0</width>
-           <height>10</height>
+           <width>140</width>
+           <height>5</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
          </property>
          <property name="acceptDrops">
           <bool>false</bool>
@@ -1432,53 +1623,56 @@
           <bool>false</bool>
          </property>
          <property name="title">
-          <string/>
+          <string>可选择项</string>
          </property>
-         <widget class="QCheckBox" name="inputCheckBox">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>10</y>
-            <width>126</width>
-            <height>28</height>
-           </rect>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-           </font>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="text">
-           <string>从输入框输入</string>
-          </property>
-         </widget>
-         <widget class="QCheckBox" name="reuseCheckBox">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>40</y>
-            <width>111</width>
-            <height>19</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>时间复用</string>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <item>
+           <widget class="QCheckBox" name="inputCheckBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="text">
+             <string>从输入框输入</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="reuseCheckBox">
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>时间复用</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_15">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
@@ -1494,23 +1688,23 @@
          </property>
         </spacer>
        </item>
-       <item>
+       <item alignment="Qt::AlignHCenter">
         <widget class="QGroupBox" name="groupBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
           <size>
-           <width>120</width>
+           <width>140</width>
            <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>120</width>
+           <width>125</width>
            <height>16777215</height>
           </size>
          </property>
@@ -1523,11 +1717,24 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_5">
               <item>
+               <spacer name="horizontalSpacer_10">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
                <widget class="QLabel" name="label_3">
                 <property name="font">
                  <font>
-                  <family>Agency FB</family>
-                  <pointsize>11</pointsize>
+                  <family>宋体</family>
+                  <pointsize>14</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -1542,7 +1749,7 @@
                 <property name="font">
                  <font>
                   <family>Agency FB</family>
-                  <pointsize>11</pointsize>
+                  <pointsize>16</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -1555,22 +1762,54 @@
                 </property>
                </widget>
               </item>
+              <item>
+               <spacer name="horizontalSpacer_14">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
              </layout>
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item>
+               <spacer name="horizontalSpacer_15">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
                <widget class="QLineEdit" name="lineEdit_second1">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="minimumSize">
                  <size>
-                  <width>32</width>
+                  <width>36</width>
                   <height>32</height>
                  </size>
                 </property>
                 <property name="font">
                  <font>
                   <family>OCR A Extended</family>
-                  <pointsize>16</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="contextMenuPolicy">
@@ -1598,7 +1837,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>.</string>
+                 <string> .</string>
                 </property>
                </widget>
               </item>
@@ -1606,14 +1845,14 @@
                <widget class="QLineEdit" name="lineEdit_second2">
                 <property name="minimumSize">
                  <size>
-                  <width>32</width>
+                  <width>36</width>
                   <height>32</height>
                  </size>
                 </property>
                 <property name="font">
                  <font>
                   <family>OCR A Extended</family>
-                  <pointsize>16</pointsize>
+                  <pointsize>14</pointsize>
                  </font>
                 </property>
                 <property name="contextMenuPolicy">
@@ -1631,42 +1870,59 @@
                <widget class="QLabel" name="label_2">
                 <property name="font">
                  <font>
-                  <family>Roman</family>
+                  <family>Times New Roman</family>
                   <pointsize>16</pointsize>
                   <weight>50</weight>
                   <bold>false</bold>
                  </font>
                 </property>
                 <property name="text">
-                 <string>s</string>
+                 <string> s</string>
                 </property>
                </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_16">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </item>
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_7"/>
-          </item>
-          <item>
            <widget class="QPushButton" name="btn_restore">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>116</width>
+              <height>38</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>100</width>
-              <height>30</height>
+              <width>16777215</width>
+              <height>45</height>
              </size>
             </property>
             <property name="font">
              <font>
               <family>Adobe Arabic</family>
               <pointsize>14</pointsize>
+              <kerning>true</kerning>
              </font>
             </property>
             <property name="text">

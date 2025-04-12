@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>936</width>
-    <height>356</height>
+    <width>1166</width>
+    <height>399</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,7 +23,7 @@
    <item>
     <widget class="QGroupBox" name="paraHorizontalGroupBox">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -38,6 +38,102 @@
       <property name="sizeConstraint">
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
+      <item>
+       <widget class="QGroupBox" name="StrategyGroupBox">
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QListWidget" name="list_strategy">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>130</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>130</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+           </property>
+           <property name="dragEnabled">
+            <bool>true</bool>
+           </property>
+           <property name="currentRow">
+            <number>-1</number>
+           </property>
+           <property name="sortingEnabled">
+            <bool>false</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string>默认参数</string>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="flags">
+             <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>历史恢复数据</string>
+            </property>
+            <property name="statusTip">
+             <string/>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="textAlignment">
+             <set>AlignLeading|AlignTop</set>
+            </property>
+            <property name="background">
+             <brush brushstyle="NoBrush">
+              <color alpha="255">
+               <red>0</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </brush>
+            </property>
+            <property name="flags">
+             <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
       <item>
        <widget class="QGroupBox" name="TimeDelayGroupBox">
         <property name="enabled">
@@ -79,27 +175,48 @@
            </property>
            <layout class="QGridLayout" name="gridLayout">
             <item row="2" column="1">
-             <widget class="QSpinBox" name="spinBox_T_Stepper_Conti_Delay">
+             <widget class="QSpinBox" name="spin_para02">
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                </font>
+              </property>
+              <property name="maximum">
+               <number>99999</number>
+              </property>
+              <property name="value">
+               <number>10</number>
               </property>
              </widget>
             </item>
             <item row="0" column="0">
-             <widget class="QLabel" name="label">
+             <widget class="QLabel" name="label_key00">
               <property name="text">
-               <string>电磁铁闭合延时</string>
+               <string>电磁铁闭合延时:</string>
               </property>
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QSpinBox" name="spinBox_T_Magnet_O_Delay">
+             <widget class="QSpinBox" name="spin_para00">
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                </font>
+              </property>
+              <property name="suffix">
+               <string/>
+              </property>
+              <property name="prefix">
+               <string/>
+              </property>
+              <property name="maximum">
+               <number>99999</number>
+              </property>
+              <property name="value">
+               <number>50</number>
+              </property>
+              <property name="displayIntegerBase">
+               <number>10</number>
               </property>
              </widget>
             </item>
@@ -116,25 +233,31 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QSpinBox" name="spinBox_T_Magnet_C_Delay">
+             <widget class="QSpinBox" name="spin_para01">
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                </font>
               </property>
+              <property name="maximum">
+               <number>99999</number>
+              </property>
+              <property name="value">
+               <number>111</number>
+              </property>
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="label_3">
+             <widget class="QLabel" name="label_key01">
               <property name="text">
-               <string>电磁铁打开延时</string>
+               <string>电磁铁打开延时:</string>
               </property>
              </widget>
             </item>
             <item row="3" column="0">
-             <widget class="QLabel" name="label_6">
+             <widget class="QLabel" name="label_key03">
               <property name="text">
-               <string>位置初始化转速延时</string>
+               <string>位置初始化转速延时:</string>
               </property>
              </widget>
             </item>
@@ -151,25 +274,31 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QSpinBox" name="spinBox_T_Stepper_Init_Delay">
+             <widget class="QSpinBox" name="spin_para03">
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                </font>
               </property>
+              <property name="maximum">
+               <number>99999</number>
+              </property>
+              <property name="value">
+               <number>5000</number>
+              </property>
              </widget>
             </item>
             <item row="2" column="0">
-             <widget class="QLabel" name="label_5">
+             <widget class="QLabel" name="label_key02">
               <property name="text">
-               <string>连续拧动延时</string>
+               <string>连续拧动延时:</string>
               </property>
              </widget>
             </item>
             <item row="4" column="0">
-             <widget class="QLabel" name="label_8">
+             <widget class="QLabel" name="label_key04">
               <property name="text">
-               <string>步进debug转速延时</string>
+               <string>步进debug转速延时:</string>
               </property>
              </widget>
             </item>
@@ -179,16 +308,22 @@
                <bool>false</bool>
               </property>
               <property name="text">
-               <string>TextLabel</string>
+               <string/>
               </property>
              </widget>
             </item>
             <item row="4" column="1">
-             <widget class="QSpinBox" name="spinBox_T_Stepper_Debug_Delay">
+             <widget class="QSpinBox" name="spin_para04">
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                </font>
+              </property>
+              <property name="maximum">
+               <number>99999</number>
+              </property>
+              <property name="value">
+               <number>5000</number>
               </property>
              </widget>
             </item>
@@ -298,30 +433,39 @@
            </property>
            <layout class="QGridLayout" name="gridLayout_2">
             <item row="2" column="1">
-             <widget class="QSpinBox" name="spinBox_7">
+             <widget class="QSpinBox" name="spin_para12">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                </font>
+              </property>
+              <property name="maximum">
+               <number>9999</number>
+              </property>
+              <property name="value">
+               <number>500</number>
               </property>
              </widget>
             </item>
             <item row="0" column="0">
-             <widget class="QLabel" name="label_P1_1">
+             <widget class="QLabel" name="label_key10">
               <property name="text">
-               <string>左爪定位补偿脉冲</string>
+               <string>左爪定位补偿脉冲:</string>
               </property>
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QSpinBox" name="spinBox_Pulse_L_Correction">
+             <widget class="QSpinBox" name="spin_para10">
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                </font>
+              </property>
+              <property name="maximum">
+               <number>9999</number>
               </property>
              </widget>
             </item>
@@ -333,28 +477,34 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QSpinBox" name="spinBox_Pulse_R_Correction">
+             <widget class="QSpinBox" name="spin_para11">
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                </font>
               </property>
+              <property name="maximum">
+               <number>9999</number>
+              </property>
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="label_P2_1">
+             <widget class="QLabel" name="label_key11">
               <property name="text">
-               <string>右爪定位补偿脉冲</string>
+               <string>右爪定位补偿脉冲:</string>
               </property>
              </widget>
             </item>
             <item row="3" column="0">
-             <widget class="QLabel" name="label_16">
+             <widget class="QLabel" name="label_key13">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="text">
-               <string> </string>
+               <string>旋转180度脉冲数:</string>
               </property>
               <property name="buddy">
-               <cstring>label_16</cstring>
+               <cstring>label_key13</cstring>
               </property>
              </widget>
             </item>
@@ -366,47 +516,65 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QSpinBox" name="spinBox_10">
+             <widget class="QSpinBox" name="spin_para13">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                </font>
               </property>
+              <property name="maximum">
+               <number>9999</number>
+              </property>
+              <property name="value">
+               <number>1000</number>
+              </property>
              </widget>
             </item>
             <item row="2" column="0">
-             <widget class="QLabel" name="label_18">
+             <widget class="QLabel" name="label_key12">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="text">
-               <string> </string>
+               <string>旋转90度脉冲数:</string>
               </property>
              </widget>
             </item>
             <item row="4" column="0">
-             <widget class="QLabel" name="label_19">
+             <widget class="QLabel" name="label_key14">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="text">
-               <string> </string>
+               <string>旋转360度脉冲数:</string>
               </property>
              </widget>
             </item>
             <item row="5" column="0">
              <widget class="QLabel" name="label_20">
               <property name="text">
-               <string> </string>
+               <string/>
               </property>
              </widget>
             </item>
             <item row="4" column="1">
-             <widget class="QSpinBox" name="spinBox_11">
+             <widget class="QSpinBox" name="spin_para14">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                </font>
+              </property>
+              <property name="maximum">
+               <number>9999</number>
+              </property>
+              <property name="value">
+               <number>2000</number>
               </property>
              </widget>
             </item>
@@ -425,7 +593,7 @@
             <item row="2" column="2">
              <widget class="QLabel" name="label_21">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="text">
                <string>个</string>
@@ -435,7 +603,7 @@
             <item row="3" column="2">
              <widget class="QLabel" name="label_22">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="text">
                <string>个</string>
@@ -445,7 +613,7 @@
             <item row="4" column="2">
              <widget class="QLabel" name="label_23">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="text">
                <string>个</string>
@@ -500,9 +668,9 @@
            </property>
            <layout class="QGridLayout" name="gridLayout_4">
             <item row="0" column="0">
-             <widget class="QLabel" name="label_37">
+             <widget class="QLabel" name="label_key20">
               <property name="text">
-               <string>空转加速时间</string>
+               <string>空转加速时间:</string>
               </property>
              </widget>
             </item>
@@ -520,19 +688,25 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QSpinBox" name="spinBox_S_Race_Time">
+             <widget class="QSpinBox" name="spin_para20">
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                 <pointsize>12</pointsize>
                </font>
               </property>
+              <property name="maximum">
+               <number>999</number>
+              </property>
+              <property name="value">
+               <number>10</number>
+              </property>
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="label_39">
+             <widget class="QLabel" name="label_key21">
               <property name="text">
-               <string>空转加速步数</string>
+               <string>空转加速步数:</string>
               </property>
              </widget>
             </item>
@@ -550,26 +724,32 @@
              </widget>
             </item>
             <item row="2" column="0">
-             <widget class="QLabel" name="label_42">
+             <widget class="QLabel" name="label_key22">
               <property name="text">
-               <string>带转加速时间</string>
+               <string>带转加速时间:</string>
               </property>
              </widget>
             </item>
             <item row="3" column="0">
-             <widget class="QLabel" name="label_40">
+             <widget class="QLabel" name="label_key23">
               <property name="text">
-               <string>带转加速步数</string>
+               <string>带转加速步数:</string>
               </property>
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QSpinBox" name="spinBox_S_Turn_Step">
+             <widget class="QSpinBox" name="spin_para23">
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                 <pointsize>12</pointsize>
                </font>
+              </property>
+              <property name="maximum">
+               <number>999</number>
+              </property>
+              <property name="value">
+               <number>75</number>
               </property>
              </widget>
             </item>
@@ -587,19 +767,25 @@
              </widget>
             </item>
             <item row="4" column="0">
-             <widget class="QLabel" name="label_43">
+             <widget class="QLabel" name="label_key24">
               <property name="text">
-               <string>拧动加速时间</string>
+               <string>拧动加速时间:</string>
               </property>
              </widget>
             </item>
             <item row="4" column="1">
-             <widget class="QSpinBox" name="spinBox_S_Twist_Time">
+             <widget class="QSpinBox" name="spin_para24">
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                 <pointsize>12</pointsize>
                </font>
+              </property>
+              <property name="maximum">
+               <number>999</number>
+              </property>
+              <property name="value">
+               <number>30</number>
               </property>
              </widget>
             </item>
@@ -617,19 +803,25 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QSpinBox" name="spinBox_S_Turn_Time">
+             <widget class="QSpinBox" name="spin_para22">
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                 <pointsize>12</pointsize>
                </font>
               </property>
+              <property name="maximum">
+               <number>999</number>
+              </property>
+              <property name="value">
+               <number>50</number>
+              </property>
              </widget>
             </item>
             <item row="5" column="0">
-             <widget class="QLabel" name="label_44">
+             <widget class="QLabel" name="label_key25">
               <property name="text">
-               <string>拧动加速步数</string>
+               <string>拧动加速步数:</string>
               </property>
              </widget>
             </item>
@@ -647,12 +839,18 @@
              </widget>
             </item>
             <item row="5" column="1">
-             <widget class="QSpinBox" name="spinBox_S_Twist_Step">
+             <widget class="QSpinBox" name="spin_para25">
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                 <pointsize>12</pointsize>
                </font>
+              </property>
+              <property name="maximum">
+               <number>999</number>
+              </property>
+              <property name="value">
+               <number>50</number>
               </property>
              </widget>
             </item>
@@ -670,12 +868,18 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QSpinBox" name="spinBox_S_Race_Step">
+             <widget class="QSpinBox" name="spin_para21">
               <property name="font">
                <font>
                 <family>Times New Roman</family>
                 <pointsize>12</pointsize>
                </font>
+              </property>
+              <property name="maximum">
+               <number>999</number>
+              </property>
+              <property name="value">
+               <number>50</number>
               </property>
              </widget>
             </item>
@@ -683,8 +887,6 @@
           </widget>
          </item>
         </layout>
-        <zorder>PulseGroupBox</zorder>
-        <zorder>SCurveGridFrame</zorder>
        </widget>
       </item>
      </layout>
@@ -692,7 +894,128 @@
    </item>
    <item>
     <widget class="QGroupBox" name="buttomHorizontalGroupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QFrame" name="horizontalFrame">
+        <layout class="QHBoxLayout" name="paraSaveHorizontalLayout">
+         <item>
+          <widget class="QLabel" name="label_13">
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>保存为：</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="text_versionName">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>125</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btn_saveStrategy">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>确认</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Maximum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>5</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QFrame" name="horizontalFrame_2">
+        <layout class="QHBoxLayout" name="paraEditHorizontalLayout">
+         <item>
+          <widget class="QPushButton" name="btn_delStrategy">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>删除</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btn_resetStrategy">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>恢复默认值</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
@@ -724,6 +1047,18 @@
       </item>
       <item>
        <widget class="QPushButton" name="btn_readPara">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>35</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <family>宋体</family>
@@ -731,14 +1066,26 @@
          </font>
         </property>
         <property name="text">
-         <string>读取参数</string>
+         <string>读取下位机参数</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btn_confirmModi">
+       <widget class="QPushButton" name="btn_confModi">
         <property name="enabled">
          <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>35</height>
+         </size>
         </property>
         <property name="font">
          <font>
@@ -753,7 +1100,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>确认修改</string>
+         <string>修改下位机参数</string>
         </property>
         <property name="checkable">
          <bool>false</bool>

@@ -11,11 +11,6 @@ int main(int argc, char *argv[])
 	iniHSVMap();
 	iniRecMap();
 	iniRecogVars();
-	ofstream out;
-	out.open("test.out");
-	out << "hello world" << endl;
-	out.flush();
-	out.close();
 
 	w.setWindowTitle(QStringLiteral("Rubik's Cube Explorer"));
 	w.setWindowIcon(QIcon("./Data/icon.png"));
