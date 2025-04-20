@@ -60,24 +60,24 @@ public:
 	
 	void InitCameraEvents();
 	void CaptureImage();
-	void ShowRecogResultOnScene(string strRec);
+	void showRecogResult(string strRec);
 	void Sleep(int);
-	void SolveAndRestore();
+	void continueRestore();
 
 	cv::Mat QImageToCvMat(const QImage& image); // 将QImage转化为CvMat
-	void SaveCaptureMatToFile(string curPath);
+	void saveCaptureMat(string curPath);
 
-	void LoadRestoreRecordsFromFile();									//从数据文件读取记录
-	void SaveRestoreRecordsToFile();								//将记录写入文件
+	void InitRestoreRecords();									//从数据文件读取记录
+	void writeRecords();								//将记录写入文件
 
 	CubeExplorerWithQt(QWidget* parent = Q_NULLPTR);
 
 private:
 	Ui::CubicExplorerWithQt ui;
 
-	bool isCameraOpen = false;
-	bool isToRestore = false;
-	bool hasRobotStarted = false;
+	bool cameraIsOpen = false;
+	bool bRestore = false;
+	bool bResponseStart = true;
 	bool inputFromBox = false;
 	const int captureInterval = 1000;
 
@@ -128,14 +128,15 @@ public slots:
 	//界面按钮槽函数
 	void on_btnTightOrLooseClicked();
 	void on_btnRestoreClicked();
-	void on_btnResetClicked();
 	void on_btnSendSingleClicked();
+	void on_btnResetClicked();
 	void on_btnDebugClicked();
-	void onbtnOpenCameraClicked();
+	void on_btnCameraClicked();
 	void on_btnShowSamRecsClicked();
 	void on_btnRecogClicked();
 	void on_btnSetHSVClicked();
-	void onSetDataSheetClicked();
+	void on_btnStopClicked();
+	void on_btnSetDataSheetClicked();
 
 	//摄像头View鼠标响应槽函数
 	void slot_mouseReleasedInCameraViews(QRect rec_select);
@@ -144,11 +145,13 @@ public slots:
 	//取色块设置响应槽函数
 	void slot_setRecArea(QString groupName, QRect rect, int faceID, int blockID);
 	//Capture响应槽函数
+	void slot_imageSaved(int id, QString fileName);
 	void slot_imageCaptured(int id, const QImage& image);
 	//串口模块响应槽函数
 	void on_btnPortRefreshClicked();
 	void on_btnPortOpenClicked();
 	void on_btnPortSendClicked();
+	void slot_portInfoChanged(const QString& text);
 	//摄像头分配槽函数
 	void slot_cameraInfoChanged(const QString& text);
 
@@ -156,14 +159,15 @@ public slots:
 
 	void slot_timeout();
 	void slot_comReadyRead();
-	void ReadOperationFromPort();
+	void slot_actReadyRead();
+	void slot_comBufferProcessor();
 	
 	void slot_baudRateChanged();
 	void on_btnStrategyConfirm();
 
 	void slot_onReceiveTimeout();
-	void slotInputStateChange(); // 输入状态改变功能
-	void slotReuseStateChange(); // 时间复用功能
+	void slot_inputStateChange(); // 输入状态改变功能
+	void slot_reuseStateChange(); // 时间复用功能
 
 	//void box_speedModified();
 };

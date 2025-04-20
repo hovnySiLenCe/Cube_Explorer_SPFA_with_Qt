@@ -20,7 +20,6 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	curPath = QDir::currentPath();		//获取当前工作路径
 
 	pTimer = new QTimer(this);			//构造并绑定计时器槽函数
-	pTimer->setInterval(50); //设置计时器间隔，用于刷新显示复原用时
 	pMyTimer = new MyTimer();
 	connect(pTimer, &QTimer::timeout, this, &CubeExplorerWithQt::slot_timeout);
 
@@ -33,11 +32,7 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	// 延时松手计时器
 	handReleaseDalayTimer = new QTimer(this);
 	handReleaseDalayTimer->setSingleShot(true);
-	connect(handReleaseDalayTimer, &QTimer::timeout, this, [this]() {
-		serialPort->write(QString("#2P0T200\r\n").toLatin1());
-		serialPort->write(QString("#4P0T200\r\n").toLatin1());
-		isToRestore = false;
-	});
+	connect(handReleaseDalayTimer, &QTimer::timeout, this, &CubeExplorerWithQt::on_btnResetClicked);
 
 	/*connect(ui.btn_tightOrLoose, SIGNAL(clicked()), this, SLOT(on_btnTightOrLooseClicked()));*/
 	
@@ -45,21 +40,15 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	connect(ui.btn_restore, SIGNAL(clicked()), this, SLOT(on_btnRestoreClicked()));
 
 	// 普通操作按钮
-	connect(ui.btn_camSwitch, SIGNAL(clicked()), this, SLOT(onbtnOpenCameraClicked()));
+	connect(ui.btn_camSwitch, SIGNAL(clicked()), this, SLOT(on_btnCameraClicked()));
 	connect(ui.btn_showSamRecs, SIGNAL(clicked()), this, SLOT(on_btnShowSamRecsClicked()));
 	connect(ui.btn_debug, SIGNAL(clicked()), this, SLOT(on_btnDebugClicked()));
 	connect(ui.btn_setHSV, SIGNAL(clicked()), this, SLOT(on_btnSetHSVClicked()));
-	connect(ui.btn_setDataSheet, SIGNAL(clicked()), this, SLOT(onSetDataSheetClicked()));
+	connect(ui.btn_setDataSheet, SIGNAL(clicked()), this, SLOT(on_btnSetDataSheetClicked()));
 
 	// 下位机操作按钮
-	//connect(ui.btn_reset, SIGNAL(clicked()), this, SLOT(onbtnResetClicked()));
-	connect(ui.btn_reset, &QPushButton::clicked, this, [this]() {
-        serialPort->write(QString("#9P0T000\r\n").toLatin1());
-		});
-	//connect(ui.btn_stop, SIGNAL(clicked()), this, SLOT(onbtnStopClicked()));
-	connect(ui.btn_stop, &QPushButton::clicked, this, [this]() {
-		serialPort->write(QString("#8P0T000\n\r").toLatin1());
-		});
+	connect(ui.btn_reset, SIGNAL(clicked()), this, SLOT(on_btnResetClicked()));
+	connect(ui.btn_stop, SIGNAL(clicked()), this, SLOT(on_btnStopClicked()));
 
 	// 动作按钮
 	connect(ui.btn_recog, SIGNAL(clicked()), this, SLOT(on_btnRecogClicked()));
@@ -67,8 +56,9 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	connect(ui.btn_sendAll, SIGNAL(clicked()), this, SLOT(slot_sendOperationSerial()));
 
 	// 可选择项
-	connect(ui.inputCheckBox, SIGNAL(clicked()), this, SLOT(slotInputStateChange()));
-	connect(ui.reuseCheckBox, SIGNAL(clicked()), this, SLOT(slotReuseStateChange()));
+	connect(ui.inputCheckBox, SIGNAL(clicked()), this, SLOT(slot_inputStateChange()));
+	connect(ui.reuseCheckBox, SIGNAL(clicked()), this, SLOT(slot_reuseStateChange()));
+	
 
 	// 消息框类
 	connect(ui.btn_clearMessage, &QPushButton::clicked, ui.plainTextEdit_SerialRX, &QPlainTextEdit::clear);
@@ -89,7 +79,7 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	InitCameraEvents();
 
 	// 初始化复原记录
-	LoadRestoreRecordsFromFile();
+	InitRestoreRecords();
 	//on_btnCameraClicked();
 
 	//初始化串口类对象
@@ -101,13 +91,13 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	serialPort->setStopBits(QSerialPort::OneStop);
 	serialPort->setFlowControl(QSerialPort::NoFlowControl);
 
-	connect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::ReadOperationFromPort);
+	connect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::slot_actReadyRead);
 
 }
 
 CubeExplorerWithQt::~CubeExplorerWithQt() {
 
-	SaveRestoreRecordsToFile();
+	writeRecords();
 
 	if (serialPort->isOpen()) {
 		serialPort->close();
@@ -125,69 +115,114 @@ CubeExplorerWithQt::~CubeExplorerWithQt() {
 
 void CubeExplorerWithQt::InitCameraEvents()
 {
-    // 定义相机名称和对应的UI组件映射
-    const QStringList cameraNames = {"FR", "U", "BL", "D"};
-    QMap<QString, QComboBox*> comboBoxMap = {
-        {"FR", ui.comboBox_cameraFR},
-        {"U", ui.comboBox_cameraU},
-        {"BL", ui.comboBox_cameraBL},
-        {"D", ui.comboBox_cameraD}
-    };
-    QMap<QString, QGraphicsView*> graViewMap = {
-        {"FR", ui.graView_cameraFR},
-        {"U", ui.graView_cameraU},
-        {"BL", ui.graView_cameraBL},
-        {"D", ui.graView_cameraD}
-    };
+	connect(ui.comboBox_cameraFR, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_cameraInfoChanged(QString)));
+	connect(ui.comboBox_cameraU, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_cameraInfoChanged(QString)));
+	connect(ui.comboBox_cameraBL, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_cameraInfoChanged(QString)));
+	connect(ui.comboBox_cameraD, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_cameraInfoChanged(QString)));
 
-    // 绑定组合框的信号槽
-    for (const QString& name : cameraNames) {
-        QComboBox* comboBox = comboBoxMap[name];
-        connect(comboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_cameraInfoChanged(QString)));
-    }
+	//摄像头显示区鼠标响应槽绑定
+	connect(ui.graView_cameraFR, SIGNAL(mouseReleased(QRect)), this, SLOT(slot_mouseReleasedInCameraViews(QRect)));
+	connect(ui.graView_cameraU, SIGNAL(mouseReleased(QRect)), this, SLOT(slot_mouseReleasedInCameraViews(QRect)));
+	connect(ui.graView_cameraBL, SIGNAL(mouseReleased(QRect)), this, SLOT(slot_mouseReleasedInCameraViews(QRect)));
+	connect(ui.graView_cameraD, SIGNAL(mouseReleased(QRect)), this, SLOT(slot_mouseReleasedInCameraViews(QRect)));
 
-    // 绑定图形视图的信号槽
-    for (const QString& name : cameraNames) {
-        QGraphicsView* graView = graViewMap[name];
-        connect(graView, SIGNAL(mouseReleased(QRect)), this, SLOT(slot_mouseReleasedInCameraViews(QRect)));
-    }
+	//菜单action绑定
+	connect(ui.actSetBlock, SIGNAL(triggered()), this, SLOT(slot_menuSetRecTriggered()));
+	connect(ui.actShowHSV, SIGNAL(triggered()), this, SLOT(slot_menuShowHSVTriggered()));
 
-    // 菜单动作绑定
-    connect(ui.actSetBlock, SIGNAL(triggered()), this, SLOT(slot_menuSetRecTriggered()));
-    connect(ui.actShowHSV, SIGNAL(triggered()), this, SLOT(slot_menuShowHSVTriggered()));
+	////获取可用摄像头信息
+	//list_cameraInfo.clear();
 
-    // 初始化视频显示组件
-    QMap<QString, QGraphicsVideoItem*> videoItems;
-    QMap<QString, QGraphicsScene*> scenes;
 
-    for (const QString& name : cameraNames) {
-        QGraphicsVideoItem* videoItem = new QGraphicsVideoItem;
-        videoItem->setSize(QSize(SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT));
-        videoItem->setPos(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2);
-        videoItems[name] = videoItem;
+	//ui.comboBox_cameraFR->addItem(QString::number(-1));
+	//ui.comboBox_cameraU->addItem(QString::number(-1));
+	//ui.comboBox_cameraBL->addItem(QString::number(-1));
+	//ui.comboBox_cameraD->addItem(QString::number(-1));
 
-        QGraphicsScene* scene = new QGraphicsScene(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2, SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT);
-        scenes[name] = scene;
+	//int i = 0;
+	//foreach(QCameraInfo info, QCameraInfo::availableCameras()) {
+	//	list_cameraInfo.append(info);
 
-        map_pic_pItem.insert(name, videoItem);
-        map_pic_pScene.insert(name, scene);
+	//	QCamera* camera_t = new QCamera(info);																//构建camera对象，存放到list_pCamera中
+	//	QCameraImageCapture* capture_t = new QCameraImageCapture(camera_t);									//并构建对应于当前摄像头的capture对象，存放到list_pCapture中
+	//	connect(capture_t, SIGNAL(imageSaved(int, QString)), this, SLOT(slot_imageSaved(int, QString)));	//
+	//	list_pCamera.append(camera_t);
+	//	list_pCapture.append(capture_t);
 
-        QGraphicsView* graView = graViewMap[name];
-        graView->setScene(scene);
-        graView->setCursor(Qt::CrossCursor);
-        graView->setDragMode(QGraphicsView::RubberBandDrag);
+	//	ui.comboBox_cameraFR->addItem(QString::number(i));
+	//	ui.comboBox_cameraU->addItem(QString::number(i));
+	//	ui.comboBox_cameraBL->addItem(QString::number(i));
+	//	ui.comboBox_cameraD->addItem(QString::number(i));
 
-        scene->addItem(videoItem);
-    }
+	//	i++;
+	//}
 
-    // 初始化摄像头索引映射
-    QMap<QString, int> cameraIndexMap = {
-        {"FR", 0}, {"U", 1}, {"BL", 2}, {"D", 3}
-    };
+	//初始化摄像头显示组件
+	videoItem_FR = new QGraphicsVideoItem;//
+	videoItem_FR->setSize(QSize(SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT));//
+	videoItem_FR->setPos(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2);//
 
-    for (const QString& name : cameraIndexMap.keys()) {
-        map_pic_cameraIndex.insert(name, cameraIndexMap[name]);
-    }
+	videoItem_U = new QGraphicsVideoItem;//
+	videoItem_U->setSize(QSize(SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT));//
+	videoItem_U->setPos(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2);//
+
+	videoItem_BL = new QGraphicsVideoItem;//
+	videoItem_BL->setSize(QSize(SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT));//
+	videoItem_BL->setPos(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2);//
+
+	videoItem_D = new QGraphicsVideoItem;//
+	videoItem_D->setSize(QSize(SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT));//
+	videoItem_D->setPos(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2);//
+
+	map_pic_pItem.insert("FR", videoItem_FR);//
+	map_pic_pItem.insert("U", videoItem_U);//
+	map_pic_pItem.insert("BL", videoItem_BL);//
+	map_pic_pItem.insert("D", videoItem_D);//
+
+	scene_FR = new QGraphicsScene(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2, SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT);//
+	scene_U = new QGraphicsScene(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2, SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT);//
+	scene_BL = new QGraphicsScene(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2, SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT);//
+	scene_D = new QGraphicsScene(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2, SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT);//
+
+	//在map中添加四个scene指针
+	map_pic_pScene.insert("FR", scene_FR);
+	map_pic_pScene.insert("U", scene_U);
+	map_pic_pScene.insert("BL", scene_BL);
+	map_pic_pScene.insert("D", scene_D);
+
+	ui.graView_cameraFR->setScene(scene_FR);//
+	ui.graView_cameraFR->setCursor(Qt::CrossCursor);//
+	ui.graView_cameraFR->setDragMode(QGraphicsView::RubberBandDrag);//
+
+	ui.graView_cameraU->setScene(scene_U);//
+	ui.graView_cameraU->setCursor(Qt::CrossCursor);//
+	ui.graView_cameraU->setDragMode(QGraphicsView::RubberBandDrag);//
+
+	ui.graView_cameraBL->setScene(scene_BL);//
+	ui.graView_cameraBL->setCursor(Qt::CrossCursor);//
+	ui.graView_cameraBL->setDragMode(QGraphicsView::RubberBandDrag);//
+
+	ui.graView_cameraD->setScene(scene_D);//
+	ui.graView_cameraD->setCursor(Qt::CrossCursor);//
+	ui.graView_cameraD->setDragMode(QGraphicsView::RubberBandDrag);//
+
+	//在四个scene中分别添加视频显示组件
+	scene_FR->addItem(videoItem_FR);				//
+	scene_U->addItem(videoItem_U);					//
+	scene_BL->addItem(videoItem_BL);				//
+	scene_D->addItem(videoItem_D);					//
+
+	//指针数组下标填充
+	map_pic_cameraIndex.insert("FR", 0);	//
+	map_pic_cameraIndex.insert("U", 1);		//
+	map_pic_cameraIndex.insert("BL", 2);	//
+	map_pic_cameraIndex.insert("D", 3);		//
+
+	//ui.comboBox_cameraFR->setCurrentIndex(0);//
+	//ui.comboBox_cameraU->setCurrentIndex(1);//
+	//ui.comboBox_cameraBL->setCurrentIndex(2);//
+	//ui.comboBox_cameraD->setCurrentIndex(3);//
+
 }
 
 // 捕获并存储相机文件
@@ -205,37 +240,78 @@ void CubeExplorerWithQt::CaptureImage() {
 }
 
 
-
-void CubeExplorerWithQt::ShowRecogResultOnScene(std::string strRec)
+void CubeExplorerWithQt::showRecogResult(std::string strRec)
 {
-    // 定义一个辅助函数，用于设置每个方向的场景
-    auto setupScene = [&](const QString& imagePath, QGraphicsView* graphicsView) {
-        std::unique_ptr<QGraphicsScene> scene(new QGraphicsScene);
-        std::unique_ptr<QImage> image(new QImage);
+	//strRec = ui.plainTextEdit_portWrite->toPlainText().toStdString();
+	//strRec = "RRRRURRRRBBBBRBBBBDDDDFDDDDLLLLDLLLLFFFFLFFFFUUUUBUUUU";
+	//strRec = "FRDFUULUDLBLLRBFRBBLFRFBDLRFDUFDFRBRLDULLUBURBDURBFDDU";
+	//strRec = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
+	//strRec = "DDDDUUULLDRRRRLDLUFBBBFBFFFUULDDULRRRRLDLUULRFFBFBBBFB";
 
-        if (!image->load(imagePath)) {
-            qWarning() << "Failed to load image from path:" << imagePath;
-            return; // 如果加载失败，直接返回，避免后续操作
-        }
+	//CreateSceneFromStr(strRec);
 
-        QImage imageTmp = image->scaled(graphicsView->width() - 10, graphicsView->height() - 10);
-        scene->addPixmap(QPixmap::fromImage(imageTmp));
-        graphicsView->setScene(scene.release()); // 释放场景的所有权给图形视图
-        graphicsView->show();
-    };
+	//把识别结果显示在界面上
+	QGraphicsScene* scene_rec_F = new QGraphicsScene;
+	QGraphicsScene* scene_rec_R = new QGraphicsScene;
+	QGraphicsScene* scene_rec_U = new QGraphicsScene;
+	QGraphicsScene* scene_rec_B = new QGraphicsScene;
+	QGraphicsScene* scene_rec_L = new QGraphicsScene;
+	QGraphicsScene* scene_rec_D = new QGraphicsScene;
+	QImage* image = new QImage();
+	QImage imageTmp;
 
-    // 设置各个方向的场景
-    setupScene("./pic_res/res_r.png", ui.graphicsView_R);
-    setupScene("./pic_res/res_f.png", ui.graphicsView_F);
-    setupScene("./pic_res/res_u.png", ui.graphicsView_U);
-    setupScene("./pic_res/res_b.png", ui.graphicsView_B);
-    setupScene("./pic_res/res_l.png", ui.graphicsView_L);
-    setupScene("./pic_res/res_d.png", ui.graphicsView_D);
+	// 在窗体上生成识别结果窗口
+	image->load(QString("./pic_res/res_r.png"));
+	imageTmp = image->scaled(ui.graphicsView_R->width() - 10, ui.graphicsView_R->height() - 10);
+	scene_rec_R->addPixmap(QPixmap::fromImage(imageTmp));
+	ui.graphicsView_R->setScene(scene_rec_R);
+	ui.graphicsView_R->show();
+
+	image->load(QString("./pic_res/res_f.png"));
+	imageTmp = image->scaled(ui.graphicsView_F->width() - 10, ui.graphicsView_F->height() - 10);
+	scene_rec_F->addPixmap(QPixmap::fromImage(imageTmp));
+	ui.graphicsView_F->setScene(scene_rec_F);
+	ui.graphicsView_F->show();
+
+	image->load(QString("./pic_res/res_u.png"));
+	imageTmp = image->scaled(ui.graphicsView_U->width() - 10, ui.graphicsView_U->height() - 10);
+	scene_rec_U->addPixmap(QPixmap::fromImage(imageTmp));
+	ui.graphicsView_U->setScene(scene_rec_U);
+	ui.graphicsView_U->show();
+
+	image->load(QString("./pic_res/res_b.png"));
+	imageTmp = image->scaled(ui.graphicsView_B->width() - 10, ui.graphicsView_B->height() - 10);
+	scene_rec_B->addPixmap(QPixmap::fromImage(imageTmp));
+	ui.graphicsView_B->setScene(scene_rec_B);
+	ui.graphicsView_B->show();
+
+	image->load(QString("./pic_res/res_l.png"));
+	imageTmp = image->scaled(ui.graphicsView_L->width() - 10, ui.graphicsView_L->height() - 10);
+	scene_rec_L->addPixmap(QPixmap::fromImage(imageTmp));
+	ui.graphicsView_L->setScene(scene_rec_L);
+	ui.graphicsView_L->show();
+
+	image->load(QString("./pic_res/res_d.png"));
+	imageTmp = image->scaled(ui.graphicsView_D->width() - 10, ui.graphicsView_D->height() - 10);
+	scene_rec_D->addPixmap(QPixmap::fromImage(imageTmp));
+	ui.graphicsView_D->setScene(scene_rec_D);
+	ui.graphicsView_D->show();
 }
 
-void CubeExplorerWithQt::LoadRestoreRecordsFromFile() {
+void CubeExplorerWithQt::Sleep(int sec) {
+	QDateTime last = QDateTime::currentDateTime();
+	QDateTime now;
+	while (1) {
+		now = QDateTime::currentDateTime();
+		if (last.msecsTo(now) >= sec) {
+			break;
+		}
+	}
+}
 
-	QFile file_record(QDir::currentPath() + "/Data/restoreRecord.txt");	
+void CubeExplorerWithQt::InitRestoreRecords() {
+
+	QFile file_record(QDir::currentPath() + "/data/restoreRecord.txt");	
 	file_record.open(QIODevice::ReadOnly);
 	QTextStream ts(&file_record);
 	QString str_record = ts.readAll();
@@ -251,7 +327,7 @@ void CubeExplorerWithQt::LoadRestoreRecordsFromFile() {
 	file_record.close();
 }
 
-void CubeExplorerWithQt::SaveRestoreRecordsToFile()
+void CubeExplorerWithQt::writeRecords()
 {
 	QString data2write;
 	for (int i = 0; i < list_restoreRecords.size(); i++) {
@@ -299,6 +375,9 @@ void CubeExplorerWithQt::slot_sendOperationSerial() {
 //优化解算方法
 void CubeExplorerWithQt::on_btnSendSingleClicked() { // 单步执行解算
 
+	/*serialPort->write(QString("#4P1T200\r\n").toLatin1());*/
+//	serialPort->write(QString("#5P0T200\r\n").toLatin1());
+
 	if (cubeExplorerSPFA->GetVecStrSerial().empty()) {
 		serialPort->write(QString("#2P0T200\r\n").toLatin1());
 		serialPort->write(QString("#4P0T200\r\n").toLatin1());
@@ -306,7 +385,7 @@ void CubeExplorerWithQt::on_btnSendSingleClicked() { // 单步执行解算
 		serialPort->flush();
 		return;
 	}
-	serialPort->write(QString::fromStdString(cubeExplorerSPFA->GetVecStrSerial()[0]).toLatin1());
+	serialPort->write(QString(cubeExplorerSPFA->GetVecStrSerial()[0].c_str()).toLatin1());
 	cubeExplorerSPFA->GetVecStrSerial().erase(cubeExplorerSPFA->GetVecStrSerial().begin());
 }
 
@@ -337,7 +416,7 @@ void CubeExplorerWithQt::on_btnResetClicked() {
 
 	serialPort->write(QString("#2P0T200\r\n").toLatin1());
 	serialPort->write(QString("#4P0T200\r\n").toLatin1());
-	isToRestore = false;
+	bRestore = false;
 
 	/*if (!cubeExplorer.handState.left.isReady) {
 		serialPort->write(QString("#1P90T200\r\n").toLatin1());
@@ -356,22 +435,20 @@ void CubeExplorerWithQt::on_btnResetClicked() {
 }
 
 void CubeExplorerWithQt::on_btnRestoreClicked() {
-	pMyTimer->reset(), pMyTimer->start(); // 重置用时计时器
-	pTimer->start(); // 开始动态显示计时器
-
+	pTimer->setInterval(50), pMyTimer->reset();
+	pTimer->start(), pMyTimer->start();
 	serialPort->write(QString("#2P1T75\r\n").toLatin1());
 	serialPort->write(QString("#4P1T75\r\n").toLatin1());
 	serialPort->flush();
-
-	isToRestore = true; // 设置复原标志为真
-	CaptureImage(); // 调用拍照函数，全部完成后继续执行
-
+	bRestore = true; CaptureImage();
+	//continueRestore();
 }
 #define REALRU
-void CubeExplorerWithQt::SolveAndRestore()
+void CubeExplorerWithQt::continueRestore()
 {
 	//2.进行识别得到识别字符串
-	std::string strRec = ""; char* cp; char* res;
+	std::string strRec = "";
+	char* cp; char* res;
 
 #ifdef REALRUN
 	strRec = recognizeNew();
@@ -390,7 +467,7 @@ void CubeExplorerWithQt::SolveAndRestore()
 
 	double st = clock(), ed;
 	cp = new char[strRec.length() + 1];
-	ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("识别中...\n"));
+	ui.plainTextEdit_portWrite->setPlainText("识别中");
 	strcpy(cp, strRec.c_str()); res = CubeSolver(cp, NULL);
 
 	//std::string tmp = "";
@@ -399,12 +476,11 @@ void CubeExplorerWithQt::SolveAndRestore()
 	//res = ui.plainTextEdit_portWrite->toPlainText().toStdString();
 	//res = "U2L3B3U2R3U3L2B2U1R3R2D3R2U1R2U3F2U1F2U3F2U2L2F2R2F2D2L2D2L2B2";
 	if (!res) {
-		ShowRecogResultOnScene(strRec);
+		showRecogResult(strRec);
 		ui.label_UI_message->setText(QStringLiteral("识别序列有误！"));
 		ui.plainTextEdit_portWrite->setPlainText(QStringLiteral("识别序列有误！"));
-		ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("识别序列有误！\n"));
 		pTimer->stop(); //停止计时器
-		hasRobotStarted = false;
+		bResponseStart = true;
 #ifdef REALRUN
 		saveCaptureMat(curPath.toStdString() + "/pic_cam/cam_");
 #endif // 
@@ -416,17 +492,18 @@ void CubeExplorerWithQt::SolveAndRestore()
 	}
 	else cubeExplorerSPFA->SaveMechanicalStep();
 
+	/*cubeExplorerSPFA->GetShortestPath(res);
+	cubeExplorerSPFA->SaveMechanicalStep();*/
 	//5.通过串口通信把串口序列传递给控制机，并使用listView控件实时显示操作序列传输情况
-	if (isToRestore) slot_sendOperationSerial();
+	if (bRestore) slot_sendOperationSerial();
 	else {
 		serialPort->write(QString("#2P0T200\r\n").toLatin1());
 		serialPort->write(QString("#4P0T200\r\n").toLatin1());
 	}
-
 	ed = clock();
 	std::string strDisplay = "";
 	
-	ShowRecogResultOnScene(strRec);
+	showRecogResult(strRec);
 	ui.label_UI_message->setText(QStringLiteral("识别正确！"));
 	strDisplay += "RecogResult: " + strRec + "\r\n      Solve6: " + res;
 	//ui.plainTextEdit_portWrite->setPlainText(QString("RecogResult: ") + strRec.c_str() + QString("\r\n      ") + strDisplay.c_str());
@@ -439,8 +516,8 @@ void CubeExplorerWithQt::SolveAndRestore()
 	strDisplay += (cubeExplorerSPFA->reuseFlag == true) ? " (True)" : " (False)";
 	strDisplay += "\r\n      Total: " + to_string(steps) + " steps" + "\r\n      Time: " + to_string(int(ed - st)) + "ms";
 	
-	ui.plainTextEdit_portWrite->setPlainText(QString::fromStdString(strDisplay));
-	ui.label_restoreCnt->setText(QString::number(steps));
+	ui.plainTextEdit_portWrite->setPlainText(strDisplay.c_str());
+	ui.label_restoreCnt->setText(to_string(steps).c_str());
 
 #ifdef REALRUN
 	saveCaptureMat(curPath.toStdString() + "/pic_cam/cam_");
@@ -475,7 +552,7 @@ cv::Mat CubeExplorerWithQt::QImageToCvMat(const QImage& image) {
 	return mat;
 }
 
-void CubeExplorerWithQt::SaveCaptureMatToFile(string curPath)
+void CubeExplorerWithQt::saveCaptureMat(string curPath)
 {
 	for (int i = 0; i < 4; i++)
 		cv::imwrite(curPath + list_picID[i].toStdString() + ".jpg", captureMatSet[i]);
@@ -488,9 +565,10 @@ void CubeExplorerWithQt::on_btnDebugClicked() {
 	dw.exec();
 }
 
-void CubeExplorerWithQt::onbtnOpenCameraClicked() {
-	if (isCameraOpen) return;
-	isCameraOpen = true;
+void CubeExplorerWithQt::on_btnCameraClicked() {
+	cameraIsOpen = false;
+	if (cameraIsOpen) return;
+	cameraIsOpen = true;
 
 	//刷新可用摄像头信息（打开摄像头开关）
 	list_cameraInfo.clear();
@@ -526,7 +604,7 @@ void CubeExplorerWithQt::onbtnOpenCameraClicked() {
 		list_pCapture.append(capture_t);																	//																//
 		//list_pSnap.append(snap_t);
 
-		ui.comboBox_cameraFR->addItem(QString::number(i));
+		ui.comboBox_cameraFR->addItem(QString::number(i)); // 这里设置了四个摄像头，以前是三个
 		ui.comboBox_cameraU->addItem(QString::number(i));
 		ui.comboBox_cameraBL->addItem(QString::number(i));
 		ui.comboBox_cameraD->addItem(QString::number(i));
@@ -593,15 +671,15 @@ void CubeExplorerWithQt::on_btnShowSamRecsClicked(){
 }
 
 void CubeExplorerWithQt::on_btnRecogClicked() {
-	isToRestore = false;
+	bRestore = false;
 
 #ifdef REALRUN
 	CaptureImage();
 #endif // REALRUN
 
 #ifndef REALRUN
-	if (inputFromBox) SolveAndRestore();
-	else if(isCameraOpen) CaptureImage();
+	if (inputFromBox) continueRestore();
+	else if(cameraIsOpen) CaptureImage();
 	else QMessageBox::warning(this, "warning", QStringLiteral("请先打开摄像头"));
 #endif // !REALRUN
 }
@@ -613,16 +691,20 @@ void CubeExplorerWithQt::on_btnSetHSVClicked(){
 	td.show(); td.exec();
 }
 
-void CubeExplorerWithQt::onSetDataSheetClicked()
+void CubeExplorerWithQt::on_btnStopClicked()
 {
-	disconnect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::ReadOperationFromPort);
-	ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("数据表设置中，请稍等...\n"));
+	serialPort->write("#S\n\r");
+}
+
+void CubeExplorerWithQt::on_btnSetDataSheetClicked()
+{
+	disconnect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::slot_actReadyRead);
+	ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("数据表设置中，请稍等..."));
 	DataSheetWidget dsw(serialPort, this);
 	dsw.setWindowTitle(QStringLiteral("数据表设置"));
 	dsw.show();
 	dsw.exec();
-	ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("数据表设置完成\n"));
-	connect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::ReadOperationFromPort);
+	//connect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::slot_comReadyRead);
 }
 
 //右键菜单响应槽函数
@@ -685,6 +767,44 @@ void CubeExplorerWithQt::slot_setRecArea(QString groupName,QRect rect,int faceID
 
 }
 
+
+
+void CubeExplorerWithQt::slot_imageSaved(int id, QString fileName)
+{
+	//if (fileName.indexOf("HSV")!=-1) {				//确认当前操作是统计HSV数值
+	//	cv::Mat mat_t = cv::imread(fileName.toStdString());
+	//	cv::resize(mat_t, mat_t, cv::Size(640, 320));
+	//	int x = (rec_tSelect.x() - 5) * 2;
+	//	int y = (rec_tSelect.y() - 5) * 2;
+	//	cv::Mat imgBGR = mat_t(cv::Range(y, y + rec_tSelect.height() * 2), cv::Range(x, x + rec_tSelect.width() * 2));
+	//	HSVDataDialog HSVDialog(imgBGR, this);
+	//	HSVDialog.setWindowTitle(QStringLiteral("HSV数据统计"));
+	//	HSVDialog.setMinimumWidth(700);
+	//	HSVDialog.show();
+	//	HSVDialog.exec();
+	//}
+	//else 
+	//	nImgSaved++;								//拍照计数器递增，用于在复原前判断截图保存是否完成
+	if (++nImgSaved == 4) continueRestore();
+
+//策略1--------------------------------------------------------------------------------
+	//if (nImgSaved == 3) {
+
+	//	//c.右手夹紧，左手松开，为下次拍照做好准备
+	//	serialPort->write(QString("#4P1T200\r\n").toLatin1());
+	//	serialPort->write(QString("#2P5T200\r\n").toLatin1());
+	//	serialPort->flush();
+	//	cubeExplorer.handState.left.isTight = false;
+	//	cubeExplorer.handState.right.isTight = true;
+	//	Sleep(captureInterval);
+
+/*		capture("case2");	*/						//三张图片保存完毕，case1拍照成功，进行case2的拍照
+	//}
+	//if (nImgSaved == 6) continueRestore();			//六张图片保存完毕，case2拍照成功，发送信号进行后续复原操作
+//-------------------------------------------------------------------------------------
+
+}
+
 void CubeExplorerWithQt::slot_imageCaptured(int id, const QImage& image)
 {
 	QCameraImageCapture* senderCapture = qobject_cast<QCameraImageCapture*>(sender());
@@ -694,8 +814,20 @@ void CubeExplorerWithQt::slot_imageCaptured(int id, const QImage& image)
 
 	captureMatSet[pId] = QImageToCvMat(image.scaled(640, 360, Qt::IgnoreAspectRatio));
 
+	//string filename = curPath.toStdString() + "/pic_cam/cam_" + list_picID[pId].toStdString() + "_raw.jpg";
+	//image.save(filename.c_str());
+	//filename = curPath.toStdString() + "/pic_cam/cam_" + list_picID[pId].toStdString() + "_press.jpg";
+	//pressImg.save(filename.c_str());
+	//ofstream out;
+	//out.open("captest.txt", std::ios::app);
+	//out << "current id = " << id << endl;
+	//out << "raw format: " << image.format() << " press format: " << pressImg.format()<< " QImage::Format_RGB888:"<< QImage::Format_RGB888 << endl;
+	//out << filename<< " " << pId << endl;
+	//out.close();
+	//cv::imwrite(curPath.toStdString() + "/pic_cam/cam_" + list_picID[pId].toStdString() + ".jpg", captureMatSet[pId]);
+	//
 	sampleFromPic(captureMatSet[pId], list_picID[pId]);
-	if (++nImgSaved == 4) SolveAndRestore();
+	if (++nImgSaved == 4) continueRestore();
 }
 
 //串口模块响应槽函数
@@ -726,7 +858,11 @@ void CubeExplorerWithQt::on_btnPortSendClicked() // 向串口发送输入框内信息
 		serialPort->write(ui.plainTextEdit_portWrite->toPlainText().toLatin1());
 		serialPort->flush();
 	}
-	else QMessageBox::warning(this, "Warning", QStringLiteral("串口未打开！！！"));
+	else ui.label_portMessage->setText(QStringLiteral("串口未打开！！！"));
+}
+
+void CubeExplorerWithQt::slot_portInfoChanged(const QString & text) {
+	serialPort->setPortName(text);
 }
 
 void CubeExplorerWithQt::slot_cameraInfoChanged(const QString & text)
@@ -751,14 +887,39 @@ void CubeExplorerWithQt::slot_timeout() {
 
 void CubeExplorerWithQt::slot_onReceiveTimeout()
 {
+	//QByteArray byteTmp=serialPort->readAll();
+	//serialPort->clear(QSerialPort::Input);
 	if (!byteTmp->isEmpty()) {
 		QString decodedString = QTextCodec::codecForName("GB18030")->toUnicode(*byteTmp);
 		ui.plainTextEdit_SerialRX->insertPlainText(decodedString);
+
+		////QString StrbyteTmp = QString(byteTmp);
+		////ui.plainTextEdit_SerialRX->insertPlainText(StrbyteTmp);
+		//if (byteTmp->contains("Sta") && bRestore == false) {//
+		//	//接收到开始按钮指令，开始复原
+		//	on_btnRestoreClicked();
+		//	ui.label_UI_message->setText(QStringLiteral("串口收到开始信号"));
+		//}
+		//else if (byteTmp->contains("Ove")) {
+		//	pTimer->stop();
+		//	//int cnt = cubeExplorer.transCnt;
+		//	double time = double(int(pMyTimer->getTime() * 100)) / 100;
+		//	//list_restoreRecords.push_back(RestoreRecord(cnt, time));
+		//	ui.label_UI_message->setText(QStringLiteral("串口收到结束信号"));
+		//	bResponseStart = true;
+		//}
+		//else if (byteTmp->contains("Reset")) {
+		//	//接收到开机指令
+		//	bResponseStart = true;
+		//}/*
+		//else if (byteTmp.contains("Pause")) {
+		//	bResponseStart = true;
+		//}*/
 		byteTmp->clear();
 	}
 }
 
-void CubeExplorerWithQt::slotInputStateChange()
+void CubeExplorerWithQt::slot_inputStateChange()
 {
 	if (inputFromBox) ui.label_inputState->setText(QStringLiteral("已取消输入框输入"));
 	else ui.label_inputState->setText(QStringLiteral("请从输入框输入"));
@@ -766,7 +927,7 @@ void CubeExplorerWithQt::slotInputStateChange()
 		
 }
 
-void CubeExplorerWithQt::slotReuseStateChange()
+void CubeExplorerWithQt::slot_reuseStateChange()
 {
 	cubeExplorerSPFA->reuseFlag ^= true;
 	if(cubeExplorerSPFA->reuseFlag)
@@ -777,11 +938,12 @@ void CubeExplorerWithQt::slotReuseStateChange()
 void CubeExplorerWithQt::slot_comReadyRead()
 {
 	QByteArray newData = serialPort->readAll();
+	serialPort->clear(QSerialPort::Input);
 	byteTmp->append(newData);
 	timeoutTimer->start(100);
 }
 
-void CubeExplorerWithQt::ReadOperationFromPort()
+void CubeExplorerWithQt::slot_actReadyRead()
 {
 	QByteArray comByteBuffer = serialPort->readAll();
 	if (!comByteBuffer.isEmpty()) {
@@ -790,39 +952,33 @@ void CubeExplorerWithQt::ReadOperationFromPort()
 		ui.plainTextEdit_SerialRX->ensureCursorVisible();        // 确保光标可见
 		
 		if (comByteBuffer.contains("#Start")) {//
-			if (hasRobotStarted || !isCameraOpen) return;
+			if (!bResponseStart || !cameraIsOpen) return;
 		//接收到开始按钮指令，开始复原
-			hasRobotStarted = true;
+			bResponseStart = false;
 			on_btnRestoreClicked();
 			ui.label_UI_message->setText(QStringLiteral("串口收到开始信号"));
 		}
 		else if (comByteBuffer.contains("#Over")) {
-			pTimer->stop(); isToRestore = false;
+			pTimer->stop(); bRestore = false;
 			//int cnt = cubeExplorer.transCnt;
 			double time = double(int(pMyTimer->getTime() * 100)) / 100;
 			//list_restoreRecords.push_back(RestoreRecord(cnt, time));
 			ui.label_UI_message->setText(QStringLiteral("串口收到结束信号"));
-			hasRobotStarted = false;
+			bResponseStart = true;
 			handReleaseDalayTimer->start(500);
 		}
 		else if (comByteBuffer.contains("#Reset")) {
-			hasRobotStarted = false;
+			bResponseStart = true;
 		}
 		else if (comByteBuffer.contains("#Relax")) {
-			hasRobotStarted = false;
+			bResponseStart = true;
 		}
 	}
 }
 
-void CubeExplorerWithQt::Sleep(int sec) {
-	QDateTime last = QDateTime::currentDateTime();
-	QDateTime now;
-	while (1) {
-		now = QDateTime::currentDateTime();
-		if (last.msecsTo(now) >= sec) {
-			break;
-		}
-	}
+void CubeExplorerWithQt::slot_comBufferProcessor()
+{
+
 }
 
 void CubeExplorerWithQt::slot_baudRateChanged()
@@ -835,10 +991,10 @@ void CubeExplorerWithQt::slot_baudRateChanged()
 	switch (baudRate) {
 	case 9600:
 		disconnect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::slot_comReadyRead);
-		connect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::ReadOperationFromPort);
+		connect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::slot_actReadyRead);
 		break;
 	case 115200:
-		disconnect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::ReadOperationFromPort);
+		disconnect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::slot_actReadyRead);
 		connect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::slot_comReadyRead);
 		break;
 	}

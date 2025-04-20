@@ -9,19 +9,25 @@ DataSheetWidget::DataSheetWidget(QSerialPort* serialPort, QWidget* parent) :
     //m_keySet = ParaKeySet();
 
     // 下位机操作
-    connect(ui->btn_readPara, &QPushButton::clicked, this, &DataSheetWidget::on_btnReadParaClicked);
-    connect(ui->btn_confModi, &QPushButton::clicked, this, &DataSheetWidget::on_btnConfModiClicked);
+    connect(ui->btn_readPara, &QPushButton::clicked, this, &DataSheetWidget::onbtnReadParaClicked);
+    connect(ui->btn_confModi, &QPushButton::clicked, this, &DataSheetWidget::onbtnConfModiClicked);
 
     // 策略组操作
-    connect(ui->btn_saveStrategy, &QPushButton::clicked, this, &DataSheetWidget::on_btnSaveStrategyClicked);
-    connect(ui->btn_delStrategy, &QPushButton::clicked, this, &DataSheetWidget::on_btnDelStrategyClicked);
-    connect(ui->btn_resetStrategy, &QPushButton::clicked, this, &DataSheetWidget::on_btnResetStrategyClicked);
+    connect(ui->btn_saveStrategy, &QPushButton::clicked, this, &DataSheetWidget::onbtnSaveStrategyClicked);
+    connect(ui->btn_delStrategy, &QPushButton::clicked, this, &DataSheetWidget::onbtnDelStrategyClicked);
+    connect(ui->btn_resetStrategy, &QPushButton::clicked, this, &DataSheetWidget::onbtnResetStrategyClicked);
     connect(ui->list_strategy, &QListWidget::itemDoubleClicked, this, &DataSheetWidget::slot_OpenSelectedStrategy);
-    connect(ui->list_strategy, &QListWidget::itemChanged, this, &DataSheetWidget::on_ListItemChanged);
+    connect(ui->list_strategy, &QListWidget::itemChanged, this, &DataSheetWidget::onListItemChanged);
     
+    // 策略组文件操作
+    connect(ui->btn_exportFile, &QPushButton::clicked, this, &DataSheetWidget::onbtnExportFileClicked);
+    connect(ui->btn_importFile, &QPushButton::clicked, this, &DataSheetWidget::onbtnImportFileClicked);
+
     // 串口连接
     connect(serialPort, &QSerialPort::readyRead, this, &DataSheetWidget::slot_ReadParaFromSerial);
-
+    // 消息框
+    connect(ui->btn_clearMessage, &QPushButton::clicked, ui->text_portMessage, &QPlainTextEdit::clear);
+    
     LoadKeyFromUI();
     LoadFromFile("parameters.json");
     UpdateCurrentSetFromUI();
@@ -37,31 +43,61 @@ DataSheetWidget::~DataSheetWidget()
    delete ui;
 }
 
-void DataSheetWidget::on_btnReadParaClicked() {
+void DataSheetWidget::onbtnReadParaClicked() {
     if (!serialPort->isOpen()) {
         QMessageBox::warning(this, "error", QStringLiteral("串口未打开！"));
         return;
     }
     if (IsCurrentSetDiffFromUI() && IsUserCancelAction(QStringLiteral("你有修改未保存"))) return;
+
+    disconnect(serialPort, &QSerialPort::readyRead, this, &DataSheetWidget::slot_ReadParaFromSerial);
+
     serialPort->write(QString("#RP0T000\n\r").toLatin1());
+    QByteArray comByteBuffer = "";
+    while (serialPort->waitForReadyRead(100))
+        comByteBuffer.append(serialPort->readAll());
+    ui->text_portMessage->insertPlainText(comByteBuffer);
+
+    while (comByteBuffer.contains("#DS")) {
+        comByteBuffer.remove(0, comByteBuffer.indexOf("#DS") + 3);
+        if (comByteBuffer.startsWith("END")) {
+            UpdateUIFromCurrentSet(); break;
+        }
+        m_currentSet.SetParameter(comByteBuffer.mid(0, 6).toInt());
+    }
+    ui->text_portMessage->insertPlainText(QStringLiteral("读取参数：\n"));
+
+    for (int i = 0; i < MAX_PARAM_NUM; i++) {
+        if (m_currentSet.param[i])
+            ui->text_portMessage->insertPlainText(QString("%1").arg(m_currentSet.param[i], 4, 10, QChar('0')) + " ");
+        if (i % 10 == 9) ui->text_portMessage->insertPlainText("\n");
+    }
+
     ui->label_message->setText(QStringLiteral("读取成功！"));
+
+    connect(serialPort, &QSerialPort::readyRead, this, &DataSheetWidget::slot_ReadParaFromSerial);
 }
 
-void DataSheetWidget::on_btnConfModiClicked()
+void DataSheetWidget::onbtnConfModiClicked()
 {
     if (!serialPort->isOpen()) {
         QMessageBox::warning(this, "error", QStringLiteral("串口未打开！"));
         return;
     }
+    ui->text_portMessage->insertPlainText(QStringLiteral("上位机参数：\n"));
     for (int i = 0; i < MAX_PARAM_NUM; i++) {
-        //QMessageBox::warning(this, "error", QString("#WP%1T%2\n\r").arg(i, 2).arg(m_currentSet.param[i], 4));
-        serialPort->write(QString("#W%1%2\n\r").arg(0, 2, 10, QLatin1Char('0')).arg(m_currentSet.param[0], 4, 10, QLatin1Char('0')).toLatin1());
+        ui->text_portMessage->insertPlainText(QString::number(m_currentSet.param[i]) + " ");
+        if (i % 10 == 9) ui->text_portMessage->insertPlainText("\n");
+    }
+    
+    for (int i = 0; i < MAX_PARAM_NUM; i++) {
+        serialPort->write(QString("#W%1%2\n\r").arg(i, 2, 10, QLatin1Char('0')).arg(m_currentSet.param[i], 4, 10, QLatin1Char('0')).toLatin1());
     }
     serialPort->write("#EP0T000\n\r");
     ui->label_message->setText(QStringLiteral("发送成功！"));
 }
 
-void DataSheetWidget::on_btnSaveStrategyClicked()
+void DataSheetWidget::onbtnSaveStrategyClicked()
 {
     QString versionName = ui->text_versionName->text().trimmed();
     if (versionName.isEmpty()) {
@@ -81,7 +117,7 @@ void DataSheetWidget::on_btnSaveStrategyClicked()
     m_versions.insert(versionName, m_currentSet);
 }
 
-void DataSheetWidget::on_btnDelStrategyClicked()
+void DataSheetWidget::onbtnDelStrategyClicked()
 {
     if (ui->list_strategy->currentRow() < 2) {
         QMessageBox::warning(this, "error", QStringLiteral("系统选项无法删除"));
@@ -96,7 +132,7 @@ void DataSheetWidget::on_btnDelStrategyClicked()
     }
 }
 
-void DataSheetWidget::on_btnResetStrategyClicked()
+void DataSheetWidget::onbtnResetStrategyClicked()
 {
     // reset parameters
     if (IsCurrentSetDiffFromUI() && IsUserCancelAction(QStringLiteral("你有修改未保存"))) return;
@@ -106,7 +142,7 @@ void DataSheetWidget::on_btnResetStrategyClicked()
     UpdateUIFromCurrentSet();
 }
 
-void DataSheetWidget::on_ListItemChanged(QListWidgetItem* item)
+void DataSheetWidget::onListItemChanged(QListWidgetItem* item)
 {
     // 获取修改后的文本
     QString newName = item->text().trimmed();
@@ -134,10 +170,78 @@ void DataSheetWidget::slot_OpenSelectedStrategy(QListWidgetItem *item)
     UpdateUIFromCurrentSet();
 }
 
+void DataSheetWidget::onbtnExportFileClicked()
+{
+    // 获取保存路径
+    QString filePath = QFileDialog::getSaveFileName(
+        this,
+        QStringLiteral("导出文件"),
+        QDir::currentPath()+"/Data/parameters.json",
+        QStringLiteral("JSON 文件 (*.json);;所有文件 (*)")
+    );
+
+    if (filePath.isEmpty()) return; // 用户取消操作
+
+    QVariantMap allData;
+    for (auto it = m_versions.constBegin(); it != m_versions.constEnd(); ++it) {
+        allData.insert(it.key(), m_keySet.toVariantMap(it.value()));
+    }
+    // 写入文件
+    QFile file(filePath);
+    if (file.open(QIODevice::WriteOnly)) {
+        QJsonDocument doc(QJsonObject::fromVariantMap(allData));
+        file.write(doc.toJson());
+        file.close();
+        QMessageBox::information(this, "Success", QStringLiteral("文件导出成功！"));
+    }
+    else {
+        QMessageBox::critical(this, "Error", QStringLiteral("无法创建文件：") + file.errorString());
+    }
+}
+
+void DataSheetWidget::onbtnImportFileClicked()
+{
+    // 获取打开路径
+    QString filePath = QFileDialog::getOpenFileName(
+        this,
+        QStringLiteral("导入文件"),
+        QDir::currentPath() + "/Data/",
+        QStringLiteral("JSON 文件 (*.json);;所有文件 (*)")
+    );
+
+    if (filePath.isEmpty()) return; // 用户取消操作
+
+    QFile file(filePath);
+    if (file.open(QIODevice::ReadOnly)) {
+        m_versions.clear();
+        QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+        QVariantMap data = doc.object().toVariantMap();
+        for (auto it = data.constBegin(); it != data.constEnd(); ++it) {
+            m_versions.insert(it.key(), m_keySet.fromVariantMap(it.value().toMap()));
+        }
+    }
+    else QMessageBox::critical(this, "Error", QStringLiteral("无法打开文件：") + file.errorString());
+    // 从最后一项开始删除
+    int itemCount = ui->list_strategy->count();
+    for (int i = itemCount - 1; i >= 2; --i) {
+        QListWidgetItem* item = ui->list_strategy->takeItem(i);
+        delete item; // 手动释放内存
+    }
+    if (!m_versions.isEmpty()) {
+        for (auto it = m_versions.begin(); it != m_versions.end(); ++it) {
+            if (it.key() == QStringLiteral("默认参数") || it.key() == QStringLiteral("历史恢复数据")) continue;
+            QListWidgetItem* item = new QListWidgetItem(it.key());
+            item->setData(Qt::UserRole, it.key());
+            ui->list_strategy->addItem(item);
+        }
+    }
+}
+
 void DataSheetWidget::slot_ReadParaFromSerial()
 {
     QByteArray comByteBuffer = serialPort->readAll();
-    if (comByteBuffer.contains("#DS")) {
+    ui->text_portMessage->insertPlainText(comByteBuffer);
+    /*if (comByteBuffer.contains("#DS")) {
         while (comByteBuffer.contains("#DS")) {
             comByteBuffer.remove(0, comByteBuffer.indexOf("#DS") + 3);
             if (comByteBuffer.startsWith("END")) {
@@ -145,7 +249,7 @@ void DataSheetWidget::slot_ReadParaFromSerial()
             }
             m_currentSet.SetParameter(comByteBuffer.mid(0, 6).toInt());
         }
-    }
+    }*/
 }
 
 void DataSheetWidget::LoadKeyFromUI()
@@ -279,6 +383,7 @@ void DataSheetWidget::LoadFromFile(const QString& filename)
             m_versions.insert(it.key(), m_keySet.fromVariantMap(it.value().toMap()));
         }
     }
+    else QMessageBox::warning(this, "Warning", QStringLiteral("文件打开失败！"));
     if (!m_versions.isEmpty()) {
         for (auto it = m_versions.begin(); it != m_versions.end(); ++it) {
             if (it.key() == QStringLiteral("默认参数") || it.key() == QStringLiteral("历史恢复数据")) continue;

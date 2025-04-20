@@ -60,15 +60,19 @@ public:
 
 public slots:
 	//下位机操作
-	void on_btnReadParaClicked();
-	void on_btnConfModiClicked();
+	void onbtnReadParaClicked();
+	void onbtnConfModiClicked();
 
 	// 策略组操作
-	void on_btnSaveStrategyClicked();
-	void on_btnDelStrategyClicked();
-	void on_btnResetStrategyClicked();
-	void on_ListItemChanged(QListWidgetItem* item);
+	void onbtnSaveStrategyClicked();
+	void onbtnDelStrategyClicked();
+	void onbtnResetStrategyClicked();
+	void onListItemChanged(QListWidgetItem* item);
 	void slot_OpenSelectedStrategy(QListWidgetItem* item);
+
+	// 策略组文件操作
+	void onbtnExportFileClicked();
+	void onbtnImportFileClicked();
 
 	// 串口读取
 	void slot_ReadParaFromSerial();

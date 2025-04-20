@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1726</width>
-    <height>960</height>
+    <width>1710</width>
+    <height>1000</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -30,17 +30,38 @@
     <rect>
      <x>9</x>
      <y>9</y>
-     <width>1738</width>
+     <width>1700</width>
      <height>971</height>
     </rect>
    </property>
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="maximumSize">
+    <size>
+     <width>1700</width>
+     <height>16777215</height>
+    </size>
+   </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="spacing">
+     <number>1</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>10</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>10</number>
+    </property>
     <item>
      <widget class="QGroupBox" name="verticalLayout_9">
       <property name="sizePolicy">
@@ -62,10 +83,25 @@
        </size>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>5</number>
+       </property>
+       <property name="leftMargin">
+        <number>10</number>
+       </property>
+       <property name="topMargin">
+        <number>5</number>
+       </property>
+       <property name="rightMargin">
+        <number>10</number>
+       </property>
+       <property name="bottomMargin">
+        <number>5</number>
+       </property>
        <item>
         <widget class="QGroupBox" name="groupBox_camera">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -79,7 +115,7 @@
          <property name="maximumSize">
           <size>
            <width>1500</width>
-           <height>16777215</height>
+           <height>310</height>
           </size>
          </property>
          <property name="font">
@@ -91,17 +127,55 @@
           <string>摄像头</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <property name="topMargin">
+           <number>3</number>
+          </property>
+          <property name="bottomMargin">
+           <number>3</number>
+          </property>
           <item>
            <layout class="QVBoxLayout" name="vLay_cameraFR">
+            <property name="spacing">
+             <number>7</number>
+            </property>
             <item>
-             <widget class="QComboBox" name="comboBox_cameraFR">
-              <property name="maximumSize">
-               <size>
-                <width>160</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_7">
+              <item>
+               <widget class="QLabel" name="label_4">
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>相机编号:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="comboBox_cameraFR">
+                <property name="maximumSize">
+                 <size>
+                  <width>160</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_17">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
             </item>
             <item>
              <widget class="QMyGraphicsView" name="graView_cameraFR">
@@ -137,14 +211,43 @@
           <item>
            <layout class="QVBoxLayout" name="vLay_cameraU">
             <item>
-             <widget class="QComboBox" name="comboBox_cameraU">
-              <property name="maximumSize">
-               <size>
-                <width>160</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_10">
+              <item>
+               <widget class="QLabel" name="label_7">
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>相机编号:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="comboBox_cameraU">
+                <property name="maximumSize">
+                 <size>
+                  <width>160</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_20">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
             </item>
             <item>
              <widget class="QMyGraphicsView" name="graView_cameraU">
@@ -180,14 +283,43 @@
           <item>
            <layout class="QVBoxLayout" name="vLay_cameraBL">
             <item>
-             <widget class="QComboBox" name="comboBox_cameraBL">
-              <property name="maximumSize">
-               <size>
-                <width>160</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <widget class="QLabel" name="label_5">
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>相机编号:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="comboBox_cameraBL">
+                <property name="maximumSize">
+                 <size>
+                  <width>160</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_18">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
             </item>
             <item>
              <widget class="QMyGraphicsView" name="graView_cameraBL">
@@ -223,14 +355,43 @@
           <item>
            <layout class="QVBoxLayout" name="vLay_cameraD">
             <item>
-             <widget class="QComboBox" name="comboBox_cameraD">
-              <property name="maximumSize">
-               <size>
-                <width>160</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_9">
+              <item>
+               <widget class="QLabel" name="label_6">
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>相机编号:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="comboBox_cameraD">
+                <property name="maximumSize">
+                 <size>
+                  <width>160</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_19">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
             </item>
             <item>
              <widget class="QMyGraphicsView" name="graView_cameraD">
@@ -295,44 +456,37 @@
           <string>识别结果</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <property name="topMargin">
+           <number>5</number>
+          </property>
+          <property name="bottomMargin">
+           <number>5</number>
+          </property>
           <item>
            <layout class="QHBoxLayout" name="hLay_resFR" stretch="0,0,0">
             <item>
              <layout class="QVBoxLayout" name="vLay_resF">
-              <item>
-               <spacer name="verticalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Expanding</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>140</width>
-                  <height>13</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
+              <property name="spacing">
+               <number>3</number>
+              </property>
               <item>
                <widget class="QGraphicsView" name="graphicsView_F">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>150</width>
-                  <height>150</height>
+                  <width>160</width>
+                  <height>160</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>150</width>
-                  <height>150</height>
+                  <width>160</width>
+                  <height>160</height>
                  </size>
                 </property>
                 <property name="resizeAnchor">
@@ -341,23 +495,19 @@
                </widget>
               </item>
               <item>
-               <spacer name="verticalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
+               <widget class="QLabel" name="label_UI_F">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Expanding</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
+                <property name="maximumSize">
                  <size>
-                  <width>140</width>
-                  <height>13</height>
+                  <width>16777215</width>
+                  <height>20</height>
                  </size>
                 </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_UI_F">
                 <property name="font">
                  <font>
                   <family>Adobe Arabic</family>
@@ -389,50 +539,39 @@
             </item>
             <item>
              <layout class="QVBoxLayout" name="vLay_resR">
-              <item>
-               <spacer name="verticalSpacer_2">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
+              <property name="spacing">
+               <number>3</number>
+              </property>
               <item>
                <widget class="QGraphicsView" name="graphicsView_R">
                 <property name="minimumSize">
                  <size>
-                  <width>150</width>
-                  <height>150</height>
+                  <width>160</width>
+                  <height>160</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>150</width>
-                  <height>150</height>
+                  <width>160</width>
+                  <height>160</height>
                  </size>
                 </property>
                </widget>
               </item>
               <item>
-               <spacer name="verticalSpacer_4">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
+               <widget class="QLabel" name="label_UI_R">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
-                <property name="sizeHint" stdset="0">
+                <property name="maximumSize">
                  <size>
-                  <width>20</width>
-                  <height>40</height>
+                  <width>16777215</width>
+                  <height>20</height>
                  </size>
                 </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_UI_R">
                 <property name="font">
                  <font>
                   <family>Adobe Arabic</family>
@@ -466,50 +605,39 @@
           </item>
           <item>
            <layout class="QVBoxLayout" name="vLay_resU">
-            <item>
-             <spacer name="verticalSpacer_5">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
+            <property name="spacing">
+             <number>3</number>
+            </property>
             <item>
              <widget class="QGraphicsView" name="graphicsView_U">
               <property name="minimumSize">
                <size>
-                <width>150</width>
-                <height>150</height>
+                <width>160</width>
+                <height>160</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>150</width>
-                <height>150</height>
+                <width>160</width>
+                <height>160</height>
                </size>
               </property>
              </widget>
             </item>
             <item>
-             <spacer name="verticalSpacer_7">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
+             <widget class="QLabel" name="label_UI_U">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <property name="sizeHint" stdset="0">
+              <property name="maximumSize">
                <size>
-                <width>20</width>
-                <height>40</height>
+                <width>16777215</width>
+                <height>20</height>
                </size>
               </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_UI_U">
               <property name="font">
                <font>
                 <family>Adobe Arabic</family>
@@ -543,50 +671,39 @@
            <layout class="QHBoxLayout" name="hLay_resBL">
             <item>
              <layout class="QVBoxLayout" name="vLay_resB">
-              <item>
-               <spacer name="verticalSpacer_6">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
+              <property name="spacing">
+               <number>3</number>
+              </property>
               <item>
                <widget class="QGraphicsView" name="graphicsView_B">
                 <property name="minimumSize">
                  <size>
-                  <width>150</width>
-                  <height>150</height>
+                  <width>160</width>
+                  <height>160</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>150</width>
-                  <height>150</height>
+                  <width>160</width>
+                  <height>160</height>
                  </size>
                 </property>
                </widget>
               </item>
               <item>
-               <spacer name="verticalSpacer_8">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
+               <widget class="QLabel" name="label_UI_B">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
-                <property name="sizeHint" stdset="0">
+                <property name="maximumSize">
                  <size>
-                  <width>20</width>
-                  <height>40</height>
+                  <width>16777215</width>
+                  <height>20</height>
                  </size>
                 </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_UI_B">
                 <property name="font">
                  <font>
                   <family>Adobe Arabic</family>
@@ -618,50 +735,39 @@
             </item>
             <item>
              <layout class="QVBoxLayout" name="vLay_resL">
-              <item>
-               <spacer name="verticalSpacer_10">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
+              <property name="spacing">
+               <number>3</number>
+              </property>
               <item>
                <widget class="QGraphicsView" name="graphicsView_L">
                 <property name="minimumSize">
                  <size>
-                  <width>150</width>
-                  <height>150</height>
+                  <width>160</width>
+                  <height>160</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>150</width>
-                  <height>150</height>
+                  <width>160</width>
+                  <height>160</height>
                  </size>
                 </property>
                </widget>
               </item>
               <item>
-               <spacer name="verticalSpacer_9">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
+               <widget class="QLabel" name="label_UI_L">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
-                <property name="sizeHint" stdset="0">
+                <property name="maximumSize">
                  <size>
-                  <width>20</width>
-                  <height>40</height>
+                  <width>16777215</width>
+                  <height>20</height>
                  </size>
                 </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_UI_L">
                 <property name="font">
                  <font>
                   <family>Adobe Arabic</family>
@@ -695,19 +801,9 @@
           </item>
           <item>
            <layout class="QVBoxLayout" name="vLay_resD">
-            <item>
-             <spacer name="verticalSpacer_12">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
+            <property name="spacing">
+             <number>3</number>
+            </property>
             <item>
              <widget class="QGraphicsView" name="graphicsView_D">
               <property name="sizePolicy">
@@ -718,20 +814,32 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>150</width>
-                <height>150</height>
+                <width>160</width>
+                <height>160</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>150</width>
-                <height>150</height>
+                <width>160</width>
+                <height>160</height>
                </size>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLabel" name="label_UI_D">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>20</height>
+               </size>
+              </property>
               <property name="font">
                <font>
                 <family>Adobe Arabic</family>
@@ -745,19 +853,6 @@
                <set>Qt::AlignCenter</set>
               </property>
              </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_11">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </item>
@@ -798,6 +893,9 @@
           </size>
          </property>
          <layout class="QHBoxLayout" name="portAndMessage">
+          <property name="topMargin">
+           <number>7</number>
+          </property>
           <property name="bottomMargin">
            <number>1</number>
           </property>
@@ -811,17 +909,39 @@
             </property>
             <layout class="QVBoxLayout" name="groupBox_portMessage">
              <item>
-              <widget class="QLabel" name="label_UI_message">
-               <property name="font">
-                <font>
-                 <family>Agency FB</family>
-                 <pointsize>11</pointsize>
-                </font>
-               </property>
-               <property name="text">
-                <string>message</string>
-               </property>
-              </widget>
+              <layout class="QHBoxLayout" name="horizontalLayout_6">
+               <item>
+                <widget class="QLabel" name="label_UI_message">
+                 <property name="font">
+                  <font>
+                   <family>Agency FB</family>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>message</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="btn_clearMessage">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>清空</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
              <item>
               <widget class="QPlainTextEdit" name="plainTextEdit_SerialRX">
@@ -845,6 +965,9 @@
                </property>
                <property name="documentTitle">
                 <string/>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
                </property>
                <property name="cursorWidth">
                 <number>1</number>
@@ -881,6 +1004,13 @@
               <layout class="QHBoxLayout" name="hLay_portIni">
                <item>
                 <layout class="QHBoxLayout" name="hLay_port">
+                 <item>
+                  <widget class="QLabel" name="label_8">
+                   <property name="text">
+                    <string>串口号:</string>
+                   </property>
+                  </widget>
+                 </item>
                  <item>
                   <widget class="QComboBox" name="comboBox_coms">
                    <property name="minimumSize">
@@ -1190,7 +1320,10 @@
       </property>
       <layout class="QVBoxLayout" name="vLay_btns">
        <property name="leftMargin">
-        <number>1</number>
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
        </property>
        <item>
         <spacer name="verticalSpacer_14">
