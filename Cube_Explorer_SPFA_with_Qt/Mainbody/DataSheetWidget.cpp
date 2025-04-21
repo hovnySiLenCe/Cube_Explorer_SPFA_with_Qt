@@ -84,6 +84,8 @@ void DataSheetWidget::onbtnConfModiClicked()
         QMessageBox::warning(this, "error", QStringLiteral("串口未打开！"));
         return;
     }
+    if (IsCurrentSetDiffFromUI() && IsUserCancelAction(QStringLiteral("你有修改未保存"))) return;
+    UpdateCurrentSetFromUI(); m_versions.insert(QStringLiteral("历史恢复数据"), m_currentSet);
     ui->text_portMessage->insertPlainText(QStringLiteral("上位机参数：\n"));
     for (int i = 0; i < MAX_PARAM_NUM; i++) {
         ui->text_portMessage->insertPlainText(QString::number(m_currentSet.param[i]) + " ");

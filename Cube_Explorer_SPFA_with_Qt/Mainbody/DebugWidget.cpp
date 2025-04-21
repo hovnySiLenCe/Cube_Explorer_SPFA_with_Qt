@@ -529,7 +529,7 @@ void DebugWidget::ClickBtnLeftAnticlockSmall() {
 }
 
 void DebugWidget::ClickBtnLeft180() {
-	if(leftHandTurn>0) leftHandTurn-=2, serialPortDebug->write(QString("#1P9T200\r\n").toLatin1());
+	if(leftHandTurn>0) leftHandTurn-=2, serialPortDebug->write(QString("#1P8T200\r\n").toLatin1());
 	else leftHandTurn += 2, serialPortDebug->write(QString("#1P8T200\r\n").toLatin1());
 }
 
@@ -588,7 +588,7 @@ void DebugWidget::ClickBtnRightAnticlockSmall() {
 }
 
 void DebugWidget::ClickBtnRight180() {
-	if (rightHandTurn > 0) rightHandTurn -= 2, serialPortDebug->write(QString("#3P9T200\r\n").toLatin1());
+	if (rightHandTurn > 0) rightHandTurn -= 2, serialPortDebug->write(QString("#3P8T200\r\n").toLatin1());
 	else rightHandTurn += 2, serialPortDebug->write(QString("#3P8T200\r\n").toLatin1());
 }
 

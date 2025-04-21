@@ -34,6 +34,7 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	handReleaseDalayTimer = new QTimer(this);
 	handReleaseDalayTimer->setSingleShot(true);
 	connect(handReleaseDalayTimer, &QTimer::timeout, this, [this]() {
+		ui.plainTextEdit_SerialRX->appendPlainText("松手");
 		serialPort->write(QString("#2P0T200\r\n").toLatin1());
 		serialPort->write(QString("#4P0T200\r\n").toLatin1());
 		isToRestore = false;
@@ -760,8 +761,14 @@ void CubeExplorerWithQt::slot_onReceiveTimeout()
 
 void CubeExplorerWithQt::slotInputStateChange()
 {
-	if (inputFromBox) ui.label_inputState->setText(QStringLiteral("已取消输入框输入"));
-	else ui.label_inputState->setText(QStringLiteral("请从输入框输入"));
+	if (inputFromBox) {
+		ui.label_inputState->setText(QStringLiteral("已取消输入框输入"));
+        ui.plainTextEdit_portWrite->clear();
+	}
+	else {
+		ui.label_inputState->setText(QStringLiteral("请从输入框输入"));
+		ui.plainTextEdit_portWrite->setPlainText("RRRRURRRRBBBBRBBBBDDDDFDDDDLLLLDLLLLFFFFLFFFFUUUUBUUUU");
+	}
 	inputFromBox^=true;
 		
 }
@@ -785,8 +792,9 @@ void CubeExplorerWithQt::ReadOperationFromPort()
 {
 	QByteArray comByteBuffer = serialPort->readAll();
 	if (!comByteBuffer.isEmpty()) {
-
+		//QString decodedString = QTextCodec::codecForName("UTF-8")->toUnicode(comByteBuffer);
 		ui.plainTextEdit_SerialRX->insertPlainText(QString::fromLatin1(comByteBuffer));
+		//ui.plainTextEdit_SerialRX->insertPlainText(QString::fromUtf8(comByteBuffer));
 		ui.plainTextEdit_SerialRX->ensureCursorVisible();        // 确保光标可见
 		
 		if (comByteBuffer.contains("#Start")) {//
