@@ -116,7 +116,7 @@ private:
 	QList<QCameraImageCapture*> list_pCapture;			//
 	//QList<QVideoProbe*> list_pSnap;
 	QMap<QString, int> map_pic_cameraIndex;				//图片名到摄像头对象指针的映射
-	QMap<QString, QGraphicsVideoItem*> map_pic_pItem;	//图片名到videoItem指针的映射
+	QMap<QString, QGraphicsVideoItem*> videoItems;	//图片名到videoItem指针的映射
 	QMap<QString, QGraphicsScene*> map_pic_pScene;		//图片名到scene指针的映射
 	QMap<QCameraImageCapture*, int> map_capture_pId;
 	int nImgSaved;

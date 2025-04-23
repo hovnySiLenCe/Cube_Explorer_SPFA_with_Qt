@@ -158,7 +158,6 @@ void CubeExplorerWithQt::InitCameraEvents()
     connect(ui.actShowHSV, SIGNAL(triggered()), this, SLOT(slot_menuShowHSVTriggered()));
 
     // 初始化视频显示组件
-    QMap<QString, QGraphicsVideoItem*> videoItems;
     QMap<QString, QGraphicsScene*> scenes;
 
     for (const QString& name : cameraNames) {
@@ -170,7 +169,6 @@ void CubeExplorerWithQt::InitCameraEvents()
         QGraphicsScene* scene = new QGraphicsScene(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2, SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT);
         scenes[name] = scene;
 
-        map_pic_pItem.insert(name, videoItem);
         map_pic_pScene.insert(name, scene);
 
         QGraphicsView* graView = graViewMap[name];
@@ -189,6 +187,73 @@ void CubeExplorerWithQt::InitCameraEvents()
     for (const QString& name : cameraIndexMap.keys()) {
         map_pic_cameraIndex.insert(name, cameraIndexMap[name]);
     }
+}
+
+
+void CubeExplorerWithQt::onbtnOpenCameraClicked() {
+	if (isCameraOpen) return;
+	isCameraOpen = true;
+
+	//刷新可用摄像头信息（打开摄像头开关）
+	list_cameraInfo.clear();
+	list_pCamera.clear();
+	list_pCapture.clear();
+	//list_pSnap.clear();
+
+	ui.comboBox_cameraFR->clear();
+	ui.comboBox_cameraU->clear();
+	ui.comboBox_cameraBL->clear();
+	ui.comboBox_cameraD->clear();
+
+	ui.comboBox_cameraFR->addItem(QString::number(-1));
+	ui.comboBox_cameraU->addItem(QString::number(-1));
+	ui.comboBox_cameraBL->addItem(QString::number(-1));
+	ui.comboBox_cameraD->addItem(QString::number(-1));
+
+	int i = 0;
+	foreach(QCameraInfo info, QCameraInfo::availableCameras()) {
+		list_cameraInfo.append(info);
+
+		QCamera* camera_t = new QCamera(info);																//构建camera对象，存放到list_pCamera中
+		QCameraImageCapture* capture_t = new QCameraImageCapture(camera_t);									//并构建对应于当前摄像头的capture对象，存放到list_pCapture中
+		//QVideoProbe* snap_t = new QVideoProbe(this);
+		//snap_t->setSource(camera_t);
+
+		capture_t->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
+		//connect(capture_t, SIGNAL(imageSaved(int, QString)), this, SLOT(slot_imageSaved(int, QString)));	//
+		connect(capture_t, &QCameraImageCapture::imageCaptured, this, &CubeExplorerWithQt::slot_imageCaptured);	//
+		map_capture_pId[capture_t] = i;
+
+		list_pCamera.append(camera_t);
+		list_pCapture.append(capture_t);
+		//list_pSnap.append(snap_t);
+
+		ui.comboBox_cameraFR->addItem(QString::number(i));
+		ui.comboBox_cameraU->addItem(QString::number(i));
+		ui.comboBox_cameraBL->addItem(QString::number(i));
+		ui.comboBox_cameraD->addItem(QString::number(i));
+		i++;
+	}
+
+	if (list_pCamera.size() >= 1) list_pCamera[0]->setViewfinder(videoItems["FR"]);	//
+	if (list_pCamera.size() >= 2) list_pCamera[1]->setViewfinder(videoItems["U"]);	//
+	if (list_pCamera.size() >= 3) list_pCamera[2]->setViewfinder(videoItems["BL"]);	//
+	if (list_pCamera.size() >= 4) list_pCamera[3]->setViewfinder(videoItems["D"]);	//
+
+	// 设置下拉框默认选项，为下拉框中数字索引（start from 1: 0是-1
+	ui.comboBox_cameraFR->setCurrentIndex(1);
+	ui.comboBox_cameraU->setCurrentIndex(2);
+	ui.comboBox_cameraBL->setCurrentIndex(3);
+	ui.comboBox_cameraD->setCurrentIndex(4);
+
+	QCameraViewfinderSettings set; // 设置摄像头刷新率30hz, 分辨率1920*1080
+	set.setMaximumFrameRate(30);
+	set.setMinimumFrameRate(30);
+	set.setResolution(1920, 1080);
+	for (int i = 0; i < list_pCamera.length(); i++) {
+		if (list_pCamera[i]->status() != QCamera::ActiveStatus) list_pCamera[i]->start();
+		list_pCamera[i]->setViewfinderSettings(set);
+	}
 }
 
 // 捕获并存储相机文件
@@ -391,7 +456,7 @@ void CubeExplorerWithQt::SolveAndRestore()
 
 	double st = clock(), ed;
 	cp = new char[strRec.length() + 1];
-	ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("识别中...\n"));
+	ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral(" -> 识别中...\n"));
 	strcpy(cp, strRec.c_str()); res = CubeSolver(cp, NULL);
 
 	//std::string tmp = "";
@@ -403,7 +468,7 @@ void CubeExplorerWithQt::SolveAndRestore()
 		ShowRecogResultOnScene(strRec);
 		ui.label_UI_message->setText(QStringLiteral("识别序列有误！"));
 		ui.plainTextEdit_portWrite->setPlainText(QStringLiteral("识别序列有误！"));
-		ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("识别序列有误！\n"));
+		ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("FETAL: 识别序列有误！\n"));
 		pTimer->stop(); //停止计时器
 		hasRobotStarted = false;
 #ifdef REALRUN
@@ -429,6 +494,7 @@ void CubeExplorerWithQt::SolveAndRestore()
 	
 	ShowRecogResultOnScene(strRec);
 	ui.label_UI_message->setText(QStringLiteral("识别正确！"));
+	ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("SUCCESS: 识别正确！\n"));
 	strDisplay += "RecogResult: " + strRec + "\r\n      Solve6: " + res;
 	//ui.plainTextEdit_portWrite->setPlainText(QString("RecogResult: ") + strRec.c_str() + QString("\r\n      ") + strDisplay.c_str());
 
@@ -487,72 +553,6 @@ void CubeExplorerWithQt::on_btnDebugClicked() {
 	dw.setWindowTitle(QStringLiteral("调试"));
 	dw.show();
 	dw.exec();
-}
-
-void CubeExplorerWithQt::onbtnOpenCameraClicked() {
-	if (isCameraOpen) return;
-	isCameraOpen = true;
-
-	//刷新可用摄像头信息（打开摄像头开关）
-	list_cameraInfo.clear();
-	list_pCamera.clear();
-	list_pCapture.clear();
-	//list_pSnap.clear();
-
-	ui.comboBox_cameraFR->clear();
-	ui.comboBox_cameraU->clear();
-	ui.comboBox_cameraBL->clear();
-	ui.comboBox_cameraD->clear();
-
-	ui.comboBox_cameraFR->addItem(QString::number(-1));
-	ui.comboBox_cameraU->addItem(QString::number(-1));
-	ui.comboBox_cameraBL->addItem(QString::number(-1));
-	ui.comboBox_cameraD->addItem(QString::number(-1));
-	
-	int i = 0;
-	foreach(QCameraInfo info, QCameraInfo::availableCameras()) {
-		list_cameraInfo.append(info);
-
-		QCamera* camera_t = new QCamera(info);																//构建camera对象，存放到list_pCamera中
-		QCameraImageCapture* capture_t = new QCameraImageCapture(camera_t);									//并构建对应于当前摄像头的capture对象，存放到list_pCapture中
-		//QVideoProbe* snap_t = new QVideoProbe(this);
-		//snap_t->setSource(camera_t);
-
-		capture_t->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
-		//connect(capture_t, SIGNAL(imageSaved(int, QString)), this, SLOT(slot_imageSaved(int, QString)));	//
-		connect(capture_t, &QCameraImageCapture::imageCaptured, this, &CubeExplorerWithQt::slot_imageCaptured);	//
-		map_capture_pId[capture_t] = i;
-
-		list_pCamera.append(camera_t);																		//
-		list_pCapture.append(capture_t);																	//																//
-		//list_pSnap.append(snap_t);
-
-		ui.comboBox_cameraFR->addItem(QString::number(i));
-		ui.comboBox_cameraU->addItem(QString::number(i));
-		ui.comboBox_cameraBL->addItem(QString::number(i));
-		ui.comboBox_cameraD->addItem(QString::number(i));
-		i++;
-	}
-
-	if (list_pCamera.size() >= 1) list_pCamera[0]->setViewfinder(videoItem_FR);	//
-	if (list_pCamera.size() >= 2) list_pCamera[1]->setViewfinder(videoItem_U);	//
-	if (list_pCamera.size() >= 3) list_pCamera[2]->setViewfinder(videoItem_BL);	//
-	if (list_pCamera.size() >= 4) list_pCamera[3]->setViewfinder(videoItem_D);	//
-	
-	// 设置下拉框默认选项，为下拉框中数字索引（start from 1: 0是-1
-	ui.comboBox_cameraFR->setCurrentIndex(1);
-	ui.comboBox_cameraU->setCurrentIndex(2);
-	ui.comboBox_cameraBL->setCurrentIndex(3);
-	ui.comboBox_cameraD->setCurrentIndex(4);
-
-	QCameraViewfinderSettings set; // 设置摄像头刷新率30hz, 分辨率1920*1080
-	set.setMaximumFrameRate(30);
-	set.setMinimumFrameRate(30);
-	set.setResolution(1920,1080);
-	for (int i = 0; i < list_pCamera.length(); i++) {
-		if (list_pCamera[i]->status() != QCamera::ActiveStatus) list_pCamera[i]->start();
-		list_pCamera[i]->setViewfinderSettings(set);
-	}
 }
 
 void CubeExplorerWithQt::on_btnShowSamRecsClicked(){
@@ -739,7 +739,7 @@ void CubeExplorerWithQt::slot_cameraInfoChanged(const QString & text)
 	//ui.plainTextEdit_portWrite->setPlainText(str_t);
 
 	QString picName = QString(str_t[str_t.length() - 2])=="a" ? QString(str_t[str_t.length() - 1]):QString(str_t[str_t.length() - 2]) + QString(str_t[str_t.length() - 1]);
-	list_pCamera[index]->setViewfinder(map_pic_pItem[picName]);
+	list_pCamera[index]->setViewfinder(videoItems[picName]);
 
 	map_pic_cameraIndex.insert(picName, index);
 }
