@@ -313,8 +313,9 @@ void CubeExplorerSPFA::SaveMechanicalStep()
 	out.open(".\\Mechanical\\ControlCommand.txt", ios::trunc);
 #endif // DEBUG
 
-	int handId, opId, cntTurn[2];
-	memset(cntTurn, 0, sizeof(cntTurn));
+	int handId, opId;
+	//int cntTurn[2];
+	//memset(cntTurn, 0, sizeof(cntTurn));
 
 	//ifstream in;
 	//in.open(".\\Mechanical\\HandTurnState.txt", ios::in);
@@ -329,12 +330,13 @@ void CubeExplorerSPFA::SaveMechanicalStep()
 		case 'R':opId = 14, handId = 1; break;
 		}
 		switch (ansOpSequence[i + 1]) {
-		case '1': opId += 0, ++cntTurn[handId]; break;
+		case '1': opId += 0/*, ++cntTurn[handId]*/; break;
 		case '2': 
-			if (cntTurn[handId] > 0) opId += 11, cntTurn[handId] -= 2;
-			else opId += 3, cntTurn[handId] += 2;
+			opId += 3;
+			/*if (cntTurn[handId] > 0) opId += 11, cntTurn[handId] -= 2;
+			else opId += 3, cntTurn[handId] += 2;*/
 			break;
-		case '3': opId += 6, --cntTurn[handId]; break;
+		case '3': opId += 6/*, --cntTurn[handId]*/; break;
 		case 'O': opId += 9; break;
 		case 'C': opId += 10; break;
 		}
