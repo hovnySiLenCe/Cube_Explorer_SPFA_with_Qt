@@ -145,21 +145,12 @@ void CubeExplorerWithQt::InitCameraEvents()
 		ui.graView_cameraBL,
 		ui.graView_cameraD
 	};
-
-	const QStringList cameraNames = { "FR", "U", "BL", "D" };
-
-    QMap<QString, QComboBox*> comboBoxMap = {
-        {"FR", ui.comboBox_cameraFR},
-        {"U", ui.comboBox_cameraU},
-        {"BL", ui.comboBox_cameraBL},
-        {"D", ui.comboBox_cameraD}
-    };
-    QMap<QString, QGraphicsView*> graViewMap = {
-        {"FR", ui.graView_cameraFR},
-        {"U", ui.graView_cameraU},
-        {"BL", ui.graView_cameraBL},
-        {"D", ui.graView_cameraD}
-    };
+	sceneNameToIndex = {
+		{"FR", SCENE_FR_ID},
+		{"U", SCENE_U_ID},
+		{"BL", SCENE_BL_ID},
+		{"D", SCENE_D_ID}
+	};
 
     // 为每个显示视图绑定对应的信号槽和初始化
 	for (int i = 0; i < cameraCombos.size(); i++) {
@@ -176,35 +167,29 @@ void CubeExplorerWithQt::InitCameraEvents()
 		graView->setScene(scene);
 		graView->setCursor(Qt::CrossCursor);
 		graView->setDragMode(QGraphicsView::RubberBandDrag);
+        cameraScenes.append(scene);
 
 		// 新建视频项
 		QGraphicsVideoItem* videoItem = new QGraphicsVideoItem;
 		videoItem->setSize(QSize(SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT));
 		videoItem->setPos(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2);
 		scene->addItem(videoItem);
-
+        cameraVideoItems.append(videoItem);
     }
 
     // 菜单动作绑定
     connect(ui.actSetBlock, SIGNAL(triggered()), this, SLOT(slot_menuSetRecTriggered()));
     connect(ui.actShowHSV, SIGNAL(triggered()), this, SLOT(slot_menuShowHSVTriggered()));
-
-    // 初始化摄像头索引映射
-    QMap<QString, int> cameraIndexMap = {
-        {"FR", 0}, {"U", 1}, {"BL", 2}, {"D", 3}
-    };
-
-    for (const QString& name : cameraIndexMap.keys()) {
-        map_pic_cameraIndex.insert(name, cameraIndexMap[name]);
-    }
 }
 
 
 void CubeExplorerWithQt::onbtnCamSwitchClicked() {
 	if (isCameraOpen) {
 		isCameraOpen = false;
-		for (int i = 0; i < cameras.length(); i++) {
-			if (cameras[i]->status() != QCamera::ActiveStatus) cameras[i]->stop();
+		for (int i = 0; i < cameras.size(); i++) {
+			cameras[i]->stop();
+			delete cameras[i];
+			delete cameraCaptures[i];
 		}
         ui.btn_camSwitch->setText(QStringLiteral("打开摄像头"));
 		return;
@@ -215,18 +200,13 @@ void CubeExplorerWithQt::onbtnCamSwitchClicked() {
 	//刷新可用摄像头信息（打开摄像头开关）
 	//list_cameraInfo.clear();
 	cameras.clear();
-	list_pCapture.clear();
+	cameraCaptures.clear();
 	//list_pSnap.clear();
 
-	ui.comboBox_cameraFR->clear();
-	ui.comboBox_cameraU->clear();
-	ui.comboBox_cameraBL->clear();
-	ui.comboBox_cameraD->clear();
-
-	ui.comboBox_cameraFR->addItem(QString::number(-1));
-	ui.comboBox_cameraU->addItem(QString::number(-1));
-	ui.comboBox_cameraBL->addItem(QString::number(-1));
-	ui.comboBox_cameraD->addItem(QString::number(-1));
+	for (QComboBox* comboBox : cameraCombos) {
+        comboBox->clear();
+        comboBox->addItem(QString::number(-1));
+	}
 
 	QCameraViewfinderSettings set; // 设置摄像头刷新率30hz, 分辨率1920*1080
 	set.setMaximumFrameRate(30);
@@ -237,53 +217,41 @@ void CubeExplorerWithQt::onbtnCamSwitchClicked() {
 	foreach(QCameraInfo info, QCameraInfo::availableCameras()) {
 		//list_cameraInfo.append(info);
 
-		QCamera* camera_t = new QCamera(info);																//构建camera对象，存放到list_pCamera中
-		QCameraImageCapture* capture_t = new QCameraImageCapture(camera_t);									//并构建对应于当前摄像头的capture对象，存放到list_pCapture中
-		//QVideoProbe* snap_t = new QVideoProbe(this);
-		//snap_t->setSource(camera_t);
-
-		capture_t->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
-		//connect(capture_t, SIGNAL(imageSaved(int, QString)), this, SLOT(slot_imageSaved(int, QString)));	//
-		connect(capture_t, &QCameraImageCapture::imageCaptured, this, &CubeExplorerWithQt::slot_imageCaptured);	//
-		map_capture_pId[capture_t] = i;
-
+		//构建camera对象并存放在cameras中
+		QCamera* camera_t = new QCamera(info);
 		cameras.append(camera_t);
-		list_pCapture.append(capture_t);
+		
+		//并构建对应于当前摄像头的capture对象，并将capture对象添加到captures中
+		QCameraImageCapture* capture_t = new QCameraImageCapture(camera_t);
+		capture_t->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
+		connect(capture_t, &QCameraImageCapture::imageCaptured, this, &CubeExplorerWithQt::slot_imageCaptured);
+		cameraCaptures.append(capture_t);
+
+		captureToSceneIndex[capture_t] = i;
+
 		//list_pSnap.append(snap_t);
 
-		ui.comboBox_cameraFR->addItem(QString::number(i));
-		ui.comboBox_cameraU->addItem(QString::number(i));
-		ui.comboBox_cameraBL->addItem(QString::number(i));
-		ui.comboBox_cameraD->addItem(QString::number(i));
-		i++;
+		for (QComboBox* comboBox : cameraCombos) {
+			comboBox->addItem(QString::number(i));
+		}i++;
 	}
 
 	// comboBox 从1开始，0是-1无效
-	if (cameras.size() >= 1) {
-		cameras[0]->setViewfinder(videoItems["FR"]);
-		ui.comboBox_cameraFR->setCurrentIndex(1);
+	for (int i = 0; i < cameras.size(); i++) {
+		cameraCombos[i]->setCurrentIndex(i+1);
+		cameras[i]->setViewfinder(cameraVideoItems[i]);
 	}
-	if (cameras.size() >= 2) {
-		cameras[1]->setViewfinder(videoItems["U"]);
-		ui.comboBox_cameraU->setCurrentIndex(2);
-	}
-	if (cameras.size() >= 3) {
-		cameras[2]->setViewfinder(videoItems["BL"]);
-		ui.comboBox_cameraBL->setCurrentIndex(3);
-	}
-	if (cameras.size() >= 4) {
-		cameras[3]->setViewfinder(videoItems["D"]);
-		ui.comboBox_cameraD->setCurrentIndex(4);
-	}
+	//cameras[0]->setViewfinder(videoItems["FR"]);
 }
 
 // 捕获并存储相机文件
 void CubeExplorerWithQt::CaptureImage() { 
 	nImgSaved = 0;
-	list_pCapture[map_pic_cameraIndex["FR"]]->capture();
-	list_pCapture[map_pic_cameraIndex["U"]]->capture();
-	list_pCapture[map_pic_cameraIndex["D"]]->capture();
-	list_pCapture[map_pic_cameraIndex["BL"]]->capture();
+	for (QCameraImageCapture* cameraCapture : cameraCaptures)
+		cameraCapture->capture();
+	//cameraCaptures[1]->capture();
+	//cameraCaptures[2]->capture();
+	//cameraCaptures[3]->capture();
 
 	/*list_pCapture[map_pic_cameraIndex["FR"]]->capture(curPath + "/pic_cam/cam_" + "FR");
 	list_pCapture[map_pic_cameraIndex["U"]]->capture(curPath + "/pic_cam/cam_" + "U");
@@ -457,34 +425,23 @@ void CubeExplorerWithQt::on_btnRestoreClicked() {
 #define REALRU
 void CubeExplorerWithQt::SolveAndRestore()
 {
-	//2.进行识别得到识别字符串
 	std::string strRec = ""; char* cp; char* res;
 
-#ifdef REALRUN
-	strRec = recognizeNew();
-#endif // REALRUN
-
-#ifndef REALRUN
-	if (inputFromBox)
-		strRec = ui.plainTextEdit_portWrite->toPlainText().toStdString();
-	else
-		strRec = recognizeNew();
-#endif // !REALRUN
+	// 1.进行识别得到识别字符串
+	if (inputFromBox) strRec = ui.plainTextEdit_portWrite->toPlainText().toStdString();
+	else strRec = recognizeNew();
 
 	/*ui.plainTextEdit_portWrite->setPlainText("test\n" + QString::number(strRec.length()) + "\n" + strRec.c_str());*/
 	//strRec = "UUUUBUUUURRRRURRRRFFFFLFFFFDDDDFDDDDLLLLDLLLLBBBBRBBBB";
 	//strRec = "UDUDUDUDURRRRRRRRRFFFFFFFFFDUDUDUDUDLLLLLLLLLBBBBBBBBB";
 
+	// 2. 进行解算得到Solve6移动序列
 	double st = clock(), ed;
 	cp = new char[strRec.length() + 1];
-	ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral(" -> 识别中...\n"));
+	ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral(" -> 解算中...\n"));
 	strcpy(cp, strRec.c_str()); res = CubeSolver(cp, NULL);
 
-	//std::string tmp = "";
-	//tmp += "RecogResult: " + strRec + "\r\n     Solve6: ";
-	//ui.plainTextEdit_portWrite->setPlainText(tmp.c_str());
-	//res = ui.plainTextEdit_portWrite->toPlainText().toStdString();
-	//res = "U2L3B3U2R3U3L2B2U1R3R2D3R2U1R2U3F2U1F2U3F2U2L2F2R2F2D2L2D2L2B2";
+	// 3. 如果解算失败，则显示识别结果，并返回
 	if (!res) {
 		ShowRecogResultOnScene(strRec);
 		ui.label_UI_message->setText(QStringLiteral("识别序列有误！"));
@@ -492,47 +449,44 @@ void CubeExplorerWithQt::SolveAndRestore()
 		ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("FETAL: 识别序列有误！\n"));
 		pTimer->stop(); //停止计时器
 		hasRobotStarted = false;
-#ifdef REALRUN
-		saveCaptureMat(curPath.toStdString() + "/pic_cam/cam_");
-#endif // 
+		if (!inputFromBox) {
+			SaveCaptureMatToFile(curPath.toStdString() + "/pic_cam/cam_");
+		}
 		return;
 	}
+
+	// 4. 通过SPFA算法得到最短路径
 	cubeExplorerSPFA->GetShortestPath(res);
 	if (cubeExplorerSPFA->GetAnsOpStepNumber() > 77) {
 		cubeExplorerSPFA = multiSolver->GetMultiThreadPath(strRec);
 	}
 	else cubeExplorerSPFA->SaveMechanicalStep();
 
-	//5.通过串口通信把串口序列传递给控制机，并使用listView控件实时显示操作序列传输情况
+	// 5. 通过串口通信把串口序列传递给控制机
 	if (isToRestore) slot_sendOperationSerial();
-	else {
-		serialPort->write(QString("#2P0T200\r\n").toLatin1());
-		serialPort->write(QString("#4P0T200\r\n").toLatin1());
-	}
 
+	// 6. 显示识别结果和操作序列
+	std::string ansOpSequence = cubeExplorerSPFA->GetAnsOpSequence();
+	int steps = cubeExplorerSPFA->GetAnsOpStepNumber();
 	ed = clock();
 	std::string strDisplay = "";
-	
 	ShowRecogResultOnScene(strRec);
 	ui.label_UI_message->setText(QStringLiteral("识别正确！"));
 	ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("SUCCESS: 识别正确！\n"));
 	strDisplay += "RecogResult: " + strRec + "\r\n      Solve6: " + res;
-	//ui.plainTextEdit_portWrite->setPlainText(QString("RecogResult: ") + strRec.c_str() + QString("\r\n      ") + strDisplay.c_str());
-
-	std::string ansOpSequence = cubeExplorerSPFA->GetAnsOpSequence();
-	int steps = cubeExplorerSPFA->GetAnsOpStepNumber();
-
 	strDisplay += "\r\n      Solve2: " + ansOpSequence;
 	strDisplay += "\r\n      AnsCostTime: " + to_string(cubeExplorerSPFA->GetAnsCostTime());
 	strDisplay += (cubeExplorerSPFA->reuseFlag == true) ? " (True)" : " (False)";
-	strDisplay += "\r\n      Total: " + to_string(steps) + " steps" + "\r\n      Time: " + to_string(int(ed - st)) + "ms";
+	strDisplay += "\r\n      Total: " + to_string(steps) + " steps";
+	strDisplay += "\r\n      Time: " + to_string(int(ed - st)) + "ms";
 	
 	ui.plainTextEdit_portWrite->setPlainText(QString::fromStdString(strDisplay));
 	ui.label_restoreCnt->setText(QString::number(steps));
 
-#ifdef REALRUN
-	saveCaptureMat(curPath.toStdString() + "/pic_cam/cam_");
-#endif // 
+	// 7. 保存识别结果和操作序列
+	if (!inputFromBox) {
+		SaveCaptureMatToFile(curPath.toStdString() + "/pic_cam/cam_");
+	}
 }
 
 cv::Mat CubeExplorerWithQt::QImageToCvMat(const QImage& image) {
@@ -598,7 +552,7 @@ void CubeExplorerWithQt::on_btnShowSamRecsClicked(){
 
 	for (int i = 0; i < map_pic_id_samRec.size(); i++) {				//遍历采样框数据map
 		map_id_samRec = map_pic_id_samRec[list_picID[i]];				//从list_picID获取字符串作为键值从采样框数据map中获取对应图片的采样框
-		scene = map_pic_pScene[list_picID[i]];							//以同样的键值从scene指针map中获取对应图片的scene指针
+		scene = cameraScenes[i];										//根据窗口顺序获取scene指针
 		for (int j = 0; j < map_id_samRec.size(); j++) {				//遍历单个图片的采样框数据vector,将SamRec结构转换为符合视野比例的QRect并利用scene指针将采样框绘制到界面上
 			rect = { map_id_samRec[j].x1 / 2 - SCENE_VIEW_WIDTH/2,		//x = x1 / 2	（-scene宽度的一半是为了映射到scene坐标系）
 					 map_id_samRec[j].y1 / 2 - SCENE_VIEW_HEIGHT/2,		//y = y1 / 2	（-scene高度的一半是为了映射到scene坐标系）
@@ -610,8 +564,7 @@ void CubeExplorerWithQt::on_btnShowSamRecsClicked(){
 			scene->addItem(item);										//
 			list_samRecItems.append(item);								//保存这些矩形的指针，方便进行清除
 		}
-	}/**/
-
+	}
 }
 
 void CubeExplorerWithQt::on_btnRecogClicked() {
@@ -696,7 +649,7 @@ void CubeExplorerWithQt::slot_menuShowHSVTriggered()
 	if (t[t.length() - 2] != "a") caller.append(t[t.length() - 2]);
 	caller.append(t[t.length() - 1]);
 
-	list_pCapture[map_pic_cameraIndex[caller]]->capture(curPath+"/pic_cam/"+caller+"_temp_for_showHSV");
+	cameraCaptures[sceneNameToIndex[caller]]->capture(curPath+"/pic_cam/"+caller+"_temp_for_showHSV");
 }
 
 void CubeExplorerWithQt::slot_setRecArea(QString groupName,QRect rect,int faceID, int blockID)
@@ -710,13 +663,13 @@ void CubeExplorerWithQt::slot_setRecArea(QString groupName,QRect rect,int faceID
 void CubeExplorerWithQt::slot_imageCaptured(int id, const QImage& image)
 {
 	QCameraImageCapture* senderCapture = qobject_cast<QCameraImageCapture*>(sender());
-	int pId = map_capture_pId[senderCapture];
+	int sceneIndex = captureToSceneIndex[senderCapture]; // 获取当前摄像头对应的场景index
 
-	QImage pressImg = image.scaled(640, 360, Qt::IgnoreAspectRatio);
+	//将QImage转换为cv::Mat
+	captureMatSet[sceneIndex] = QImageToCvMat(image.scaled(640, 360, Qt::IgnoreAspectRatio));
 
-	captureMatSet[pId] = QImageToCvMat(image.scaled(640, 360, Qt::IgnoreAspectRatio));
+	sampleFromPic(captureMatSet[sceneIndex], list_picID[sceneIndex]);
 
-	sampleFromPic(captureMatSet[pId], list_picID[pId]);
 	if (++nImgSaved == 4) SolveAndRestore();
 }
 
@@ -753,16 +706,23 @@ void CubeExplorerWithQt::on_btnPortSendClicked() // 向串口发送输入框内信息
 
 void CubeExplorerWithQt::slot_cameraInfoChanged(const QString & text)
 {
-	int index = text.toInt();
-	if(!(~index)) return;
+	// 获取当前摄像头索引
+	int camIndex = text.toInt();
+	if (!(~camIndex)) {
+
+		return;
+	}
 
 	QString str_t = sender()->objectName();
-	//ui.plainTextEdit_portWrite->setPlainText(str_t);
 
+	// 获取当前场景的索引
 	QString picName = QString(str_t[str_t.length() - 2])=="a" ? QString(str_t[str_t.length() - 1]):QString(str_t[str_t.length() - 2]) + QString(str_t[str_t.length() - 1]);
-	cameras[index]->setViewfinder(videoItems[picName]);
+	int sceneIndex = sceneNameToIndex[picName];
 
-	map_pic_cameraIndex.insert(picName, index);
+	captureToSceneIndex[cameraCaptures[camIndex]] = sceneIndex;
+
+	// 将当前摄像头的视图显示到当前场景内
+	cameras[camIndex]->setViewfinder(cameraVideoItems[sceneIndex]);
 }
 
 void CubeExplorerWithQt::slot_timeout() {

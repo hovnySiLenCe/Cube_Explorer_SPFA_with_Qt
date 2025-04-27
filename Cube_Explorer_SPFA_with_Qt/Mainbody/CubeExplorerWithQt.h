@@ -50,11 +50,11 @@ struct RestoreRecord {
 	RestoreRecord(int n, double t) :cnt(n), time(t) {}
 };
 
-enum {
-	SCENE_FR,
-	SCENE_U,
-	SCENE_BL,
-	SCENE_D
+enum SCENE_ID {
+	SCENE_FR_ID,
+	SCENE_U_ID,
+	SCENE_BL_ID,
+	SCENE_D_ID
 };
 
 class CubeExplorerWithQt : public QMainWindow
@@ -108,28 +108,34 @@ private:
 	QMap<QString, QSerialPortInfo> list_portInfo;
 
 	//摄像头处理
-	QGraphicsScene* scene_FR;							//摄像头显示场景
-	QGraphicsScene* scene_U;							//
-	QGraphicsScene* scene_BL;							//
-	QGraphicsScene* scene_D;							//
-	QGraphicsVideoItem* videoItem_FR;					//摄像头显示载体
-	QGraphicsVideoItem* videoItem_U;					//
-	QGraphicsVideoItem* videoItem_BL;					//
-	QGraphicsVideoItem* videoItem_D;					//
+	//QGraphicsScene* scene_FR;							//摄像头显示场景
+	//QGraphicsScene* scene_U;							//
+	//QGraphicsScene* scene_BL;							//
+	//QGraphicsScene* scene_D;							//
+	//QGraphicsVideoItem* videoItem_FR;					//摄像头显示载体
+	//QGraphicsVideoItem* videoItem_U;					//
+	//QGraphicsVideoItem* videoItem_BL;					//
+	//QGraphicsVideoItem* videoItem_D;					//
 	QRect rec_tSelect;									//选取框位置临时记录
 	QString curPath;									//当前工作目录
 	
-	QList<QComboBox*> cameraCombos;						//将所有 QComboBox 指针放入容器
-	QList<QGraphicsView*> cameraViews;					//将所有 QGraphicsView 指针放入容器
-	
-	QList<QCameraInfo> list_cameraInfo;					//摄像头信息
 	QList<QCamera*> cameras;							//摄像头列表和摄像头捕获对象列表，两者下标对应
-	QList<QCameraImageCapture*> list_pCapture;			//
+	QList<QCameraImageCapture*> cameraCaptures;			//
+
+	QList<QComboBox*> cameraCombos;						//将所有 QComboBox 指针放入容器
+	QList<QGraphicsView*> cameraViews;					//将所有 QGraphicsView 指针放入容器，包含Scene和VideoItem
+	QList<QGraphicsScene*> cameraScenes;				//将所有 QGraphicsScene 指针放入容器
+	QList<QGraphicsVideoItem*> cameraVideoItems;		//将所有 QGraphicsVideoItem 指针放入容器
+	
+	QMap<QString, SCENE_ID> sceneNameToIndex;			//图片名到摄像头对象指针的映射
+	QMap<QCameraImageCapture*, int> captureToSceneIndex;	
+
+	QList<QCameraInfo> list_cameraInfo;					//摄像头信息
+	
 	//QList<QVideoProbe*> list_pSnap;
-	QMap<QString, int> map_pic_cameraIndex;				//图片名到摄像头对象指针的映射
-	QMap<QString, QGraphicsVideoItem*> videoItems;	//图片名到videoItem指针的映射
-	QMap<QString, QGraphicsScene*> map_pic_pScene;		//图片名到scene指针的映射
-	QMap<QCameraImageCapture*, int> map_capture_pId;
+	//QMap<QString, QGraphicsVideoItem*> videoItems;		//图片名到videoItem指针的映射
+	//QMap<QString, QGraphicsScene*> map_pic_pScene;		//图片名到scene指针的映射
+	
 	int nImgSaved;
 	cv::Mat captureMatSet[4];
 

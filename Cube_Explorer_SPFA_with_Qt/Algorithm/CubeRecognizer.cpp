@@ -704,6 +704,7 @@ void CreateSceneFromStr(string str)
 	}
 }
 
+/// 函数功能：从图片中采样色块，并保存到vec_samBlocks中
 void sampleFromPic(cv::Mat image, QString picName) { // 数据在image中，num表示包含面的数量
 	vector<SamRec> vec_samRec1, vec_samRec2; //分别存放picName指定图片所采样的两个面的采样框数据，从小到大需满足kociemba算法序号要求
 	vector<vector<SamRec>> vec_samRec;	//存放picName指定图片所采样的两个面的采样框数据，从小到大需满足kociemba算法序号要求
