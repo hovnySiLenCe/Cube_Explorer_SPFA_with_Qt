@@ -141,6 +141,9 @@ private:
 
 	QList<QGraphicsRectItem*> list_samRecItems;			//存储显示在窗口上的采样框指针QByteArray byteTmp;
 
+	void SetHighlightButtom(QPushButton* buttom);
+	void SetCommonStyButtom(QPushButton* buttom);
+
 public slots:
 	//界面按钮槽函数
 	void on_btnTightOrLooseClicked();
@@ -151,7 +154,7 @@ public slots:
 	void onbtnCamSwitchClicked();
 	void on_btnShowSamRecsClicked();
 	void on_btnRecogClicked();
-	void on_btnSetHSVClicked();
+	void on_btnShowLastSampleClicked();
 	void onSetDataSheetClicked();
 
 	//摄像头View鼠标响应槽函数
@@ -163,6 +166,7 @@ public slots:
 	//Capture响应槽函数
 	void slot_imageCaptured(int id, const QImage& image);
 	//串口模块响应槽函数
+	void slot_portInfoChanged();
 	void on_btnPortRefreshClicked();
 	void on_btnPortOpenClicked();
 	void on_btnPortSendClicked();

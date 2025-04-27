@@ -34,7 +34,7 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	handReleaseDalayTimer = new QTimer(this);
 	handReleaseDalayTimer->setSingleShot(true);
 	connect(handReleaseDalayTimer, &QTimer::timeout, this, [this]() {
-		ui.plainTextEdit_SerialRX->appendPlainText("松手");
+		ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("-> 松手\n"));
 		serialPort->write(QString("#2P0T200\r\n").toLatin1());
 		serialPort->write(QString("#4P0T200\r\n").toLatin1());
 		isToRestore = false;
@@ -47,19 +47,13 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 
 	// 普通操作按钮
 	connect(ui.btn_camSwitch, SIGNAL(clicked()), this, SLOT(onbtnCamSwitchClicked()));
-	ui.btn_camSwitch->setStyleSheet(
-		"QPushButton {"
-		"   background-color: #4CAF50;"  // 绿色
-		"   color: white;"
-		"   border-radius: 5px;"
-		"}"
-		"QPushButton:hover {"
-		"   background-color: #45a049;"  // 深绿色（悬停效果）
-		"}"
-	);
+	SetHighlightButtom(ui.btn_camSwitch);
+
 	connect(ui.btn_showSamRecs, SIGNAL(clicked()), this, SLOT(on_btnShowSamRecsClicked()));
+	SetHighlightButtom(ui.btn_showSamRecs);
+
 	connect(ui.btn_debug, SIGNAL(clicked()), this, SLOT(on_btnDebugClicked()));
-	//connect(ui.btn_setHSV, SIGNAL(clicked()), this, SLOT(on_btnSetHSVClicked()));
+	connect(ui.btn_showLastSample, SIGNAL(clicked()), this, SLOT(on_btnShowLastSampleClicked()));
 	connect(ui.btn_setDataSheet, SIGNAL(clicked()), this, SLOT(onSetDataSheetClicked()));
 
 	// 下位机操作按钮
@@ -92,6 +86,8 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 
 	//COM口操作相关
 	connect(ui.btn_portOpen_close, SIGNAL(clicked()), this, SLOT(on_btnPortOpenClicked()));
+	SetHighlightButtom(ui.btn_portOpen_close);
+
 	connect(ui.btn_portRefresh, SIGNAL(clicked()), this, SLOT(on_btnPortRefreshClicked()));
 	connect(ui.btn_portSend, SIGNAL(clicked()), this, SLOT(on_btnPortSendClicked()));
 	connect(ui.comboBox_baudRate, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_baudRateChanged()));
@@ -100,7 +96,8 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	foreach(QSerialPortInfo info, QSerialPortInfo::availablePorts()) {
 		ui.comboBox_coms->addItem(info.portName());
 	}
-	//connect(ui.comboBox_coms, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_portInfoChanged(QString)));
+	ui.comboBox_coms->setCurrentIndex(1);
+	connect(ui.comboBox_coms, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_portInfoChanged()));
 	
 	// 初始化摄像头
 	InitCameraEvents();
@@ -198,16 +195,7 @@ void CubeExplorerWithQt::onbtnCamSwitchClicked() {
 	ui.btn_camSwitch->setEnabled(false);
 
 	if (isCameraOpen) {
-		ui.btn_camSwitch->setStyleSheet(
-			"QPushButton {"
-			"   background-color: #4CAF50;"  // 绿色
-			"   color: white;"
-			"   border-radius: 5px;"
-			"}"
-			"QPushButton:hover {"
-			"   background-color: #45a049;"  // 深绿色（悬停效果）
-			"}"
-		);
+		SetHighlightButtom(ui.btn_camSwitch);
 		isCameraOpen = false;
 		for (int i = 0; i < cameras.size(); i++) {
 			disconnect(cameraCaptures[i], &QCameraImageCapture::imageCaptured, this, &CubeExplorerWithQt::slot_imageCaptured);
@@ -222,17 +210,7 @@ void CubeExplorerWithQt::onbtnCamSwitchClicked() {
 		return;
 	}
 	else {
-		ui.btn_camSwitch->setStyleSheet(
-			"QPushButton {"
-			//"   background-color: #f0f0f0;"  // 浅灰
-			"   background-color: #FFFFFF"
-			"   color: black;"
-			"   border-radius: 5px;"
-			"}"
-			"QPushButton:hover {"
-			"   background-color: #e0e0e0;"  // 深灰色（悬停效果）
-			"}"
-		);
+		SetCommonStyButtom(ui.btn_camSwitch);
 	}
 	ui.btn_camSwitch->setText(QStringLiteral("关闭摄像头"));
 	isCameraOpen = true;
@@ -369,6 +347,10 @@ void CubeExplorerWithQt::SaveRestoreRecordsToFile()
 }
 
 void CubeExplorerWithQt::slot_sendOperationSerial() {
+	if (!serialPort->isOpen()) {
+		QMessageBox::warning(this, "Warning", QStringLiteral("又忘记开串口了！！"));
+		return;
+	}
 /*
 		const string commandOp[29] = {
 		"#1P6T75\r\n", "#1P6T50\r\n", "#1P6T100\r\n",
@@ -389,7 +371,7 @@ void CubeExplorerWithQt::slot_sendOperationSerial() {
 	for (auto iter = cubeExplorerSPFA->GetVecStrSerial().cbegin(); iter != cubeExplorerSPFA->GetVecStrSerial().cend(); iter++) {
 		serialPort->write(QString(iter->c_str()).toLatin1());
 	}
-	cubeExplorerSPFA->GetVecStrSerial().clear();
+	//cubeExplorerSPFA->GetVecStrSerial().clear();
 	//serialPort->write(QString("#2P0T200\r\n").toLatin1());
 	serialPort->write(QString("#4P0T200\r\n").toLatin1());
 	serialPort->write(QString("#7P0T200\r\n").toLatin1());
@@ -402,8 +384,8 @@ void CubeExplorerWithQt::on_btnSendSingleClicked() { // 单步执行解算
 	if (cubeExplorerSPFA->GetVecStrSerial().empty()) {
 		serialPort->write(QString("#2P0T200\r\n").toLatin1());
 		serialPort->write(QString("#4P0T200\r\n").toLatin1());
-		serialPort->write(QString("#7P0T200\r\n").toLatin1());
 		serialPort->flush();
+		QMessageBox::information(this, "Notice", QStringLiteral("以全部执行完成"));
 		return;
 	}
 	serialPort->write(QString::fromStdString(cubeExplorerSPFA->GetVecStrSerial()[0]).toLatin1());
@@ -453,6 +435,35 @@ void CubeExplorerWithQt::on_btnResetClicked() {
 		cubeExplorer.handState = HandState(true, false, true, false);
 	}*/
 //	serialPort->write(QString("#5P1T200\r\n").toLatin1()); // clamp_close
+}
+
+void CubeExplorerWithQt::SetHighlightButtom(QPushButton* buttom)
+{
+	buttom->setStyleSheet(
+		"QPushButton {"
+		"   background-color: #4CAF50;"  // 绿色
+		"   color: white;"
+		"   border-radius: 5px;"
+		"}"
+		"QPushButton:hover {"
+		"   background-color: #45a049;"  // 深绿色（悬停效果）
+		"}"
+	);
+}
+
+void CubeExplorerWithQt::SetCommonStyButtom(QPushButton* buttom)
+{
+	buttom->setStyleSheet(
+		"QPushButton {"
+		//"   background-color: #f0f0f0;"  // 浅灰
+		"   background-color: #FFFFFF"
+		"   color: black;"
+		"   border-radius: 5px;"
+		"}"
+		"QPushButton:hover {"
+		"   background-color: #e0e0e0;"  // 深灰色（悬停效果）
+		"}"
+	);
 }
 
 void CubeExplorerWithQt::on_btnRestoreClicked() {
@@ -584,8 +595,10 @@ void CubeExplorerWithQt::on_btnShowSamRecsClicked(){
 			delete pItem;
 		}
 		list_samRecItems.clear();
+		SetHighlightButtom(ui.btn_showSamRecs);
 		return;
 	}
+	SetCommonStyButtom(ui.btn_showSamRecs);
 	QMap<QString, vector<SamRec>> &map_pic_id_samRec = getSamRecMap();	//获取采样框数据map
 	vector<SamRec> map_id_samRec;
 	QGraphicsScene* scene;
@@ -593,8 +606,8 @@ void CubeExplorerWithQt::on_btnShowSamRecsClicked(){
 	QGraphicsRectItem *item;
 
 	QPen pen;	//自定义画笔进行item的绘画
-	pen.setWidth(2);	//
-	pen.setColor(Qt::green);	//
+	pen.setWidth(1);	//
+	pen.setColor("#4CAF50");	//
 
 	for (int i = 0; i < map_pic_id_samRec.size(); i++) {				//遍历采样框数据map
 		map_id_samRec = map_pic_id_samRec[list_picID[i]];				//从list_picID获取字符串作为键值从采样框数据map中获取对应图片的采样框
@@ -627,11 +640,11 @@ void CubeExplorerWithQt::on_btnRecogClicked() {
 #endif // !REALRUN
 }
 
-void CubeExplorerWithQt::on_btnSetHSVClicked(){
-	//HSV设置
-	HSVThresholdDialog td(this);
-	td.setWindowTitle(QStringLiteral("HSV阈值设置"));
-	td.show(); td.exec();
+void CubeExplorerWithQt::on_btnShowLastSampleClicked(){
+	LastSampleDialog lsd(this);
+	lsd.setWindowTitle(QStringLiteral("识别采样"));
+	lsd.show();
+	lsd.exec();
 }
 
 void CubeExplorerWithQt::onSetDataSheetClicked()
@@ -686,6 +699,9 @@ void CubeExplorerWithQt::slot_menuSetRecTriggered()
 	rad.setWindowTitle("SetRec");
 	rad.show();
 	rad.exec();
+
+	on_btnShowSamRecsClicked();
+	on_btnShowSamRecsClicked();
 }
 
 void CubeExplorerWithQt::slot_menuShowHSVTriggered()
@@ -719,6 +735,13 @@ void CubeExplorerWithQt::slot_imageCaptured(int id, const QImage& image)
 	if (++nImgSaved == 4) SolveAndRestore();
 }
 
+void CubeExplorerWithQt::slot_portInfoChanged()
+{
+	serialPort->close();
+	ui.btn_portOpen_close->setText(QStringLiteral("打开串口"));
+	SetHighlightButtom(ui.btn_portOpen_close);
+}
+
 //串口模块响应槽函数
 void CubeExplorerWithQt::on_btnPortRefreshClicked()
 {
@@ -732,12 +755,18 @@ void CubeExplorerWithQt::on_btnPortOpenClicked() // 打开或关闭串口
 {
 	if (serialPort->isOpen()) {
 		serialPort->close();
-		ui.label_portMessage->setText(QStringLiteral("已关闭串口"));
+		ui.btn_portOpen_close->setText(QStringLiteral("打开串口"));
+		ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("SUCCESS: 成功关闭串口") + ui.comboBox_coms->currentText() + "\n");
+		SetHighlightButtom(ui.btn_portOpen_close);
 	}
 	else {
 		serialPort->setPortName(ui.comboBox_coms->currentText());
-		if (serialPort->open(QIODevice::ReadWrite)) ui.label_portMessage->setText(QStringLiteral("打开串口成功"));
-		else ui.label_portMessage->setText(QStringLiteral("打开串口失败"));
+		if (serialPort->open(QIODevice::ReadWrite)) {
+			ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("SUCCESS: 成功打开串口") + ui.comboBox_coms->currentText() + "\n");
+			ui.btn_portOpen_close->setText(QStringLiteral("关闭串口"));
+			SetCommonStyButtom(ui.btn_portOpen_close);
+		}
+		else QMessageBox::critical(this, "Error", QStringLiteral("打开串口失败"));
 	}
 }
 
@@ -823,21 +852,34 @@ void CubeExplorerWithQt::slot_comReadyRead()
 
 void CubeExplorerWithQt::ReadOperationFromPort()
 {
-	QByteArray comByteBuffer = serialPort->readAll();
-	if (!comByteBuffer.isEmpty()) {
+	static QByteArray comByteBuffer = "";
+	comByteBuffer.append(serialPort->readAll());
+	//ui.plainTextEdit_SerialRX->insertPlainText(QString::number(comByteBuffer.size()));
+	if (comByteBuffer.contains("\n")) {
 		//QString decodedString = QTextCodec::codecForName("UTF-8")->toUnicode(comByteBuffer);
 		ui.plainTextEdit_SerialRX->insertPlainText(QString::fromLatin1(comByteBuffer));
+		QTextCursor cursor = ui.plainTextEdit_SerialRX->textCursor();
+		cursor.movePosition(QTextCursor::End);
+		ui.plainTextEdit_SerialRX->setTextCursor(cursor);
+		ui.plainTextEdit_SerialRX->ensureCursorVisible();
+
 		//ui.plainTextEdit_SerialRX->insertPlainText(QString::fromUtf8(comByteBuffer));
-		ui.plainTextEdit_SerialRX->ensureCursorVisible();        // 确保光标可见
+		//ui.plainTextEdit_SerialRX->ensureCursorVisible();        // 确保光标可见
 		
-		if (comByteBuffer.contains("#Start")) {//
-			if (hasRobotStarted || !isCameraOpen) return;
-		//接收到开始按钮指令，开始复原
+		//int status = comByteBuffer.contains("#S");
+		//ui.plainTextEdit_SerialRX->insertPlainText(QString::number(status));
+		if (comByteBuffer.contains("#Sta")) {//
+			if (hasRobotStarted || !isCameraOpen) {
+				ui.plainTextEdit_SerialRX->insertPlainText(hasRobotStarted?QStringLiteral("已经开始复原"):QStringLiteral("摄像头未打开") + "\n");
+				comByteBuffer.clear();
+				return;
+			}
+			//接收到开始按钮指令，开始复原
 			hasRobotStarted = true;
 			on_btnRestoreClicked();
 			ui.label_UI_message->setText(QStringLiteral("串口收到开始信号"));
 		}
-		else if (comByteBuffer.contains("#Over")) {
+		if (comByteBuffer.contains("#O")) {
 			pTimer->stop(); isToRestore = false;
 			//int cnt = cubeExplorer.transCnt;
 			double time = double(int(pMyTimer->getTime() * 100)) / 100;
@@ -846,12 +888,13 @@ void CubeExplorerWithQt::ReadOperationFromPort()
 			hasRobotStarted = false;
 			handReleaseDalayTimer->start(500);
 		}
-		else if (comByteBuffer.contains("#Reset")) {
+		if (comByteBuffer.contains("#Reset")) {
 			hasRobotStarted = false;
 		}
-		else if (comByteBuffer.contains("#Relax")) {
+		if (comByteBuffer.contains("#Relax")) {
 			hasRobotStarted = false;
 		}
+		comByteBuffer.clear();
 	}
 }
 
