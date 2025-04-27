@@ -493,6 +493,7 @@ void CubeExplorerWithQt::SolveAndRestore()
 		ui.plainTextEdit_portWrite->setPlainText(QStringLiteral("识别序列有误！"));
 		ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("FETAL: 识别序列有误！\n"));
 		pTimer->stop(); //停止计时器
+		ui.label_restoreCnt->setText("##");
 		hasRobotStarted = false;
 		if (!inputFromBox) {
 			SaveCaptureMatToFile(curPath.toStdString() + "/pic_cam/cam_");

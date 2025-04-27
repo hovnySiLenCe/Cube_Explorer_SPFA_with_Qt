@@ -165,8 +165,6 @@
      <zorder>btn_block2_8</zorder>
      <zorder>btn_block2_4</zorder>
      <zorder>btn_block2_9</zorder>
-     <zorder>groupBtnBox_1</zorder>
-     <zorder>groupBtnBox_1</zorder>
     </widget>
    </item>
    <item row="1" column="0">
@@ -388,7 +386,7 @@
    <item row="2" column="1">
     <widget class="QGroupBox" name="groupBtnBox_6">
      <property name="title">
-      <string>D面</string>
+      <string>D面（顺时针旋转90度后与图片对应）</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
       <item row="0" column="0">
