@@ -30,9 +30,10 @@
 *.exe
 *.out
 *.app
+*.ilk
+*.pdb
 
 # GeneratedFiles\*
 Cube_Explorer_SPFA_with_Qt/GeneratedFiles/
 .vs/
 x64/
-Execution/
