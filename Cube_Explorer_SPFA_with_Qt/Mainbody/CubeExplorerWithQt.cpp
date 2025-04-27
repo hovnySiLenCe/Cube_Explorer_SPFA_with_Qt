@@ -46,7 +46,7 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	connect(ui.btn_restore, SIGNAL(clicked()), this, SLOT(on_btnRestoreClicked()));
 
 	// 普通操作按钮
-	connect(ui.btn_camSwitch, SIGNAL(clicked()), this, SLOT(onbtnOpenCameraClicked()));
+	connect(ui.btn_camSwitch, SIGNAL(clicked()), this, SLOT(onbtnCamSwitchClicked()));
 	connect(ui.btn_showSamRecs, SIGNAL(clicked()), this, SLOT(on_btnShowSamRecsClicked()));
 	connect(ui.btn_debug, SIGNAL(clicked()), this, SLOT(on_btnDebugClicked()));
 	connect(ui.btn_setHSV, SIGNAL(clicked()), this, SLOT(on_btnSetHSVClicked()));
@@ -60,6 +60,12 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	//connect(ui.btn_stop, SIGNAL(clicked()), this, SLOT(onbtnStopClicked()));
 	connect(ui.btn_stop, &QPushButton::clicked, this, [this]() {
 		serialPort->write(QString("#8P0T000\n\r").toLatin1());
+		});
+	connect(ui.btn_handsOpen, &QPushButton::clicked, this, [this]() {
+		serialPort->write(QString("#2P7T000\r\n").toLatin1());
+		});
+    connect(ui.btn_handsClose, &QPushButton::clicked, this, [this]() {
+		serialPort->write(QString("#2P6T000\r\n").toLatin1());
 		});
 
 	// 动作按钮
@@ -127,7 +133,21 @@ CubeExplorerWithQt::~CubeExplorerWithQt() {
 void CubeExplorerWithQt::InitCameraEvents()
 {
     // 定义相机名称和对应的UI组件映射
-    const QStringList cameraNames = {"FR", "U", "BL", "D"};
+	cameraCombos = {
+		ui.comboBox_cameraFR,
+		ui.comboBox_cameraU,
+		ui.comboBox_cameraBL,
+		ui.comboBox_cameraD
+	};
+	cameraViews = {
+		ui.graView_cameraFR,
+		ui.graView_cameraU,
+		ui.graView_cameraBL,
+		ui.graView_cameraD
+	};
+
+	const QStringList cameraNames = { "FR", "U", "BL", "D" };
+
     QMap<QString, QComboBox*> comboBoxMap = {
         {"FR", ui.comboBox_cameraFR},
         {"U", ui.comboBox_cameraU},
@@ -141,43 +161,33 @@ void CubeExplorerWithQt::InitCameraEvents()
         {"D", ui.graView_cameraD}
     };
 
-    // 绑定组合框的信号槽
-    for (const QString& name : cameraNames) {
-        QComboBox* comboBox = comboBoxMap[name];
+    // 为每个显示视图绑定对应的信号槽和初始化
+	for (int i = 0; i < cameraCombos.size(); i++) {
+		// 绑定下拉框信号槽
+        QComboBox* comboBox = cameraCombos[i];
         connect(comboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_cameraInfoChanged(QString)));
-    }
+		
+		// 绑定图形视图信号槽
+		QGraphicsView* graView = cameraViews[i];
+		connect(graView, SIGNAL(mouseReleased(QRect)), this, SLOT(slot_mouseReleasedInCameraViews(QRect)));
 
-    // 绑定图形视图的信号槽
-    for (const QString& name : cameraNames) {
-        QGraphicsView* graView = graViewMap[name];
-        connect(graView, SIGNAL(mouseReleased(QRect)), this, SLOT(slot_mouseReleasedInCameraViews(QRect)));
+		// 新建场景
+		QGraphicsScene* scene = new QGraphicsScene(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2, SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT);
+		graView->setScene(scene);
+		graView->setCursor(Qt::CrossCursor);
+		graView->setDragMode(QGraphicsView::RubberBandDrag);
+
+		// 新建视频项
+		QGraphicsVideoItem* videoItem = new QGraphicsVideoItem;
+		videoItem->setSize(QSize(SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT));
+		videoItem->setPos(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2);
+		scene->addItem(videoItem);
+
     }
 
     // 菜单动作绑定
     connect(ui.actSetBlock, SIGNAL(triggered()), this, SLOT(slot_menuSetRecTriggered()));
     connect(ui.actShowHSV, SIGNAL(triggered()), this, SLOT(slot_menuShowHSVTriggered()));
-
-    // 初始化视频显示组件
-    QMap<QString, QGraphicsScene*> scenes;
-
-    for (const QString& name : cameraNames) {
-        QGraphicsVideoItem* videoItem = new QGraphicsVideoItem;
-        videoItem->setSize(QSize(SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT));
-        videoItem->setPos(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2);
-        videoItems[name] = videoItem;
-
-        QGraphicsScene* scene = new QGraphicsScene(-SCENE_VIEW_WIDTH / 2, -SCENE_VIEW_HEIGHT / 2, SCENE_VIEW_WIDTH, SCENE_VIEW_HEIGHT);
-        scenes[name] = scene;
-
-        map_pic_pScene.insert(name, scene);
-
-        QGraphicsView* graView = graViewMap[name];
-        graView->setScene(scene);
-        graView->setCursor(Qt::CrossCursor);
-        graView->setDragMode(QGraphicsView::RubberBandDrag);
-
-        scene->addItem(videoItem);
-    }
 
     // 初始化摄像头索引映射
     QMap<QString, int> cameraIndexMap = {
@@ -190,13 +200,21 @@ void CubeExplorerWithQt::InitCameraEvents()
 }
 
 
-void CubeExplorerWithQt::onbtnOpenCameraClicked() {
-	if (isCameraOpen) return;
+void CubeExplorerWithQt::onbtnCamSwitchClicked() {
+	if (isCameraOpen) {
+		isCameraOpen = false;
+		for (int i = 0; i < cameras.length(); i++) {
+			if (cameras[i]->status() != QCamera::ActiveStatus) cameras[i]->stop();
+		}
+        ui.btn_camSwitch->setText(QStringLiteral("打开摄像头"));
+		return;
+	}
+	ui.btn_camSwitch->setText(QStringLiteral("关闭摄像头"));
 	isCameraOpen = true;
 
 	//刷新可用摄像头信息（打开摄像头开关）
-	list_cameraInfo.clear();
-	list_pCamera.clear();
+	//list_cameraInfo.clear();
+	cameras.clear();
 	list_pCapture.clear();
 	//list_pSnap.clear();
 
@@ -210,9 +228,14 @@ void CubeExplorerWithQt::onbtnOpenCameraClicked() {
 	ui.comboBox_cameraBL->addItem(QString::number(-1));
 	ui.comboBox_cameraD->addItem(QString::number(-1));
 
+	QCameraViewfinderSettings set; // 设置摄像头刷新率30hz, 分辨率1920*1080
+	set.setMaximumFrameRate(30);
+	set.setMinimumFrameRate(30);
+	set.setResolution(1920, 1080);
+
 	int i = 0;
 	foreach(QCameraInfo info, QCameraInfo::availableCameras()) {
-		list_cameraInfo.append(info);
+		//list_cameraInfo.append(info);
 
 		QCamera* camera_t = new QCamera(info);																//构建camera对象，存放到list_pCamera中
 		QCameraImageCapture* capture_t = new QCameraImageCapture(camera_t);									//并构建对应于当前摄像头的capture对象，存放到list_pCapture中
@@ -224,7 +247,7 @@ void CubeExplorerWithQt::onbtnOpenCameraClicked() {
 		connect(capture_t, &QCameraImageCapture::imageCaptured, this, &CubeExplorerWithQt::slot_imageCaptured);	//
 		map_capture_pId[capture_t] = i;
 
-		list_pCamera.append(camera_t);
+		cameras.append(camera_t);
 		list_pCapture.append(capture_t);
 		//list_pSnap.append(snap_t);
 
@@ -235,24 +258,22 @@ void CubeExplorerWithQt::onbtnOpenCameraClicked() {
 		i++;
 	}
 
-	if (list_pCamera.size() >= 1) list_pCamera[0]->setViewfinder(videoItems["FR"]);	//
-	if (list_pCamera.size() >= 2) list_pCamera[1]->setViewfinder(videoItems["U"]);	//
-	if (list_pCamera.size() >= 3) list_pCamera[2]->setViewfinder(videoItems["BL"]);	//
-	if (list_pCamera.size() >= 4) list_pCamera[3]->setViewfinder(videoItems["D"]);	//
-
-	// 设置下拉框默认选项，为下拉框中数字索引（start from 1: 0是-1
-	ui.comboBox_cameraFR->setCurrentIndex(1);
-	ui.comboBox_cameraU->setCurrentIndex(2);
-	ui.comboBox_cameraBL->setCurrentIndex(3);
-	ui.comboBox_cameraD->setCurrentIndex(4);
-
-	QCameraViewfinderSettings set; // 设置摄像头刷新率30hz, 分辨率1920*1080
-	set.setMaximumFrameRate(30);
-	set.setMinimumFrameRate(30);
-	set.setResolution(1920, 1080);
-	for (int i = 0; i < list_pCamera.length(); i++) {
-		if (list_pCamera[i]->status() != QCamera::ActiveStatus) list_pCamera[i]->start();
-		list_pCamera[i]->setViewfinderSettings(set);
+	// comboBox 从1开始，0是-1无效
+	if (cameras.size() >= 1) {
+		cameras[0]->setViewfinder(videoItems["FR"]);
+		ui.comboBox_cameraFR->setCurrentIndex(1);
+	}
+	if (cameras.size() >= 2) {
+		cameras[1]->setViewfinder(videoItems["U"]);
+		ui.comboBox_cameraU->setCurrentIndex(2);
+	}
+	if (cameras.size() >= 3) {
+		cameras[2]->setViewfinder(videoItems["BL"]);
+		ui.comboBox_cameraBL->setCurrentIndex(3);
+	}
+	if (cameras.size() >= 4) {
+		cameras[3]->setViewfinder(videoItems["D"]);
+		ui.comboBox_cameraD->setCurrentIndex(4);
 	}
 }
 
@@ -739,7 +760,7 @@ void CubeExplorerWithQt::slot_cameraInfoChanged(const QString & text)
 	//ui.plainTextEdit_portWrite->setPlainText(str_t);
 
 	QString picName = QString(str_t[str_t.length() - 2])=="a" ? QString(str_t[str_t.length() - 1]):QString(str_t[str_t.length() - 2]) + QString(str_t[str_t.length() - 1]);
-	list_pCamera[index]->setViewfinder(videoItems[picName]);
+	cameras[index]->setViewfinder(videoItems[picName]);
 
 	map_pic_cameraIndex.insert(picName, index);
 }

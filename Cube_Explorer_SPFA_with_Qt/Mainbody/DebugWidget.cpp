@@ -6,7 +6,6 @@ DebugWidget::DebugWidget(QSerialPort* serialPort, QWidget *parent)
 	ui.setupUi(this);
 
 	connect(ui.btn_showLastSample, SIGNAL(clicked()), this, SLOT(on_btnShowLastSampleClicked()));
-
 	connect(ui.btn_left_close, SIGNAL(clicked()), this, SLOT(ClickBtnLeftClose()));
 	connect(ui.btn_left_close_small, SIGNAL(clicked()), this, SLOT(ClickBtnLeftCloseSmall()));
 	connect(ui.btn_left_close_half, SIGNAL(clicked()), this, SLOT(ClickBtnLeftHalfClose()));
@@ -415,7 +414,7 @@ void DebugWidget::ClickBtnCreate() {
 }
 
 void DebugWidget::ClickBtnSave() {
-	freopen("1.txt", "w", stdout);
+	freopen(".\Data\GeneratedOperationSequence.txt", "w", stdout);
 	cout << st << endl;
 	for (int i = 1; i <= st; i++)
 	{
@@ -425,7 +424,7 @@ void DebugWidget::ClickBtnSave() {
 }
 
 void DebugWidget::ClickBtnOpen() {
-	freopen("1.txt", "r", stdin);
+	freopen(".\Data\GeneratedOperationSequence.txt", "r", stdin);
 	steps = "";
 	cin >> st;
 	for (int i = 1; i <= st; i++)

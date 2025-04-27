@@ -1336,7 +1336,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>20</height>
+           <height>15</height>
           </size>
          </property>
         </spacer>
@@ -1359,6 +1359,9 @@
           <string/>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
+          <property name="spacing">
+           <number>6</number>
+          </property>
           <item>
            <widget class="QPushButton" name="btn_camSwitch">
             <property name="sizePolicy">
@@ -1388,7 +1391,7 @@
              </font>
             </property>
             <property name="text">
-             <string>摄像头开关</string>
+             <string>打开摄像头</string>
             </property>
            </widget>
           </item>
@@ -1548,6 +1551,9 @@
           <string/>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
+          <property name="spacing">
+           <number>5</number>
+          </property>
           <item>
            <widget class="QPushButton" name="btn_stop">
             <property name="sizePolicy">
@@ -1610,6 +1616,66 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="btn_handsClose">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>38</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>45</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>闭爪</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_handsOpen">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>38</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>45</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>开爪</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -1631,6 +1697,9 @@
           <string/>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
+          <property name="spacing">
+           <number>4</number>
+          </property>
           <item>
            <widget class="QPushButton" name="btn_recog">
             <property name="sizePolicy">

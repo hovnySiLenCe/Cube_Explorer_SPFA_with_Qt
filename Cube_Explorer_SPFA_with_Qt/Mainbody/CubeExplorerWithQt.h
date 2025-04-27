@@ -50,6 +50,13 @@ struct RestoreRecord {
 	RestoreRecord(int n, double t) :cnt(n), time(t) {}
 };
 
+enum {
+	SCENE_FR,
+	SCENE_U,
+	SCENE_BL,
+	SCENE_D
+};
+
 class CubeExplorerWithQt : public QMainWindow
 {
 	Q_OBJECT
@@ -111,8 +118,12 @@ private:
 	QGraphicsVideoItem* videoItem_D;					//
 	QRect rec_tSelect;									//选取框位置临时记录
 	QString curPath;									//当前工作目录
+	
+	QList<QComboBox*> cameraCombos;						//将所有 QComboBox 指针放入容器
+	QList<QGraphicsView*> cameraViews;					//将所有 QGraphicsView 指针放入容器
+	
 	QList<QCameraInfo> list_cameraInfo;					//摄像头信息
-	QList<QCamera*> list_pCamera;						//摄像头列表和摄像头捕获对象列表，两者下标对应
+	QList<QCamera*> cameras;							//摄像头列表和摄像头捕获对象列表，两者下标对应
 	QList<QCameraImageCapture*> list_pCapture;			//
 	//QList<QVideoProbe*> list_pSnap;
 	QMap<QString, int> map_pic_cameraIndex;				//图片名到摄像头对象指针的映射
@@ -131,7 +142,7 @@ public slots:
 	void on_btnResetClicked();
 	void on_btnSendSingleClicked();
 	void on_btnDebugClicked();
-	void onbtnOpenCameraClicked();
+	void onbtnCamSwitchClicked();
 	void on_btnShowSamRecsClicked();
 	void on_btnRecogClicked();
 	void on_btnSetHSVClicked();
