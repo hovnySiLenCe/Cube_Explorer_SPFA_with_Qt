@@ -47,9 +47,19 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 
 	// 普通操作按钮
 	connect(ui.btn_camSwitch, SIGNAL(clicked()), this, SLOT(onbtnCamSwitchClicked()));
+	ui.btn_camSwitch->setStyleSheet(
+		"QPushButton {"
+		"   background-color: #4CAF50;"  // 绿色
+		"   color: white;"
+		"   border-radius: 5px;"
+		"}"
+		"QPushButton:hover {"
+		"   background-color: #45a049;"  // 深绿色（悬停效果）
+		"}"
+	);
 	connect(ui.btn_showSamRecs, SIGNAL(clicked()), this, SLOT(on_btnShowSamRecsClicked()));
 	connect(ui.btn_debug, SIGNAL(clicked()), this, SLOT(on_btnDebugClicked()));
-	connect(ui.btn_setHSV, SIGNAL(clicked()), this, SLOT(on_btnSetHSVClicked()));
+	//connect(ui.btn_setHSV, SIGNAL(clicked()), this, SLOT(on_btnSetHSVClicked()));
 	connect(ui.btn_setDataSheet, SIGNAL(clicked()), this, SLOT(onSetDataSheetClicked()));
 
 	// 下位机操作按钮
@@ -184,15 +194,45 @@ void CubeExplorerWithQt::InitCameraEvents()
 
 
 void CubeExplorerWithQt::onbtnCamSwitchClicked() {
+
+	ui.btn_camSwitch->setEnabled(false);
+
 	if (isCameraOpen) {
+		ui.btn_camSwitch->setStyleSheet(
+			"QPushButton {"
+			"   background-color: #4CAF50;"  // 绿色
+			"   color: white;"
+			"   border-radius: 5px;"
+			"}"
+			"QPushButton:hover {"
+			"   background-color: #45a049;"  // 深绿色（悬停效果）
+			"}"
+		);
 		isCameraOpen = false;
 		for (int i = 0; i < cameras.size(); i++) {
+			disconnect(cameraCaptures[i], &QCameraImageCapture::imageCaptured, this, &CubeExplorerWithQt::slot_imageCaptured);
+			delete cameraCaptures[i];
 			cameras[i]->stop();
 			delete cameras[i];
-			delete cameraCaptures[i];
 		}
+		for (QComboBox* comboBox : cameraCombos)
+			comboBox->clear();
         ui.btn_camSwitch->setText(QStringLiteral("打开摄像头"));
+		ui.btn_camSwitch->setEnabled(true);
 		return;
+	}
+	else {
+		ui.btn_camSwitch->setStyleSheet(
+			"QPushButton {"
+			//"   background-color: #f0f0f0;"  // 浅灰
+			"   background-color: #FFFFFF"
+			"   color: black;"
+			"   border-radius: 5px;"
+			"}"
+			"QPushButton:hover {"
+			"   background-color: #e0e0e0;"  // 深灰色（悬停效果）
+			"}"
+		);
 	}
 	ui.btn_camSwitch->setText(QStringLiteral("关闭摄像头"));
 	isCameraOpen = true;
@@ -201,6 +241,7 @@ void CubeExplorerWithQt::onbtnCamSwitchClicked() {
 	//list_cameraInfo.clear();
 	cameras.clear();
 	cameraCaptures.clear();
+	captureToSceneIndex.clear();
 	//list_pSnap.clear();
 
 	for (QComboBox* comboBox : cameraCombos) {
@@ -218,7 +259,8 @@ void CubeExplorerWithQt::onbtnCamSwitchClicked() {
 		//list_cameraInfo.append(info);
 
 		//构建camera对象并存放在cameras中
-		QCamera* camera_t = new QCamera(info);
+		QCamera* camera_t = new QCamera(info, this);
+		camera_t->setViewfinderSettings(set);
 		cameras.append(camera_t);
 		
 		//并构建对应于当前摄像头的capture对象，并将capture对象添加到captures中
@@ -240,8 +282,11 @@ void CubeExplorerWithQt::onbtnCamSwitchClicked() {
 	for (int i = 0; i < cameras.size(); i++) {
 		cameraCombos[i]->setCurrentIndex(i+1);
 		cameras[i]->setViewfinder(cameraVideoItems[i]);
+		cameras[i]->start();
 	}
 	//cameras[0]->setViewfinder(videoItems["FR"]);
+
+	ui.btn_camSwitch->setEnabled(true);
 }
 
 // 捕获并存储相机文件
@@ -706,23 +751,29 @@ void CubeExplorerWithQt::on_btnPortSendClicked() // 向串口发送输入框内信息
 
 void CubeExplorerWithQt::slot_cameraInfoChanged(const QString & text)
 {
+	if (!isCameraOpen) return;
 	// 获取当前摄像头索引
 	int camIndex = text.toInt();
-	if (!(~camIndex)) {
-
-		return;
-	}
 
 	QString str_t = sender()->objectName();
-
+	
 	// 获取当前场景的索引
-	QString picName = QString(str_t[str_t.length() - 2])=="a" ? QString(str_t[str_t.length() - 1]):QString(str_t[str_t.length() - 2]) + QString(str_t[str_t.length() - 1]);
+	QString picName = QString(str_t[str_t.length() - 2]) == "a" ? QString(str_t[str_t.length() - 1]) : QString(str_t[str_t.length() - 2]) + QString(str_t[str_t.length() - 1]);
 	int sceneIndex = sceneNameToIndex[picName];
+
+	// 获取显示控件的索引
+	QGraphicsVideoItem* videoItem = cameraVideoItems[sceneIndex];
+
+	if (!(~camIndex)) {
+		videoItem->hide();
+		return;
+	}
 
 	captureToSceneIndex[cameraCaptures[camIndex]] = sceneIndex;
 
 	// 将当前摄像头的视图显示到当前场景内
-	cameras[camIndex]->setViewfinder(cameraVideoItems[sceneIndex]);
+	cameras[camIndex]->setViewfinder(videoItem);
+	videoItem->show();
 }
 
 void CubeExplorerWithQt::slot_timeout() {
