@@ -1,4 +1,7 @@
 <RCC>
-    <qresource prefix="CubicExplorerWithQt">
+    <qresource prefix="/CubicExplorerWithQt">
+        <file>source/reset.png</file>
+        <file>source/start.png</file>
+        <file>source/stop.png</file>
     </qresource>
 </RCC>

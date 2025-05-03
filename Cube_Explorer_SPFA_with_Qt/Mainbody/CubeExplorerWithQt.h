@@ -94,8 +94,8 @@ private:
 	CubeExplorerSPFA* cubeExplorerSPFA; // ！！new
 	MultiSolver* multiSolver;
 	
-	QTimer* pTimer;										//复原计时触发器
-	MyTimer* pMyTimer;									//复原计时器
+	QTimer* timer_displayRefresh;										//复原计时触发器
+	MyTimer* timer_stopWatch;									//复原计时器
 	QList<RestoreRecord> list_restoreRecords;			//复原记录
 
 	QTimer* timeoutTimer;
@@ -141,6 +141,7 @@ private:
 
 	QList<QGraphicsRectItem*> list_samRecItems;			//存储显示在窗口上的采样框指针QByteArray byteTmp;
 
+	void InitTimerComponent();
 	void SetHighlightButtom(QPushButton* buttom);
 	void SetCommonStyButtom(QPushButton* buttom);
 
@@ -154,7 +155,7 @@ public slots:
 	void onbtnCamSwitchClicked();
 	void on_btnShowSamRecsClicked();
 	void on_btnRecogClicked();
-	void on_btnShowLastSampleClicked();
+	void on_btnShowSampleResultClicked();
 	void onSetDataSheetClicked();
 
 	//摄像头View鼠标响应槽函数
@@ -175,14 +176,14 @@ public slots:
 
 	void slot_sendOperationSerial();
 
-	void slot_timeout();
+	void TimerDisplayRefresh();
 	void slot_comReadyRead();
 	void ReadOperationFromPort();
 	
 	void slot_baudRateChanged();
-	void on_btnStrategyConfirm();
+	//void on_btnStrategyConfirm();
 
-	void slot_onReceiveTimeout();
+	void WaitForPortReadTimeout();
 	void slotInputStateChange(); // 输入状态改变功能
 	void slotReuseStateChange(); // 时间复用功能
 
