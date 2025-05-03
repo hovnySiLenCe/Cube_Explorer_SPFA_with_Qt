@@ -8,29 +8,38 @@ class MyTimer {
 	typedef std::chrono::steady_clock               sc;
 
 private:
-	tp tpBegin;
+	tp tpBegin, tpEnd;
 	dd ddSpan;
+	bool isStarted = false;
 
 public:
-	MyTimer() : tpBegin(tp()), ddSpan(dd(0)) {}
+	MyTimer() : tpBegin(tp()), ddSpan(dd(0)), isStarted(false) {}
+
+	bool isRunning() {
+		return isStarted;
+	}
 
 	void start() {
+		isStarted = true;
 		tpBegin = sc::now();
 	}
 
 	void stop() {
-		tp tpEnd = sc::now();
+		isStarted = false;
+		tpEnd = sc::now();
 		ddSpan += std::chrono::duration<double>(tpEnd - tpBegin);
 	}
 
 	double getTime() {
-		tp tpEnd = sc::now();
+        if (!isStarted) return ddSpan.count();
+		tp tpTmp = sc::now();
 		dd spanTmp = dd(0);
-		spanTmp += std::chrono::duration<double>(tpEnd - tpBegin);
+		spanTmp = ddSpan + std::chrono::duration<double>(tpTmp - tpBegin);
 		return spanTmp.count();
 	}
 
 	void reset() {
+		isStarted = false;
 		ddSpan = dd(0);
 	}
 };

@@ -25,6 +25,9 @@
   <property name="windowTitle">
    <string>QtGuiAppForCubicExplorer</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QGroupBox" name="horizontalLayout_ALL">
    <property name="geometry">
     <rect>
@@ -35,7 +38,7 @@
     </rect>
    </property>
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -54,13 +57,13 @@
      <number>0</number>
     </property>
     <property name="topMargin">
-     <number>10</number>
+     <number>5</number>
     </property>
     <property name="rightMargin">
      <number>0</number>
     </property>
     <property name="bottomMargin">
-     <number>10</number>
+     <number>5</number>
     </property>
     <item>
      <widget class="QGroupBox" name="verticalLayout_9">
@@ -84,16 +87,16 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <property name="spacing">
-        <number>5</number>
+        <number>3</number>
        </property>
        <property name="leftMargin">
-        <number>10</number>
+        <number>5</number>
        </property>
        <property name="topMargin">
         <number>5</number>
        </property>
        <property name="rightMargin">
-        <number>10</number>
+        <number>5</number>
        </property>
        <property name="bottomMargin">
         <number>5</number>
@@ -160,6 +163,11 @@
                   <height>16777215</height>
                  </size>
                 </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
                </widget>
               </item>
               <item>
@@ -202,7 +210,7 @@
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>40</width>
+              <width>20</width>
               <height>20</height>
              </size>
             </property>
@@ -231,6 +239,11 @@
                   <width>160</width>
                   <height>16777215</height>
                  </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
                 </property>
                </widget>
               </item>
@@ -274,7 +287,7 @@
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>40</width>
+              <width>20</width>
               <height>20</height>
              </size>
             </property>
@@ -303,6 +316,11 @@
                   <width>160</width>
                   <height>16777215</height>
                  </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
                 </property>
                </widget>
               </item>
@@ -346,7 +364,7 @@
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>40</width>
+              <width>20</width>
               <height>20</height>
              </size>
             </property>
@@ -375,6 +393,11 @@
                   <width>160</width>
                   <height>16777215</height>
                  </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
                 </property>
                </widget>
               </item>
@@ -418,7 +441,7 @@
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>40</width>
+              <width>20</width>
               <height>20</height>
              </size>
             </property>
@@ -902,10 +925,16 @@
           <item>
            <widget class="QGroupBox" name="groupBox_message">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>700</width>
+              <height>0</height>
+             </size>
             </property>
             <layout class="QVBoxLayout" name="groupBox_portMessage">
              <item>
@@ -914,9 +943,14 @@
                 <widget class="QLabel" name="label_UI_message">
                  <property name="font">
                   <font>
-                   <family>Agency FB</family>
-                   <pointsize>11</pointsize>
+                   <family>宋体</family>
+                   <pointsize>12</pointsize>
+                   <weight>50</weight>
+                   <bold>false</bold>
                   </font>
+                 </property>
+                 <property name="mouseTracking">
+                  <bool>false</bool>
                  </property>
                  <property name="text">
                   <string>message</string>
@@ -946,7 +980,7 @@
              <item>
               <widget class="QPlainTextEdit" name="plainTextEdit_SerialRX">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -959,15 +993,21 @@
                </property>
                <property name="font">
                 <font>
-                 <family>Microsoft YaHei UI</family>
+                 <family>Consolas</family>
                  <pointsize>11</pointsize>
                 </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
                </property>
                <property name="documentTitle">
                 <string/>
                </property>
                <property name="readOnly">
                 <bool>true</bool>
+               </property>
+               <property name="plainText">
+                <string/>
                </property>
                <property name="cursorWidth">
                 <number>1</number>
@@ -1002,159 +1042,84 @@
             <layout class="QVBoxLayout" name="verticalLayout">
              <item>
               <layout class="QHBoxLayout" name="hLay_portIni">
+               <property name="spacing">
+                <number>3</number>
+               </property>
                <item>
-                <layout class="QHBoxLayout" name="hLay_port">
-                 <item>
-                  <widget class="QLabel" name="label_8">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>12</pointsize>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>串口号:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QComboBox" name="comboBox_coms">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>100</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>100</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>12</pointsize>
-                    </font>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="btn_portRefresh">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>70</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>70</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>12</pointsize>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>刷新</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="btn_portOpen_close">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>100</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>100</width>
-                     <height>30</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>12</pointsize>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>打开串口</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_portMessage">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>150</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>12</pointsize>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
+                <widget class="QLabel" name="label_8">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>串口号:</string>
+                 </property>
+                </widget>
                </item>
                <item>
-                <spacer name="horizontalSpacer_8">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
+                <widget class="QComboBox" name="comboBox_coms">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
                  </property>
-                 <property name="sizeType">
-                  <enum>QSizePolicy::Expanding</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
+                 <property name="minimumSize">
                   <size>
-                   <width>450</width>
-                   <height>20</height>
+                   <width>75</width>
+                   <height>35</height>
                   </size>
                  </property>
-                </spacer>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>35</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
+                </widget>
                </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QHBoxLayout" name="hLay_baudRateAndStratagy">
+               <item>
+                <widget class="QPushButton" name="btn_portRefresh">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>70</width>
+                   <height>35</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>70</width>
+                   <height>35</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>刷新</string>
+                 </property>
+                </widget>
+               </item>
                <item>
                 <widget class="QLabel" name="label_baudRate">
                  <property name="enabled">
@@ -1166,6 +1131,11 @@
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>波特率:</string>
                  </property>
@@ -1176,6 +1146,29 @@
                </item>
                <item>
                 <widget class="QComboBox" name="comboBox_baudRate">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>35</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>35</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
                  <property name="editable">
                   <bool>true</bool>
                  </property>
@@ -1198,71 +1191,63 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="label_baudRate_2">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
+                <widget class="QPushButton" name="btn_portOpen_close">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>35</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>35</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">#btn_portOpen_close {
+	background-color: #4CAF50;
+	color: white;
+	border-radius: 5px;
+}
+#btn_portOpen_close:hover {
+	background-color: #45a049;
+}</string>
+                 </property>
                  <property name="text">
-                  <string>运行策略:</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  <string>打开串口</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QComboBox" name="comboBox_strategy">
-                 <property name="editable">
-                  <bool>true</bool>
-                 </property>
-                 <property name="currentText">
-                  <string>slow</string>
-                 </property>
-                 <property name="currentIndex">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>slow</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>median</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>fast</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>ultra fast</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="btn_stratagyConfirm">
-                 <property name="text">
-                  <string>确认并发送</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_inputState">
+                <widget class="QLabel" name="label_portMessage">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>150</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>12</pointsize>
+                  </font>
                  </property>
                  <property name="text">
                   <string/>
@@ -1270,12 +1255,12 @@
                 </widget>
                </item>
                <item>
-                <spacer name="horizontalSpacer_9">
+                <spacer name="horizontalSpacer_8">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
                  <property name="sizeType">
-                  <enum>QSizePolicy::Fixed</enum>
+                  <enum>QSizePolicy::Expanding</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
@@ -1285,44 +1270,18 @@
                  </property>
                 </spacer>
                </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QHBoxLayout" name="hLay_portWrite">
-               <item>
-                <widget class="QPlainTextEdit" name="plainTextEdit_portWrite">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>700</width>
-                   <height>150</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <family>Microsoft YaHei UI</family>
-                   <pointsize>10</pointsize>
-                  </font>
-                 </property>
-                </widget>
-               </item>
                <item>
                 <widget class="QPushButton" name="btn_portSend">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>80</width>
-                   <height>80</height>
+                   <width>95</width>
+                   <height>0</height>
                   </size>
                  </property>
                  <property name="maximumSize">
@@ -1333,11 +1292,43 @@
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>14</pointsize>
+                   <pointsize>12</pointsize>
                   </font>
                  </property>
                  <property name="text">
-                  <string>发送</string>
+                  <string>发送信息</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="hLay_portWrite">
+               <property name="spacing">
+                <number>3</number>
+               </property>
+               <property name="rightMargin">
+                <number>1</number>
+               </property>
+               <item>
+                <widget class="QPlainTextEdit" name="plainTextEdit_portWrite">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>600</width>
+                   <height>150</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Microsoft YaHei UI</family>
+                   <pointsize>10</pointsize>
+                  </font>
                  </property>
                 </widget>
                </item>
@@ -1444,6 +1435,16 @@
               <bold>false</bold>
              </font>
             </property>
+            <property name="styleSheet">
+             <string notr="true">#btn_camSwitch{
+	background-color: #4CAF50;
+	color: white;
+	border-radius: 5px;
+}
+#btn_camSwitch{
+	background-color: #45a049;
+}</string>
+            </property>
             <property name="text">
              <string>打开摄像头</string>
             </property>
@@ -1477,13 +1478,23 @@
               <bold>false</bold>
              </font>
             </property>
+            <property name="styleSheet">
+             <string notr="true">#btn_showSamRecs {
+	background-color: #4CAF50;
+	color: white;
+	border-radius: 5px;
+}
+#btn_showSamRecs:hover {
+	background-color: #45a049;
+}</string>
+            </property>
             <property name="text">
              <string>显示采样框</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="btn_showLastSample">
+           <widget class="QPushButton" name="btn_showSampleResult">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -1930,6 +1941,9 @@
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
@@ -1938,7 +1952,7 @@
          </property>
         </spacer>
        </item>
-       <item alignment="Qt::AlignHCenter">
+       <item>
         <widget class="QGroupBox" name="groupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
@@ -1954,12 +1968,17 @@
          </property>
          <property name="maximumSize">
           <size>
-           <width>125</width>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
          <property name="title">
-          <string/>
+          <string>计时器</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
@@ -2029,6 +2048,9 @@
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <property name="spacing">
+               <number>1</number>
+              </property>
               <item>
                <spacer name="horizontalSpacer_15">
                 <property name="orientation">
@@ -2045,7 +2067,7 @@
               <item>
                <widget class="QLineEdit" name="lineEdit_second1">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -2078,6 +2100,12 @@
               </item>
               <item>
                <widget class="QLabel" name="label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="font">
                  <font>
                   <family>Consolas</family>
@@ -2093,6 +2121,12 @@
               </item>
               <item>
                <widget class="QLineEdit" name="lineEdit_second2">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="minimumSize">
                  <size>
                   <width>36</width>
@@ -2118,6 +2152,12 @@
               </item>
               <item>
                <widget class="QLabel" name="label_2">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="font">
                  <font>
                   <family>Times New Roman</family>
@@ -2145,6 +2185,113 @@
                </spacer>
               </item>
              </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <item>
+             <spacer name="horizontalSpacer_21">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btn_timerStop">
+              <property name="styleSheet">
+               <string notr="true">/* 为名为 btn_timerStop 的按钮设置样式 */
+#btn_timerStop {
+    background-color: rgb(255, 149, 19); /* 背景颜色为橙色 */
+    color: white; /* 文本颜色为白色 */
+    border-radius: 15px; /* 圆角边框 */
+    height: 31px;
+    width: 30px;
+    padding-left: 1px; /* 设置左内边距为 2px */
+}
+
+#btn_timerStop:hover {
+    background-color: rgb(255, 112, 16); /* 鼠标悬停时背景颜色变为深橙色 */
+}
+</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>source/start.png</normaloff>
+                <normalon>source/stop.png</normalon>source/start.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_9">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btn_timerReset">
+              <property name="styleSheet">
+               <string notr="true">/* 为名为 btn_timerReset 的按钮设置样式 */
+#btn_timerReset {
+    background-color: #FFFFFF;
+    border: 1px solid #e0e0e0; /* 修正 border 属性，指定宽度、样式和颜色 */
+    border-radius: 15.5px; /* 圆角边框 */
+    height: 31px;
+    width: 30px;
+    padding-left: 1px; /* 设置左内边距为 2.5px */
+}
+
+#btn_timerReset:hover {
+    background-color: hsl(212, 5%, 95%);
+}
+</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>source/reset.png</normaloff>source/reset.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="checkable">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_22">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </item>

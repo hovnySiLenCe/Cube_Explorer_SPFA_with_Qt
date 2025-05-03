@@ -19,16 +19,11 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 
 	curPath = QDir::currentPath();		//获取当前工作路径
 
-	pTimer = new QTimer(this);			//构造并绑定计时器槽函数
-	pTimer->setInterval(50); //设置计时器间隔，用于刷新显示复原用时
-	pMyTimer = new MyTimer();
-	connect(pTimer, &QTimer::timeout, this, &CubeExplorerWithQt::slot_timeout);
-
 	// 串口延时接收计时器
 	byteTmp = new QByteArray(); // 用于接收串口信息
 	timeoutTimer = new QTimer(this);
 	timeoutTimer->setSingleShot(true);
-	connect(timeoutTimer, &QTimer::timeout, this, &CubeExplorerWithQt::slot_onReceiveTimeout);
+	connect(timeoutTimer, &QTimer::timeout, this, &CubeExplorerWithQt::WaitForPortReadTimeout);
 
 	// 延时松手计时器
 	handReleaseDalayTimer = new QTimer(this);
@@ -42,6 +37,9 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 
 	/*connect(ui.btn_tightOrLoose, SIGNAL(clicked()), this, SLOT(on_btnTightOrLooseClicked()));*/
 	
+	// 计时器组件
+	InitTimerComponent();
+
 	// 开始复原按钮
 	connect(ui.btn_restore, SIGNAL(clicked()), this, SLOT(on_btnRestoreClicked()));
 
@@ -53,7 +51,7 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	SetHighlightButtom(ui.btn_showSamRecs);
 
 	connect(ui.btn_debug, SIGNAL(clicked()), this, SLOT(on_btnDebugClicked()));
-	connect(ui.btn_showLastSample, SIGNAL(clicked()), this, SLOT(on_btnShowLastSampleClicked()));
+	connect(ui.btn_showSampleResult, SIGNAL(clicked()), this, SLOT(on_btnShowSampleResultClicked()));
 	connect(ui.btn_setDataSheet, SIGNAL(clicked()), this, SLOT(onSetDataSheetClicked()));
 
 	// 下位机操作按钮
@@ -91,7 +89,7 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	connect(ui.btn_portRefresh, SIGNAL(clicked()), this, SLOT(on_btnPortRefreshClicked()));
 	connect(ui.btn_portSend, SIGNAL(clicked()), this, SLOT(on_btnPortSendClicked()));
 	connect(ui.comboBox_baudRate, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_baudRateChanged()));
-	connect(ui.btn_stratagyConfirm, SIGNAL(clicked()), this, SLOT(on_btnStrategyConfirm()));
+	//connect(ui.btn_stratagyConfirm, SIGNAL(clicked()), this, SLOT(on_btnStrategyConfirm()));
 	ui.comboBox_coms->clear();
 	foreach(QSerialPortInfo info, QSerialPortInfo::availablePorts()) {
 		ui.comboBox_coms->addItem(info.portName());
@@ -128,8 +126,8 @@ CubeExplorerWithQt::~CubeExplorerWithQt() {
 		delete serialPort;
 	}
 
-	delete pMyTimer;
-	delete pTimer;
+	delete timer_stopWatch;
+	delete timer_displayRefresh;
 	delete multiSolver;
 	delete cubeExplorerSPFA;
 	delete byteTmp;
@@ -351,6 +349,9 @@ void CubeExplorerWithQt::slot_sendOperationSerial() {
 		QMessageBox::warning(this, "Warning", QStringLiteral("又忘记开串口了！！"));
 		return;
 	}
+	timer_stopWatch->reset();
+	timer_stopWatch->start();
+	timer_displayRefresh->start();
 /*
 		const string commandOp[29] = {
 		"#1P6T75\r\n", "#1P6T50\r\n", "#1P6T100\r\n",
@@ -437,6 +438,38 @@ void CubeExplorerWithQt::on_btnResetClicked() {
 //	serialPort->write(QString("#5P1T200\r\n").toLatin1()); // clamp_close
 }
 
+void CubeExplorerWithQt::InitTimerComponent()
+{
+	timer_displayRefresh = new QTimer(this);			//构造并绑定计时器槽函数
+	timer_displayRefresh->setInterval(15); //设置计时器间隔，用于刷新显示复原用时
+	
+	timer_stopWatch = new MyTimer();
+	connect(timer_displayRefresh, &QTimer::timeout, this, &CubeExplorerWithQt::TimerDisplayRefresh);
+
+	static QIcon icon_start("./qtWindows/source/start.png");
+	static QIcon icon_stop("./qtWindows/source/stop.png");
+	static QIcon icon_reset("./qtWindows/source/reset.png");
+    ui.btn_timerStop->setIcon(icon_start);
+	ui.btn_timerReset->setIcon(icon_reset);
+	connect(ui.btn_timerStop, &QPushButton::clicked, [this]() {
+		if (timer_stopWatch->isRunning()) {
+			timer_stopWatch->stop();
+			timer_displayRefresh->stop();
+			ui.btn_timerStop->setIcon(icon_start);
+		}
+		else {
+			timer_stopWatch->start();
+			timer_displayRefresh->start();
+			ui.btn_timerStop->setIcon(icon_stop);
+		}
+		});
+	connect(ui.btn_timerReset, &QPushButton::clicked, [this]() {
+		timer_stopWatch->reset();
+		timer_displayRefresh->stop();
+		TimerDisplayRefresh();
+		});
+}
+
 void CubeExplorerWithQt::SetHighlightButtom(QPushButton* buttom)
 {
 	buttom->setStyleSheet(
@@ -467,8 +500,8 @@ void CubeExplorerWithQt::SetCommonStyButtom(QPushButton* buttom)
 }
 
 void CubeExplorerWithQt::on_btnRestoreClicked() {
-	pMyTimer->reset(), pMyTimer->start(); // 重置用时计时器
-	pTimer->start(); // 开始动态显示计时器
+	timer_stopWatch->reset(), timer_stopWatch->start(); // 重置用时计时器
+	timer_displayRefresh->start(); // 开始动态显示计时器
 
 	serialPort->write(QString("#2P1T75\r\n").toLatin1());
 	serialPort->write(QString("#4P1T75\r\n").toLatin1());
@@ -503,7 +536,7 @@ void CubeExplorerWithQt::SolveAndRestore()
 		ui.label_UI_message->setText(QStringLiteral("识别序列有误！"));
 		ui.plainTextEdit_portWrite->setPlainText(QStringLiteral("识别序列有误！"));
 		ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("FETAL: 识别序列有误！\n"));
-		pTimer->stop(); //停止计时器
+		timer_displayRefresh->stop(); //停止计时器
 		ui.label_restoreCnt->setText("##");
 		hasRobotStarted = false;
 		if (!inputFromBox) {
@@ -640,7 +673,7 @@ void CubeExplorerWithQt::on_btnRecogClicked() {
 #endif // !REALRUN
 }
 
-void CubeExplorerWithQt::on_btnShowLastSampleClicked(){
+void CubeExplorerWithQt::on_btnShowSampleResultClicked(){
 	LastSampleDialog lsd(this);
 	lsd.setWindowTitle(QStringLiteral("识别采样"));
 	lsd.show();
@@ -806,13 +839,13 @@ void CubeExplorerWithQt::slot_cameraInfoChanged(const QString & text)
 	videoItem->show();
 }
 
-void CubeExplorerWithQt::slot_timeout() {
-	double second = pMyTimer->getTime();
+void CubeExplorerWithQt::TimerDisplayRefresh() {
+	double second = timer_stopWatch->getTime();
 	ui.lineEdit_second1->setText(QString::asprintf("%d", int(second)));
 	ui.lineEdit_second2->setText(QString::asprintf("%d", int((second-int(second))*100)));
 }
 
-void CubeExplorerWithQt::slot_onReceiveTimeout()
+void CubeExplorerWithQt::WaitForPortReadTimeout()
 {
 	if (!byteTmp->isEmpty()) {
 		QString decodedString = QTextCodec::codecForName("GB18030")->toUnicode(*byteTmp);
@@ -824,11 +857,11 @@ void CubeExplorerWithQt::slot_onReceiveTimeout()
 void CubeExplorerWithQt::slotInputStateChange()
 {
 	if (inputFromBox) {
-		ui.label_inputState->setText(QStringLiteral("已取消输入框输入"));
+		ui.label_portMessage->setText(QStringLiteral("[INFO] Admin执行操作: 取消输入框输入"));
         ui.plainTextEdit_portWrite->clear();
 	}
 	else {
-		ui.label_inputState->setText(QStringLiteral("请从输入框输入"));
+		ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("[INFO] Admin执行操作: 从输入框输入"));
 		ui.plainTextEdit_portWrite->setPlainText("RRRRURRRRBBBBRBBBBDDDDFDDDDLLLLDLLLLFFFFLFFFFUUUUBUUUU");
 	}
 	inputFromBox^=true;
@@ -839,8 +872,8 @@ void CubeExplorerWithQt::slotReuseStateChange()
 {
 	cubeExplorerSPFA->reuseFlag ^= true;
 	if(cubeExplorerSPFA->reuseFlag)
-		ui.label_inputState->setText(QStringLiteral("已开启时间复用"));
-	else ui.label_inputState->setText(QStringLiteral("已关闭时间复用"));
+		ui.label_portMessage->setText(QStringLiteral("已开启时间复用"));
+	else ui.label_portMessage->setText(QStringLiteral("已关闭时间复用"));
 }
 
 void CubeExplorerWithQt::slot_comReadyRead()
@@ -880,9 +913,9 @@ void CubeExplorerWithQt::ReadOperationFromPort()
 			ui.label_UI_message->setText(QStringLiteral("串口收到开始信号"));
 		}
 		if (comByteBuffer.contains("#O")) {
-			pTimer->stop(); isToRestore = false;
+			timer_displayRefresh->stop(); isToRestore = false;
 			//int cnt = cubeExplorer.transCnt;
-			double time = double(int(pMyTimer->getTime() * 100)) / 100;
+			double time = double(int(timer_stopWatch->getTime() * 100)) / 100;
 			//list_restoreRecords.push_back(RestoreRecord(cnt, time));
 			ui.label_UI_message->setText(QStringLiteral("串口收到结束信号"));
 			hasRobotStarted = false;
@@ -928,170 +961,170 @@ void CubeExplorerWithQt::slot_baudRateChanged()
 	}
 }
 
-void CubeExplorerWithQt::on_btnStrategyConfirm()
-{
-	if (!serialPort->isOpen()) {
-		ui.label_portMessage->setText(QStringLiteral("串口未打开！！！"));
-		return;
-	}
-
-	string strategy = ui.comboBox_strategy->currentText().toStdString();
-
-	switch (strategy[0]) {
-	case 's':
-		serialPort->write("\r\n");
-		serialPort->write("set_rotate_rise_speed_180 130000\r\n");
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write("set_rotate_rise_speed 130000\r\n");
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write("set_rotate_rise_speed_close 150000\r\n");
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write("set_rotate_rise_speed_close_1 150000\r\n");
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write("set_rotate_speed_180 140000\r\n");
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_speed_90 140000\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_speed_close 140000\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_speed_close_1 140000\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		/*serialPort->write(QString("set_continu_rotate_speed 200000\r\n").toLatin1());
-		serialPort->write(QString("set_Positioning_speed 5000\r\n").toLatin1());*/
-		serialPort->write(QString("set_rotate_over_delay 10\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_open_over_delay 10\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_close_over_delay 10\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		break;
-	case 'm':
-		serialPort->write("\r\n");
-		serialPort->write("set_rotate_rise_speed_180 150000\r\n");
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write("set_rotate_rise_speed 150000\r\n");
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write("set_rotate_rise_speed_close 160000\r\n");
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write("set_rotate_rise_speed_close_1 160000\r\n");
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write("set_rotate_speed_180 200000\r\n");
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_speed_90 200000\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_speed_close 200000\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_speed_close_1 200000\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		/*serialPort->write(QString("set_continu_rotate_speed 200000\r\n").toLatin1());
-		serialPort->write(QString("set_Positioning_speed 5000\r\n").toLatin1());*/
-		serialPort->write(QString("set_rotate_over_delay 10\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_open_over_delay 15\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_close_over_delay 10\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		break;
-	case 'f':
-		serialPort->write("\r\n");
-		serialPort->write("set_rotate_rise_speed_180 160000\r\n");
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write("set_rotate_rise_speed 160000\r\n");
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write("set_rotate_rise_speed_close 160000\r\n");
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write("set_rotate_rise_speed_close_1 160000\r\n");
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write("set_rotate_speed_180 200000\r\n");
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_speed_90 220000\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_speed_close 220000\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_speed_close_1 220000\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		/*serialPort->write(QString("set_continu_rotate_speed 200000\r\n").toLatin1());
-		serialPort->write(QString("set_Positioning_speed 5000\r\n").toLatin1());*/
-		serialPort->write(QString("set_rotate_over_delay 5\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_open_over_delay 20\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_close_over_delay 5\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		break;
-	case 'u':
-		serialPort->write("\r\n");
-		serialPort->write(QString("set_rotate_rise_speed_180 150000\r\n").toLatin1());  		//  set_rotate_rise_speed_180 - 设置手爪翻转180旋转升降速度      带魔方整体翻转180度的加速度
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_rise_speed 150000\r\n").toLatin1());		        //	set_rotate_rise_speed - 设置手爪翻转90旋转升降速度           带魔方整体翻转90度的加速度
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_rise_speed_close 190000\r\n").toLatin1());		//	set_rotate_rise_speed_close - 设置对面手爪闭合时旋转升降速度  空转 + 拧魔方翻转90 + 180度的加速度
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_rise_speed_close_1 190000\r\n").toLatin1());		//	set_rotate_rise_speed_close_1 - 设置对面手爪闭合时连续旋转升降速度 ？？？连续转90 / 180度的第二次
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_speed_180 180000\r\n").toLatin1());				//	set_rotate_speed_180 - 设置手爪翻转180旋转速度  带魔方整体翻转180度的最大速度
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_speed_90 180000\r\n").toLatin1());				//	set_rotate_speed_90 - 设置手爪翻转90旋转速度 带魔方整体翻转90度的最大速度
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_speed_close 190000\r\n").toLatin1());				//	set_rotate_speed_close - 设置对面手爪闭合时手爪旋转速度 空转 + 拧魔方翻转90 + 180度的最大速度
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_rotate_speed_close_1 190000\r\n").toLatin1());			//	set_rotate_speed_close_1 - 设置对面手爪闭合时手爪连续旋转速度   ？？？连续转90 / 180度的第二次的最大速度
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		/*serialPort->write(QString("set_continu_rotate_speed 200000\r\n").toLatin1());
-		serialPort->write(QString("set_Positioning_speed 5000\r\n").toLatin1());*/
-		serialPort->write(QString("set_rotate_over_delay 5\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_open_over_delay 8\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		serialPort->write(QString("set_close_over_delay 8\r\n").toLatin1());
-		serialPort->waitForBytesWritten();
-		QThread::msleep(100);
-		break;
-
-	}
-	serialPort->write("print_para\r\n");
-	serialPort->flush();
-}
+//void CubeExplorerWithQt::on_btnStrategyConfirm()
+//{
+//	if (!serialPort->isOpen()) {
+//		ui.label_portMessage->setText(QStringLiteral("串口未打开！！！"));
+//		return;
+//	}
+//
+//	string strategy = ui.comboBox_strategy->currentText().toStdString();
+//
+//	switch (strategy[0]) {
+//	case 's':
+//		serialPort->write("\r\n");
+//		serialPort->write("set_rotate_rise_speed_180 130000\r\n");
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write("set_rotate_rise_speed 130000\r\n");
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write("set_rotate_rise_speed_close 150000\r\n");
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write("set_rotate_rise_speed_close_1 150000\r\n");
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write("set_rotate_speed_180 140000\r\n");
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_speed_90 140000\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_speed_close 140000\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_speed_close_1 140000\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		/*serialPort->write(QString("set_continu_rotate_speed 200000\r\n").toLatin1());
+//		serialPort->write(QString("set_Positioning_speed 5000\r\n").toLatin1());*/
+//		serialPort->write(QString("set_rotate_over_delay 10\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_open_over_delay 10\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_close_over_delay 10\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		break;
+//	case 'm':
+//		serialPort->write("\r\n");
+//		serialPort->write("set_rotate_rise_speed_180 150000\r\n");
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write("set_rotate_rise_speed 150000\r\n");
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write("set_rotate_rise_speed_close 160000\r\n");
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write("set_rotate_rise_speed_close_1 160000\r\n");
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write("set_rotate_speed_180 200000\r\n");
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_speed_90 200000\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_speed_close 200000\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_speed_close_1 200000\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		/*serialPort->write(QString("set_continu_rotate_speed 200000\r\n").toLatin1());
+//		serialPort->write(QString("set_Positioning_speed 5000\r\n").toLatin1());*/
+//		serialPort->write(QString("set_rotate_over_delay 10\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_open_over_delay 15\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_close_over_delay 10\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		break;
+//	case 'f':
+//		serialPort->write("\r\n");
+//		serialPort->write("set_rotate_rise_speed_180 160000\r\n");
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write("set_rotate_rise_speed 160000\r\n");
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write("set_rotate_rise_speed_close 160000\r\n");
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write("set_rotate_rise_speed_close_1 160000\r\n");
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write("set_rotate_speed_180 200000\r\n");
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_speed_90 220000\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_speed_close 220000\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_speed_close_1 220000\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		/*serialPort->write(QString("set_continu_rotate_speed 200000\r\n").toLatin1());
+//		serialPort->write(QString("set_Positioning_speed 5000\r\n").toLatin1());*/
+//		serialPort->write(QString("set_rotate_over_delay 5\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_open_over_delay 20\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_close_over_delay 5\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		break;
+//	case 'u':
+//		serialPort->write("\r\n");
+//		serialPort->write(QString("set_rotate_rise_speed_180 150000\r\n").toLatin1());  		//  set_rotate_rise_speed_180 - 设置手爪翻转180旋转升降速度      带魔方整体翻转180度的加速度
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_rise_speed 150000\r\n").toLatin1());		        //	set_rotate_rise_speed - 设置手爪翻转90旋转升降速度           带魔方整体翻转90度的加速度
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_rise_speed_close 190000\r\n").toLatin1());		//	set_rotate_rise_speed_close - 设置对面手爪闭合时旋转升降速度  空转 + 拧魔方翻转90 + 180度的加速度
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_rise_speed_close_1 190000\r\n").toLatin1());		//	set_rotate_rise_speed_close_1 - 设置对面手爪闭合时连续旋转升降速度 ？？？连续转90 / 180度的第二次
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_speed_180 180000\r\n").toLatin1());				//	set_rotate_speed_180 - 设置手爪翻转180旋转速度  带魔方整体翻转180度的最大速度
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_speed_90 180000\r\n").toLatin1());				//	set_rotate_speed_90 - 设置手爪翻转90旋转速度 带魔方整体翻转90度的最大速度
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_speed_close 190000\r\n").toLatin1());				//	set_rotate_speed_close - 设置对面手爪闭合时手爪旋转速度 空转 + 拧魔方翻转90 + 180度的最大速度
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_rotate_speed_close_1 190000\r\n").toLatin1());			//	set_rotate_speed_close_1 - 设置对面手爪闭合时手爪连续旋转速度   ？？？连续转90 / 180度的第二次的最大速度
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		/*serialPort->write(QString("set_continu_rotate_speed 200000\r\n").toLatin1());
+//		serialPort->write(QString("set_Positioning_speed 5000\r\n").toLatin1());*/
+//		serialPort->write(QString("set_rotate_over_delay 5\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_open_over_delay 8\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		serialPort->write(QString("set_close_over_delay 8\r\n").toLatin1());
+//		serialPort->waitForBytesWritten();
+//		QThread::msleep(100);
+//		break;
+//
+//	}
+//	serialPort->write("print_para\r\n");
+//	serialPort->flush();
+//}
