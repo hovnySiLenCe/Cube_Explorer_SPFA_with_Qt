@@ -49,13 +49,13 @@
     <property name="title">
      <string>左爪</string>
     </property>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>22</y>
        <width>460</width>
-       <height>172</height>
+       <height>175</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -269,7 +269,6 @@
         <zorder>btn_left_anticlockwise</zorder>
         <zorder>btn_left_anticlockwise_small</zorder>
         <zorder>btn_left_to180</zorder>
-        <zorder>groupBox_cams</zorder>
        </widget>
       </item>
       <item>
@@ -455,13 +454,13 @@
     <property name="title">
      <string>右爪</string>
     </property>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>22</y>
        <width>460</width>
-       <height>172</height>
+       <height>175</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -834,10 +833,6 @@
      </layout>
     </widget>
    </widget>
-   <zorder>groupBox_left</zorder>
-   <zorder>groupBox_right</zorder>
-   <zorder>groupBox_cams</zorder>
-   <zorder>groupBox_cams</zorder>
   </widget>
   <widget class="QGroupBox" name="groupBox_cams">
    <property name="geometry">
@@ -1119,12 +1114,18 @@
        </widget>
       </item>
       <item>
-       <widget class="QTextEdit" name="textEdit"/>
+       <widget class="QTextEdit" name="textEdit">
+        <property name="font">
+         <font>
+          <family>Consolas</family>
+          <pointsize>18</pointsize>
+         </font>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
    </layout>
-   <zorder>label</zorder>
   </widget>
  </widget>
  <resources/>

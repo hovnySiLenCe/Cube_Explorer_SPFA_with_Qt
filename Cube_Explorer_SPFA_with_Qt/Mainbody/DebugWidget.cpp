@@ -444,29 +444,31 @@ void DebugWidget::ClickBtnRun() {
 	for (int i = 1; i <= st; i++)
 	{
 		if (Move[i] == 0) {
-			++leftHandTurn;
+			//++leftHandTurn;
 			serialPortDebug->write(QString("#1P6T200\r\n").toLatin1());
 		}
 		if (Move[i] == 1) {
-			if (leftHandTurn > 0) leftHandTurn -= 2, serialPortDebug->write(QString("#1P9T200\r\n").toLatin1());
-			else leftHandTurn += 2, serialPortDebug->write(QString("#1P8T200\r\n").toLatin1());
+			/*if (leftHandTurn > 0) leftHandTurn -= 2, serialPortDebug->write(QString("#1P9T200\r\n").toLatin1());
+			else leftHandTurn += 2,*/ 
+			serialPortDebug->write(QString("#1P8T200\r\n").toLatin1());
 		}
 		if (Move[i] == 2) {
-			--leftHandTurn;
+			//--leftHandTurn;
 			serialPortDebug->write(QString("#1P7T200\r\n").toLatin1());
 		}
 		if (Move[i] == 3) serialPortDebug->write(QString("#2P1T200\r\n").toLatin1());
 		if (Move[i] == 4) serialPortDebug->write(QString("#2P0T200\r\n").toLatin1());
 		if (Move[i] == 5) {
-			++rightHandTurn;
+			//++rightHandTurn;
 			serialPortDebug->write(QString("#3P6T200\r\n").toLatin1());
 		}
 		if (Move[i] == 6) {
-			if (rightHandTurn > 0) rightHandTurn -= 2, serialPortDebug->write(QString("#3P9T200\r\n").toLatin1());
-			else rightHandTurn += 2, serialPortDebug->write(QString("#3P8T200\r\n").toLatin1());
+			/*if (rightHandTurn > 0) rightHandTurn -= 2, serialPortDebug->write(QString("#3P9T200\r\n").toLatin1());
+			else rightHandTurn += 2, */
+			serialPortDebug->write(QString("#3P8T200\r\n").toLatin1());
 		}
 		if (Move[i] == 7) {
-			--rightHandTurn;
+			//--rightHandTurn;
 			serialPortDebug->write(QString("#3P7T200\r\n").toLatin1());
 		}
 		if (Move[i] == 8) serialPortDebug->write(QString("#4P1T200\r\n").toLatin1());
