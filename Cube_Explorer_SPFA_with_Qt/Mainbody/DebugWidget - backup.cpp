@@ -13,8 +13,8 @@ DebugWidget::DebugWidget(QSerialPort* serialPort, QWidget *parent)
 	connect(ui.btn_left_open_small, SIGNAL(clicked()), this, SLOT(ClickBtnLeftOpenSmall()));
 	connect(ui.btn_left_open_all, SIGNAL(clicked()), this, SLOT(ClickBtnLeftOpenAll()));
 	connect(ui.btn_create, SIGNAL(clicked()), this, SLOT(ClickBtnCreate()));
-	connect(ui.btn_save, SIGNAL(clicked()), this, SLOT(ClickBtnExportSequence()));
-	connect(ui.btn_open, SIGNAL(clicked()), this, SLOT(ClickBtnImportSequence()));
+	connect(ui.btn_save, SIGNAL(clicked()), this, SLOT(ClickBtnSave()));
+	connect(ui.btn_open, SIGNAL(clicked()), this, SLOT(ClickBtnOpen()));
 	connect(ui.btn_run, SIGNAL(clicked()), this, SLOT(ClickBtnRun()));
 	connect(ui.btn_left_to90, SIGNAL(clicked()), this, SLOT(ClickBtnLeftTo90()));
 	connect(ui.btn_left_to180, SIGNAL(clicked()), this, SLOT(ClickBtnLeftTo180()));
@@ -38,6 +38,8 @@ DebugWidget::DebugWidget(QSerialPort* serialPort, QWidget *parent)
 	connect(ui.btn_right_anticlockwise_small, SIGNAL(clicked()), this, SLOT(ClickBtnRightAnticlockSmall()));
 	connect(ui.btn_right_180, SIGNAL(clicked()), this, SLOT(ClickBtnRight180()));
 	connect(ui.btn_right_5circle, SIGNAL(clicked()), this, SLOT(ClickBtnRight5Circle()));
+	connect(ui.btn_clamp_close, SIGNAL(clicked()), this, SLOT(ClickBtnClampClose()));
+	connect(ui.btn_clamp_open, SIGNAL(clicked()), this, SLOT(ClickBtnClampOpen()));
 
 	connect(ui.btn_test1, SIGNAL(clicked()), this, SLOT(ClickBtntest1()));
 	connect(ui.btn_test2, SIGNAL(clicked()), this, SLOT(ClickBtntest2()));
@@ -74,13 +76,26 @@ DebugWidget::DebugWidget(QSerialPort* serialPort, QWidget *parent)
 	ui.graphicsView_D->setScene(scene_D);
 	ui.graphicsView_D->show();
 
-	st = 0;
-	seqs = "";
+	ifstream in;
+	in.open(".\\Mechanical\\HandTurnState.txt", ios::in);
+	in >> leftHandTurn >> rightHandTurn;
+	in.close();
 }
 
 DebugWidget::~DebugWidget()
 {
+	ofstream out; out.open(".\\Mechanical\\HandTurnState.txt", ios::trunc);
+	out << leftHandTurn << " " << rightHandTurn;
+	out.close();
+}
 
+
+void DebugWidget::ClickBtnClampClose() {
+//	serialPortDebug->write(QString("#5P1T200\r\n").toLatin1()); //clamp_close
+}
+
+void DebugWidget::ClickBtnClampOpen() {
+//	serialPortDebug->write(QString("#5P0T200\r\n").toLatin1()); //clamp_open
 }
 
 void DebugWidget::on_btnShowLastSampleClicked() {
@@ -92,6 +107,7 @@ void DebugWidget::on_btnShowLastSampleClicked() {
 
 void DebugWidget::ClickBtnCreate() {
 	qsrand(time(0));
+	steps = "";
 	st = (rand() % 40) + 60;
 	int sta_L1 = 0, sta_L2 = 0, sta_R1 = 0, sta_R2 = 0;//1 开合（1开0合） 2 位置（1垂直0复位）
 	int flag_l1 = 0, flag_r1 = 0;//上一步旋转爪
@@ -390,100 +406,75 @@ void DebugWidget::ClickBtnCreate() {
 			else if (r == 2) { Move[i] = 3; sta_L1 = 0; flag_l1 = 0; flag_r1 = 0; flag_l2 = 1; flag_r2 = 0; }//左开
 		}
 	}
-
-	seqs = "";
-	for (int i = 1; i <= st; i++) seqs += MechanicalMoveStr[Move[i]] + ((i % 20) ? " " : "\n");
-	ui.seqs_length->display(st);
-	ui.textEdit->setPlainText(seqs);
-
+	for (int i = 1; i <= st; i++)
+	{
+		steps += MechanicalMoveStr[Move[i]] + " ";
+	}
+	ui.textEdit->setPlainText(steps.c_str());
 }
 
-void DebugWidget::ClickBtnExportSequence() {
-    // 获取保存路径
-	QString filePath = QFileDialog::getSaveFileName(
-		this,
-		QStringLiteral("导出文件"),
-		QDir::cleanPath(QDir::currentPath() + "/Data") + "/GeneratedOperationSequence.txt",
-		QStringLiteral("TXT 文件 (*.txt);;所有文件 (*)")
-	);
-
-	if (filePath.isEmpty()) return; // 用户取消操作
-
-	// 写入文件
-	QFile file(filePath);
-	if (!file.open(QIODevice::WriteOnly)) {
-		QMessageBox::critical(this, "Error", QStringLiteral("无法创建文件：") + file.errorString());
-		return;
+void DebugWidget::ClickBtnSave() {
+	freopen(".\Data\GeneratedOperationSequence.txt", "w", stdout);
+	cout << st << endl;
+	for (int i = 1; i <= st; i++)
+	{
+		cout << Move[i] << " ";
 	}
-
-	QTextStream stream(&file);
-	stream << st << "\n";
-	for(int i = 1; i <= st; i++) stream << Move[i] << " ";
-	stream.flush();
-	file.close();
-
-	QMessageBox::information(this, "Success", QStringLiteral("文件导出成功！"));
+	fclose(stdout);
 }
 
-void DebugWidget::ClickBtnImportSequence() {
-
-	// 获取打开路径
-	QString filePath = QFileDialog::getOpenFileName(
-		this,
-		QStringLiteral("导入文件"),
-		QDir::currentPath() + "/Data/GeneratedOperationSequence.txt",
-		QStringLiteral("TXT 文件 (*.txt);;所有文件 (*)")
-	);
-
-	if (filePath.isEmpty()) return; // 用户取消操作
-
-	// 写入文件
-	QFile file(filePath);
-	if (!file.open(QIODevice::ReadOnly)) {
-		QMessageBox::critical(this, "Error", QStringLiteral("无法打开文件：") + file.errorString());
-		return;
+void DebugWidget::ClickBtnOpen() {
+	freopen(".\Data\GeneratedOperationSequence.txt", "r", stdin);
+	steps = "";
+	cin >> st;
+	for (int i = 1; i <= st; i++)
+	{
+		cin >> Move[i];
+		steps += MechanicalMoveStr[Move[i]] + " ";
 	}
-	QTextStream stream(&file);
-	stream >> st; seqs = "";
-	for (int i = 1; i <= st; i++) {
-		stream >> Move[i];
-		seqs += MechanicalMoveStr[Move[i]] + ((i % 20)?" ":"\n");
-	}
-	file.close();
-	ui.seqs_length->display(st);
-	ui.textEdit->setPlainText(seqs);
+	ui.textEdit->setPlainText(steps.c_str());
+	fclose(stdin);
 }
 
 void DebugWidget::ClickBtnRun() {
-	// 预定义常用指令
-	const QByteArray cmdList[] = {
-		"#1P6T200\r\n",
-		"#1P8T200\r\n",
-		"#1P7T200\r\n",
-		"#2P1T200\r\n",
-		"#2P0T200\r\n",
-		"#3P6T200\r\n",
-		"#3P8T200\r\n",
-		"#3P7T200\r\n",
-		"#4P1T200\r\n",
-		"#4P0T200\r\n"
-	};
-
-	serialPortDebug->write("#2P1T200\r\n", 9);
-	serialPortDebug->write("#4P1T200\r\n", 9);
-
-	// 发送Move相关指令
-	for (int i = 1; i <= st; i++) {
-		if (Move[i] >= 0 && Move[i] <= 9) {
-			serialPortDebug->write(cmdList[Move[i]]);
-		} else {
-			// 处理非法值，可以选择记录日志或采取默认动作
-			qWarning() << "Invalid Move value at index" << i << ": " << Move[i];
+	serialPortDebug->write(QString("#2P1T200\r\n").toLatin1());
+	serialPortDebug->write(QString("#4P1T200\r\n").toLatin1());
+	//serialPortDebug->write(QString("#5P0T200\r\n").toLatin1());
+	//serialPortDebug->write(QString("#0P6T200\r\n").toLatin1());
+	for (int i = 1; i <= st; i++)
+	{
+		if (Move[i] == 0) {
+			++leftHandTurn;
+			serialPortDebug->write(QString("#1P6T200\r\n").toLatin1());
 		}
+		if (Move[i] == 1) {
+			if (leftHandTurn > 0) leftHandTurn -= 2, serialPortDebug->write(QString("#1P9T200\r\n").toLatin1());
+			else leftHandTurn += 2, serialPortDebug->write(QString("#1P8T200\r\n").toLatin1());
+		}
+		if (Move[i] == 2) {
+			--leftHandTurn;
+			serialPortDebug->write(QString("#1P7T200\r\n").toLatin1());
+		}
+		if (Move[i] == 3) serialPortDebug->write(QString("#2P1T200\r\n").toLatin1());
+		if (Move[i] == 4) serialPortDebug->write(QString("#2P0T200\r\n").toLatin1());
+		if (Move[i] == 5) {
+			++rightHandTurn;
+			serialPortDebug->write(QString("#3P6T200\r\n").toLatin1());
+		}
+		if (Move[i] == 6) {
+			if (rightHandTurn > 0) rightHandTurn -= 2, serialPortDebug->write(QString("#3P9T200\r\n").toLatin1());
+			else rightHandTurn += 2, serialPortDebug->write(QString("#3P8T200\r\n").toLatin1());
+		}
+		if (Move[i] == 7) {
+			--rightHandTurn;
+			serialPortDebug->write(QString("#3P7T200\r\n").toLatin1());
+		}
+		if (Move[i] == 8) serialPortDebug->write(QString("#4P1T200\r\n").toLatin1());
+		if (Move[i] == 9) serialPortDebug->write(QString("#4P0T200\r\n").toLatin1());
 	}
-
-	serialPortDebug->write("#2P0T200\r\n", 9);
-	serialPortDebug->write("#4P0T200\r\n", 9);
+	serialPortDebug->write(QString("#2P0T200\r\n").toLatin1());
+	serialPortDebug->write(QString("#4P0T200\r\n").toLatin1());
+	//serialPortDebug->write(QString("#0P7T200\r\n").toLatin1());
 }
 
 void DebugWidget::ClickBtnLeftClose() {
@@ -519,10 +510,12 @@ void DebugWidget::ClickBtnLeftTo180() {
 }
 
 void DebugWidget::ClickBtnLeftClock() {
+	++leftHandTurn;
 	serialPortDebug->write(QString("#1P6T200\r\n").toLatin1());
 }
 
 void DebugWidget::ClickBtnLeftAnticlock() {
+	--leftHandTurn;
 	serialPortDebug->write(QString("#1P7T200\r\n").toLatin1());
 }
 
@@ -535,7 +528,8 @@ void DebugWidget::ClickBtnLeftAnticlockSmall() {
 }
 
 void DebugWidget::ClickBtnLeft180() {
-	serialPortDebug->write(QString("#1P8T200\r\n").toLatin1());
+	if(leftHandTurn>0) leftHandTurn-=2, serialPortDebug->write(QString("#1P8T200\r\n").toLatin1());
+	else leftHandTurn += 2, serialPortDebug->write(QString("#1P8T200\r\n").toLatin1());
 }
 
 void DebugWidget::ClickBtnLeft5Circle() {
@@ -575,10 +569,12 @@ void DebugWidget::ClickBtnRightTo180() {
 }
 
 void DebugWidget::ClickBtnRightClock() {
+	++rightHandTurn;
 	serialPortDebug->write(QString("#3P6T200\r\n").toLatin1());
 }
 
 void DebugWidget::ClickBtnRightAnticlock() {
+	--rightHandTurn;
 	serialPortDebug->write(QString("#3P7T200\r\n").toLatin1());
 }
 
@@ -591,7 +587,8 @@ void DebugWidget::ClickBtnRightAnticlockSmall() {
 }
 
 void DebugWidget::ClickBtnRight180() {
-	serialPortDebug->write(QString("#3P8T200\r\n").toLatin1());
+	if (rightHandTurn > 0) rightHandTurn -= 2, serialPortDebug->write(QString("#3P8T200\r\n").toLatin1());
+	else rightHandTurn += 2, serialPortDebug->write(QString("#3P8T200\r\n").toLatin1());
 }
 
 void DebugWidget::ClickBtnRight5Circle() {
@@ -599,9 +596,9 @@ void DebugWidget::ClickBtnRight5Circle() {
 }
 
 void DebugWidget::ClickBtntest1() {
-	for (int i = 1; i <= 10;i++) serialPortDebug->write(QString("#1P6T200\r\n").toLatin1());
+	for (int i = 1; i <= 100;i++) serialPortDebug->write(QString("#1P6T200\r\n").toLatin1());
 }
 
 void DebugWidget::ClickBtntest2() {
-	for (int i = 1; i <= 10; i++) serialPortDebug->write(QString("#3P6T200\r\n").toLatin1());
+	for (int i = 1; i <= 100; i++) serialPortDebug->write(QString("#3P6T200\r\n").toLatin1());
 }

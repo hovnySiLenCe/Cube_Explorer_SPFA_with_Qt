@@ -23,10 +23,9 @@ public:
 	DebugWidget(QSerialPort* serialPort, QWidget *parent = Q_NULLPTR);
 	~DebugWidget();
 
-	const string MechanicalMoveStr[10] = { "M_L1", "M_L2", "M_L3", "M_LC", "M_LO", "M_R1", "M_R2", "M_R3", "M_RC", "M_RO" };
+	const QString MechanicalMoveStr[10] = { "L1", "L2", "L3", "LC", "LO", "R1", "R2", "R3", "RC", "RO" };
 	int Move[120];
-	int output[120];
-	string steps = "";
+	QString seqs = "";
 	int st;
 
 public slots:
@@ -69,22 +68,17 @@ public slots:
 	void ClickBtnRight180();
 	void ClickBtnRight5Circle();
 
-	//夹子开合
-	void ClickBtnClampClose();
-	void ClickBtnClampOpen();
-
 	//测试
 	void ClickBtntest1();
 	void ClickBtntest2();
 
 	//随机序列处理
 	void ClickBtnCreate();
-	void ClickBtnSave();
-	void ClickBtnOpen();
+	void ClickBtnExportSequence();
+	void ClickBtnImportSequence();
 	void ClickBtnRun();
 
 private:
 	Ui::DebugWidget ui;
 	QSerialPort* serialPortDebug;
-	int leftHandTurn, rightHandTurn;
 };
