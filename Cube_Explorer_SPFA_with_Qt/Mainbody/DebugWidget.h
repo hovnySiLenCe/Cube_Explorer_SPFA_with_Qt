@@ -23,11 +23,6 @@ public:
 	DebugWidget(QSerialPort* serialPort, QWidget *parent = Q_NULLPTR);
 	~DebugWidget();
 
-	const QString MechanicalMoveStr[10] = { "L1", "L2", "L3", "LC", "LO", "R1", "R2", "R3", "RC", "RO" };
-	int Move[120];
-	QString seqs = "";
-	int st;
-
 public slots:
 	//查看上次识别采样数据槽函数
 	void on_btnShowLastSampleClicked();
@@ -74,6 +69,7 @@ public slots:
 
 	//随机序列处理
 	void ClickBtnCreate();
+	void ClickBtnCreateSequence();
 	void ClickBtnExportSequence();
 	void ClickBtnImportSequence();
 	void ClickBtnRun();
@@ -81,4 +77,19 @@ public slots:
 private:
 	Ui::DebugWidget ui;
 	QSerialPort* serialPortDebug;
+
+	const QString actCommandStr[10] = {
+		"L1", "L2", "L3", "LC", "LO",
+		"R1", "R2", "R3", "RC", "RO" };
+
+	int actSeq[503];
+	int seqsLength;
+	QString displaySeqs;
+
+	int handAngle[2];
+	void resetGenerator();
+	void resetAngle(int handId, bool isTwist);
+	void turn(int handId, int turnId);
+	void twist(int handId, int turnId);
 };
+
