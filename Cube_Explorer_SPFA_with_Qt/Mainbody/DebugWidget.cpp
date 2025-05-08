@@ -80,7 +80,18 @@ DebugWidget::DebugWidget(QSerialPort* serialPort, QWidget *parent)
 
 DebugWidget::~DebugWidget()
 {
+	// 写入文件
+	QFile file("./Data/GeneratedOperationSequence.txt");
+	if (!file.open(QIODevice::WriteOnly)) {
+		QMessageBox::critical(this, "Error", QStringLiteral("无法创建文件：") + file.errorString());
+		return;
+	}
 
+	QTextStream stream(&file);
+	stream << st << "\n";
+	for (int i = 1; i <= st; i++) stream << Move[i] << " ";
+	stream.flush();
+	file.close();
 }
 
 void DebugWidget::on_btnShowLastSampleClicked() {
