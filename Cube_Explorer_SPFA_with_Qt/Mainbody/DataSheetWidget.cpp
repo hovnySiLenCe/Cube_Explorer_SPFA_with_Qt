@@ -243,15 +243,10 @@ void DataSheetWidget::slot_ReadParaFromSerial()
 {
     QByteArray comByteBuffer = serialPort->readAll();
     ui->text_portMessage->insertPlainText(comByteBuffer);
-    /*if (comByteBuffer.contains("#DS")) {
-        while (comByteBuffer.contains("#DS")) {
-            comByteBuffer.remove(0, comByteBuffer.indexOf("#DS") + 3);
-            if (comByteBuffer.startsWith("END")) {
-                UpdateUIFromCurrentSet(); return;
-            }
-            m_currentSet.SetParameter(comByteBuffer.mid(0, 6).toInt());
-        }
-    }*/
+    QTextCursor cursor = ui->text_portMessage->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->text_portMessage->setTextCursor(cursor);
+    ui->text_portMessage->ensureCursorVisible();
 }
 
 void DataSheetWidget::LoadKeyFromUI()

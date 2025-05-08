@@ -55,7 +55,7 @@
        <x>10</x>
        <y>22</y>
        <width>471</width>
-       <height>185</height>
+       <height>195</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -65,8 +65,17 @@
          <string>旋转</string>
         </property>
         <layout class="QFormLayout" name="formLayout_4">
+         <property name="verticalSpacing">
+          <number>4</number>
+         </property>
          <item row="0" column="0">
           <widget class="QPushButton" name="btn_left_to90">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -81,8 +90,8 @@
            </property>
            <property name="font">
             <font>
-             <family>Adobe Caslon Pro</family>
-             <pointsize>10</pointsize>
+             <family>Times New Roman</family>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -92,6 +101,12 @@
          </item>
          <item row="0" column="1">
           <widget class="QPushButton" name="btn_left_to180">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -106,8 +121,8 @@
            </property>
            <property name="font">
             <font>
-             <family>Adobe Caslon Pro</family>
-             <pointsize>10</pointsize>
+             <family>Times New Roman</family>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -117,6 +132,12 @@
          </item>
          <item row="1" column="0">
           <widget class="QPushButton" name="btn_left_clockwise">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -131,7 +152,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -141,6 +162,12 @@
          </item>
          <item row="1" column="1">
           <widget class="QPushButton" name="btn_left_anticlockwise">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -155,7 +182,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -165,6 +192,12 @@
          </item>
          <item row="2" column="0">
           <widget class="QPushButton" name="btn_left_clockwise_small">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -179,7 +212,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -189,6 +222,12 @@
          </item>
          <item row="2" column="1">
           <widget class="QPushButton" name="btn_left_anticlockwise_small">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -203,7 +242,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -213,6 +252,12 @@
          </item>
          <item row="3" column="0">
           <widget class="QPushButton" name="btn_left_180">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -227,8 +272,8 @@
            </property>
            <property name="font">
             <font>
-             <family>Adobe Caslon Pro</family>
-             <pointsize>10</pointsize>
+             <family>Times New Roman</family>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -238,6 +283,12 @@
          </item>
          <item row="3" column="1">
           <widget class="QPushButton" name="btn_left_5circle">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -252,11 +303,12 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <family>Times New Roman</family>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
-            <string>连续五圈</string>
+            <string>360°</string>
            </property>
           </widget>
          </item>
@@ -277,8 +329,17 @@
          <string>开合</string>
         </property>
         <layout class="QFormLayout" name="formLayout">
+         <property name="verticalSpacing">
+          <number>4</number>
+         </property>
          <item row="0" column="0">
           <widget class="QPushButton" name="btn_left_open">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -294,7 +355,7 @@
            <property name="font">
             <font>
              <family>Adobe Caslon Pro</family>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -304,6 +365,12 @@
          </item>
          <item row="0" column="1">
           <widget class="QPushButton" name="btn_left_close">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -319,7 +386,7 @@
            <property name="font">
             <font>
              <family>Adobe Caslon Pro</family>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -329,6 +396,12 @@
          </item>
          <item row="1" column="0">
           <widget class="QPushButton" name="btn_left_open_small">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -343,7 +416,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -353,6 +426,12 @@
          </item>
          <item row="1" column="1">
           <widget class="QPushButton" name="btn_left_close_small">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -367,7 +446,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -377,6 +456,12 @@
          </item>
          <item row="2" column="0">
           <widget class="QPushButton" name="btn_left_open_all">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -391,7 +476,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -401,6 +486,12 @@
          </item>
          <item row="2" column="1">
           <widget class="QPushButton" name="btn_left_close_half">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -415,7 +506,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -425,8 +516,25 @@
          </item>
          <item row="3" column="0" colspan="2">
           <widget class="QPushButton" name="btn_test1">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
            <property name="text">
-            <string>测试</string>
+            <string>连续五圈</string>
            </property>
           </widget>
          </item>
@@ -460,7 +568,7 @@
        <x>10</x>
        <y>22</y>
        <width>471</width>
-       <height>185</height>
+       <height>195</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -470,8 +578,17 @@
          <string>旋转</string>
         </property>
         <layout class="QFormLayout" name="formLayout_3">
+         <property name="verticalSpacing">
+          <number>4</number>
+         </property>
          <item row="0" column="0">
           <widget class="QPushButton" name="btn_right_to90">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -486,8 +603,8 @@
            </property>
            <property name="font">
             <font>
-             <family>Adobe Caslon Pro</family>
-             <pointsize>10</pointsize>
+             <family>Times New Roman</family>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -497,6 +614,12 @@
          </item>
          <item row="0" column="1">
           <widget class="QPushButton" name="btn_right_to180">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -511,8 +634,8 @@
            </property>
            <property name="font">
             <font>
-             <family>Adobe Caslon Pro</family>
-             <pointsize>10</pointsize>
+             <family>Times New Roman</family>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -522,6 +645,12 @@
          </item>
          <item row="1" column="0">
           <widget class="QPushButton" name="btn_right_clockwise">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -536,7 +665,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -546,6 +675,12 @@
          </item>
          <item row="1" column="1">
           <widget class="QPushButton" name="btn_right_anticlockwise">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -560,7 +695,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -570,6 +705,12 @@
          </item>
          <item row="2" column="0">
           <widget class="QPushButton" name="btn_right_clockwise_small">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -584,7 +725,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -594,6 +735,12 @@
          </item>
          <item row="2" column="1">
           <widget class="QPushButton" name="btn_right_anticlockwise_small">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -608,7 +755,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -618,6 +765,12 @@
          </item>
          <item row="3" column="0">
           <widget class="QPushButton" name="btn_right_180">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -632,8 +785,8 @@
            </property>
            <property name="font">
             <font>
-             <family>Adobe Caslon Pro</family>
-             <pointsize>10</pointsize>
+             <family>Times New Roman</family>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -643,6 +796,12 @@
          </item>
          <item row="3" column="1">
           <widget class="QPushButton" name="btn_right_5circle">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -657,11 +816,12 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <family>Times New Roman</family>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
-            <string>连续五圈</string>
+            <string>360°</string>
            </property>
           </widget>
          </item>
@@ -674,8 +834,17 @@
          <string>开合</string>
         </property>
         <layout class="QFormLayout" name="formLayout_2">
+         <property name="verticalSpacing">
+          <number>4</number>
+         </property>
          <item row="0" column="0">
           <widget class="QPushButton" name="btn_right_open">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -691,7 +860,7 @@
            <property name="font">
             <font>
              <family>Adobe Caslon Pro</family>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -701,6 +870,12 @@
          </item>
          <item row="0" column="1">
           <widget class="QPushButton" name="btn_right_close">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -716,7 +891,7 @@
            <property name="font">
             <font>
              <family>Adobe Caslon Pro</family>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -726,6 +901,12 @@
          </item>
          <item row="1" column="0">
           <widget class="QPushButton" name="btn_right_open_small">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -740,7 +921,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -750,6 +931,12 @@
          </item>
          <item row="1" column="1">
           <widget class="QPushButton" name="btn_right_close_small">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -764,7 +951,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -774,6 +961,12 @@
          </item>
          <item row="2" column="0">
           <widget class="QPushButton" name="btn_right_open_all">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -788,7 +981,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -798,6 +991,12 @@
          </item>
          <item row="2" column="1">
           <widget class="QPushButton" name="btn_right_close_half">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -812,7 +1011,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -822,8 +1021,25 @@
          </item>
          <item row="3" column="0" colspan="2">
           <widget class="QPushButton" name="btn_test2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
            <property name="text">
-            <string>测试</string>
+            <string>连续五圈</string>
            </property>
           </widget>
          </item>
