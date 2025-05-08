@@ -1,5 +1,6 @@
 #pragma once
 #include <thread>
+#include <mutex>
 #include "threadSafeKociemba.h"
 #include "CubePoseTransformer.h"
 #include "MultiSolver.h"

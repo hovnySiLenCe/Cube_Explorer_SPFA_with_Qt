@@ -17,38 +17,61 @@ CubeExplorerSPFA* MultiSolver::GetMultiThreadPath(string str)
     cubeStatus = str;
     vector<thread> threads;
 
-    for (int i = 1; i < 24; i++) {
-        GetSinglePosePath(i);
-        //threads.push_back(std::thread(&MultiSolver::GetSinglePosePath, this, i));
-    }
-
-    //for (auto& thread : threads) {
-    //    if (thread.joinable()) {
-    //        thread.join();
-    //    }
-    //}
-
+    mutex mtx; // 用于保护共享资源
     ansTime = INF;
     ansCubeExplorerSPFA = nullptr;
 
-    for (int i = 1; i < 24; i++) {
-        //printf("%d %d\n", i, cubeExplorerSPFA[i]->GetAnsCostTime());
-        /*if (cubeExplorerSPFA[i]->GetAnsCostTime() < ansTime) {
-            ansTime = cubeExplorerSPFA[i]->GetAnsCostTime();
-            ansCubeExplorerSPFA = cubeExplorerSPFA[i];
-        }*/
-        if (cubeExplorerSPFA[i]->ansTime < ansTime) {
-            ansTime = cubeExplorerSPFA[i]->ansTime;
-            ansCubeExplorerSPFA = cubeExplorerSPFA[i];
+    int threadsNum = 8;
+    for (int i = 1; i <= threadsNum; i++) {
+        threads.push_back(std::thread([this, i, threadsNum, &mtx]() {
+            // 加锁以访问共享变量 ansTime 和 ansCubeExplorerSPFA
+            mtx.lock();
+            for (int j = 0; j < 24/threadsNum; j++) {
+                if(i + threadsNum * j >= 24) continue;
+                GetSinglePosePath(i + threadsNum * j);
+                if (cubeExplorerSPFA[i + threadsNum * j]->ansTime < ansTime) {
+                    ansTime = cubeExplorerSPFA[i + threadsNum * j]->ansTime;
+                    ansCubeExplorerSPFA = cubeExplorerSPFA[i + threadsNum * j];
+                }
+            }
+            mtx.unlock();
+            }));
+    }
+
+    // 等待所有线程完成
+    for (auto& thread : threads) {
+        if (thread.joinable()) {
+            thread.join();
         }
     }
 
-    //printf( "Ans Of All.\n");
+
+    //for (int i = 1; i < 24; i++) {
+    //    GetSinglePosePath(i);
+    //    //threads.push_back(std::thread(&MultiSolver::GetSinglePosePath, this, i));
+    //}
+
+    ////for (auto& thread : threads) {
+    ////    if (thread.joinable()) {
+    ////        thread.join();
+    ////    }
+    ////}
+
+    //for (int i = 1; i < 24; i++) {
+    //    //printf("%d %d\n", i, cubeExplorerSPFA[i]->GetAnsCostTime());
+    //    /*if (cubeExplorerSPFA[i]->GetAnsCostTime() < ansTime) {
+    //        ansTime = cubeExplorerSPFA[i]->GetAnsCostTime();
+    //        ansCubeExplorerSPFA = cubeExplorerSPFA[i];
+    //    }*/
+    //    if (cubeExplorerSPFA[i]->ansTime < ansTime) {
+    //        ansTime = cubeExplorerSPFA[i]->ansTime;
+    //        ansCubeExplorerSPFA = cubeExplorerSPFA[i];
+    //    }
+    //}
+
     if (!ansCubeExplorerSPFA) return nullptr;
 
     ansCubeExplorerSPFA->SaveMechanicalStep();
-    //cout << ansCubeExplorerSPFA->GetAnsOpSequence();
-    //printf(" %d\n", ansCubeExplorerSPFA->GetAnsOpStepNumber());
     return ansCubeExplorerSPFA;
 }
 

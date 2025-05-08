@@ -545,12 +545,14 @@ void CubeExplorerWithQt::SolveAndRestore()
 		return;
 	}
 
-	// 4. 通过SPFA算法得到最短路径
-	cubeExplorerSPFA->GetShortestPath(res);
-	/*if (cubeExplorerSPFA->GetAnsOpStepNumber() > 77) {
-		cubeExplorerSPFA = multiSolver->GetMultiThreadPath(strRec);
-	}
-	else */cubeExplorerSPFA->SaveMechanicalStep();
+	cubeExplorerSPFA = multiSolver->GetMultiThreadPath(strRec);
+
+	//// 4. 通过SPFA算法得到最短路径
+	//cubeExplorerSPFA->GetShortestPath(res);
+	//if (cubeExplorerSPFA->GetAnsOpStepNumber() > 77) {
+	//	cubeExplorerSPFA = multiSolver->GetMultiThreadPath(strRec);
+	//}
+	//else cubeExplorerSPFA->SaveMechanicalStep();
 
 	// 5. 通过串口通信把串口序列传递给控制机
 	if (isToRestore) slot_sendOperationSerial();

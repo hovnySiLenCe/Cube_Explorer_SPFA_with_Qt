@@ -104,7 +104,9 @@ void DebugWidget::ClickBtnCreateSequence() {
 
 	qsrand(time(0));
 	resetGenerator();
-	int turnActionNum = (rand() % 5) + 12;
+	int turnActionNum = ui.spinBox->value();
+	//qDebug() << "turnActionNum: " << turnActionNum;
+	if(!turnActionNum) turnActionNum = (rand() % 5) + 15;
 	int preTurnHand = -1, curTurnHand, turnAngle; // 0 左 1 右
 
 	displaySeqs += QStringLiteral("生成操作序列的拧动次数：") + QString::number(turnActionNum) + "\n";
@@ -126,7 +128,7 @@ void DebugWidget::ClickBtnCreateSequence() {
 	*/
     for (int i = 0; i < turnActionNum; i++)
     {
-		curTurnHand = (rand() % 2);
+		curTurnHand = rand() % 2;
 		turnAngle = (rand() % 3);
 		qDebug() << "i: " << i << " preTurnHand:" << preTurnHand << " curTurnHand:" << curTurnHand << " turnAngle:" << turnAngle;
 
@@ -551,8 +553,9 @@ void DebugWidget::resetGenerator()
 
 void DebugWidget::resetAngle(int handId, bool isTwist)
 {
+	qDebug() << "reset" << handId << isTwist;
 	actSeq[++seqsLength] = 5 * handId + 4;
-	actSeq[++seqsLength] = 5 * handId + (handAngle[handId] > 0)?2:0;
+	actSeq[++seqsLength] = 5 * handId + ((handAngle[handId] > 0)?2:0);
 	handAngle[handId] += (handAngle[handId]>0)?-1:1;
 	if(isTwist) actSeq[++seqsLength] = 5 * handId + 3;
 }
