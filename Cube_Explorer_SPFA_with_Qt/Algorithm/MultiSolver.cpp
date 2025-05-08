@@ -26,7 +26,7 @@ CubeExplorerSPFA* MultiSolver::GetMultiThreadPath(string str)
         threads.push_back(std::thread([this, i, threadsNum, &mtx]() {
             // 加锁以访问共享变量 ansTime 和 ansCubeExplorerSPFA
             mtx.lock();
-            for (int j = 0; j < 24/threadsNum; j++) {
+            for (int j = 0; j < 1; j++) {
                 if(i + threadsNum * j >= 24) continue;
                 GetSinglePosePath(i + threadsNum * j);
                 if (cubeExplorerSPFA[i + threadsNum * j]->ansTime < ansTime) {
