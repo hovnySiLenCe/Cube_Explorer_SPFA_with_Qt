@@ -1,15 +1,15 @@
 tmpCubeStatus Time = 0
 cpy&Transform Time = 0
-kociemba Time = 13
-Kociemba Result : U' B2 R2 B2 D' R F2 D2 F D B D' R2 L2 B2 D R2 L2 D' L2 D2 
+kociemba Time = 2
+Kociemba Result : U' R' L F' U' B' R' B' U B' D' F2 U2 F2 L2 U2 L2 D' R2 F2 
 ReTransform Time = 0
 SPFA Time = 13
-Retransform Result : L' B2 U2 B2 R' U F2 R2 F R B R' U2 D2 B2 R U2 D2 R' D2 R2  21
-RO L2 RC R3 LO R1 L1 LC RO L3 
-             RC R2 L2 R2 LO L1 LC RO L3 R1 
-             RC R3 L1 RO L3 R1 RC R2 LO R3 
-             LC L2 R1 RO R1 L2 RC L1 LO L1 
-             LC R1 RO R1 L1 RC L3 R2 RO L2 
-             RC R2 RO L1 RC LO L1 LC R2 L1 
-             RO L1 RC R2 RO L2 RC R2 L3 LO 
-             L1 LC R2 L2  74
+Retransform Result : L' U' D F' L' B' U' B' L B' R' F2 L2 F2 D2 L2 D2 R' U2 F2  20
+RO L2 RC R3 LO R1 LC L3 RO L1 
+             RC LO R2 LC L1 LO L1 R3 LC R3 
+             L3 RO L2 RC LO L1 R1 LC R3 L3 
+             LO L1 R3 LC R3 L1 LO L1 R2 LC 
+             R3 RO R1 L2 RC L3 LO L1 R2 LC 
+             R2 L2 R2 RO L3 RC LO L1 LC R2 
+             L2 R2 LO R2 LC L3 RO L3 R1 RC 
+             LO R1 LC L2 R2  75

@@ -31,7 +31,7 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	connect(handReleaseDalayTimer, &QTimer::timeout, this, [this]() {
 		serialPort->write(QString("#2P0T200\r\n").toLatin1());
 		serialPort->write(QString("#4P0T200\r\n").toLatin1());
-		ui.txt_LogDisplay->insertPlainText(QStringLiteral("[INFO] Solver: 执行完毕\n"));
+		ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("[INFO] Solver: 执行完毕\n"));
 		isToRestore = false;
 	});
 
@@ -80,7 +80,7 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	connect(ui.reuseCheckBox, SIGNAL(clicked()), this, SLOT(slotReuseStateChange()));
 
 	// 消息框类
-	connect(ui.btn_clearMessage, &QPushButton::clicked, ui.txt_LogDisplay, &QTextBrowser::clear);
+	connect(ui.btn_clearMessage, &QPushButton::clicked, ui.plainTextEdit_SerialRX, &QPlainTextEdit::clear);
 
 	//COM口操作相关
 	connect(ui.btn_portOpen_close, SIGNAL(clicked()), this, SLOT(on_btnPortOpenClicked()));
@@ -372,7 +372,7 @@ void CubeExplorerWithQt::AppendRestoreRecordsToCSV()
 
 	QVariantList record = {
 		QDateTime::currentDateTime(),
-		ui.strategy_name->currentText(),
+		ui.strategy_name->text(),
         cubeExplorerSPFA->GetAnsOpStepNumber(),
 		ui.total_time->value(),
 		timer_stopWatch->getTime(),
@@ -592,7 +592,7 @@ void CubeExplorerWithQt::SolveAndRestore()
 	recogResult = ""; char* cp;
 
 	// 1.进行识别得到识别字符串
-	if (inputFromBox) recogResult = ui.txt_RecogResult->text().toStdString();
+	if (inputFromBox) recogResult = ui.plainTextEdit_portWrite->toPlainText().toStdString();
 	else recogResult = recognizeNew();
 
 	/*ui.plainTextEdit_portWrite->setPlainText("test\n" + QString::number(strRec.length()) + "\n" + strRec.c_str());*/
@@ -602,14 +602,14 @@ void CubeExplorerWithQt::SolveAndRestore()
 	// 2. 进行解算得到Solve6移动序列
 	st = ed = clock();
 	cp = new char[recogResult.length() + 1];
-	ui.txt_LogDisplay->insertPlainText(QStringLiteral("[INFO] Solver: 正在计算\n"));
+	ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("[INFO] Solver: 正在计算\n"));
 	strcpy(cp, recogResult.c_str()); kociembaResult = CubeSolver(cp, NULL);
 
 	// 3. 如果解算失败，则显示识别结果，并返回
 	if (!kociembaResult) {
 		ShowRecogResultOnScene(recogResult);
-		ui.txt_RecogResult->setText(QStringLiteral("识别序列有误！"));
-		ui.txt_LogDisplay->insertPlainText(QStringLiteral("[FETAL] 识别序列有误！\n"));
+		ui.plainTextEdit_portWrite->setPlainText(QStringLiteral("识别序列有误！"));
+		ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("[FETAL] 识别序列有误！\n"));
 		timer_displayRefresh->stop(); //停止计时器
 		ui.label_restoreCnt->setText("##");
 		hasRobotStarted = false;
@@ -638,25 +638,16 @@ void CubeExplorerWithQt::SolveAndRestore()
 	ed = clock();
 	std::string strDisplay = "";
 	ShowRecogResultOnScene(recogResult);
-	//ui.label_UI_message->setText(QStringLiteral("识别正确！"));
-	ui.txt_LogDisplay->insertPlainText(QStringLiteral("[SUCCESS] 识别正确！\n"));
-	
-	/*
+	ui.label_UI_message->setText(QStringLiteral("识别正确！"));
+	ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("[SUCCESS] 识别正确！\n"));
 	strDisplay += "RecogResult: " + recogResult + "\r\n      Solve6: " + kociembaResult;
 	strDisplay += "\r\n      Solve2: " + ansOpSequence;
 	strDisplay += "\r\n      AnsCostTime: " + to_string(cubeExplorerSPFA->GetAnsCostTime());
 	strDisplay += (cubeExplorerSPFA->reuseFlag == true) ? " (True)" : " (False)";
 	strDisplay += "\r\n      Total: " + to_string(steps) + " steps";
 	strDisplay += "\r\n      Time: " + to_string(int(ed - st)) + "ms";
-	*/
 	
-	ui.txt_RecogResult->setText(QString::fromStdString(recogResult));
-	ui.txt_KociembaResult->setText(QString::fromStdString(kociembaResult));
-	ui.txt_AnsOpSequence->setText(QString::fromStdString(ansOpSequence));
-	ui.txt_AnswerCost->setText(QString::number(cubeExplorerSPFA->GetAnsCostTime()) + ((cubeExplorerSPFA->reuseFlag == true) ? " (True)" : " (False)"));
-	ui.txt_TotalSteps->setText(QString::number(steps) + "steps");
-	ui.txt_CalcTime->setText(QString::number(int(ed - st)) + "ms");
-
+	ui.plainTextEdit_portWrite->setPlainText(QString::fromStdString(strDisplay));
 	ui.label_restoreCnt->setText(QString::number(steps));
 
 	// 7. 保存识别结果和操作序列
@@ -769,12 +760,12 @@ void CubeExplorerWithQt::on_btnShowSampleResultClicked(){
 void CubeExplorerWithQt::onSetDataSheetClicked()
 {
 	disconnect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::ReadOperationFromPort);
-	ui.txt_LogDisplay->insertPlainText(QStringLiteral("[INFO] Admin: 数据表设置中，请稍等...\n"));
+	ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("[INFO] Admin: 数据表设置中，请稍等...\n"));
 	DataSheetWidget dsw(serialPort, this);
 	dsw.setWindowTitle(QStringLiteral("数据表设置"));
 	dsw.show();
 	dsw.exec();
-	ui.txt_LogDisplay->insertPlainText(QStringLiteral("[INFO] Admin: 数据表设置完成\n"));
+	ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("[INFO] Admin: 数据表设置完成\n"));
 	connect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::ReadOperationFromPort);
 }
 
@@ -835,7 +826,7 @@ void CubeExplorerWithQt::slot_menuShowHSVTriggered()
 
 void CubeExplorerWithQt::slot_setRecArea(QString groupName,QRect rect,int faceID, int blockID)
 {
-	ui.txt_LogDisplay->setText(QStringLiteral("set Rect for") + groupName + faceID + blockID);
+	ui.label_UI_message->setText(QStringLiteral("set Rect for") + groupName + faceID + blockID);
 	SamRec rec2set = { (rect.x() - 5) * 2,(rect.x() + rect.width() - 5) * 2,(rect.y() - 5) * 2,(rect.y() + rect.height() - 5) * 2 };
 	setSampleRec(groupName, rec2set, faceID, blockID);		//设置采样矩阵
 
@@ -875,13 +866,13 @@ void CubeExplorerWithQt::on_btnPortOpenClicked() // 打开或关闭串口
 	if (serialPort->isOpen()) {
 		serialPort->close();
 		ui.btn_portOpen_close->setText(QStringLiteral("打开串口"));
-		ui.txt_LogDisplay->insertPlainText(QStringLiteral("[SUCCESS] 成功关闭串口") + ui.comboBox_coms->currentText() + "\n");
+		ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("[SUCCESS] 成功关闭串口") + ui.comboBox_coms->currentText() + "\n");
 		SetHighlightButtom(ui.btn_portOpen_close);
 	}
 	else {
 		serialPort->setPortName(ui.comboBox_coms->currentText());
 		if (serialPort->open(QIODevice::ReadWrite)) {
-			ui.txt_LogDisplay->insertPlainText(QStringLiteral("[SUCCESS] 成功打开串口") + ui.comboBox_coms->currentText() + "\n");
+			ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("[SUCCESS] 成功打开串口") + ui.comboBox_coms->currentText() + "\n");
 			ui.btn_portOpen_close->setText(QStringLiteral("关闭串口"));
 			SetCommonStyButtom(ui.btn_portOpen_close);
 		}
@@ -892,7 +883,7 @@ void CubeExplorerWithQt::on_btnPortOpenClicked() // 打开或关闭串口
 void CubeExplorerWithQt::on_btnPortSendClicked() // 向串口发送输入框内信息
 {
 	if (serialPort->isOpen()) {
-		serialPort->write(ui.txt_messageSend->text().toLatin1());
+		serialPort->write(ui.plainTextEdit_portWrite->toPlainText().toLatin1());
 		serialPort->flush();
 	}
 	else QMessageBox::warning(this, "Warning", QStringLiteral("串口未打开！！！"));
@@ -935,7 +926,7 @@ void CubeExplorerWithQt::WaitForPortReadTimeout()
 {
 	if (!byteTmp->isEmpty()) {
 		QString decodedString = QTextCodec::codecForName("GB18030")->toUnicode(*byteTmp);
-		ui.txt_LogDisplay->insertPlainText(decodedString);
+		ui.plainTextEdit_SerialRX->insertPlainText(decodedString);
 		byteTmp->clear();
 	}
 }
@@ -943,12 +934,12 @@ void CubeExplorerWithQt::WaitForPortReadTimeout()
 void CubeExplorerWithQt::slotInputStateChange()
 {
 	if (inputFromBox) {
-		ui.txt_LogDisplay->insertPlainText(QStringLiteral("[INFO] Admin: 取消输入框输入\n"));
-        ui.txt_RecogResult->clear();
+		ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("[INFO] Admin: 取消输入框输入\n"));
+        ui.plainTextEdit_portWrite->clear();
 	}
 	else {
-		ui.txt_LogDisplay->insertPlainText(QStringLiteral("[INFO] Admin: 从输入框输入\n"));
-		ui.txt_RecogResult->setText("RRRRURRRRBBBBRBBBBDDDDFDDDDLLLLDLLLLFFFFLFFFFUUUUBUUUU");
+		ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("[INFO] Admin: 从输入框输入\n"));
+		ui.plainTextEdit_portWrite->setPlainText("RRRRURRRRBBBBRBBBBDDDDFDDDDLLLLDLLLLFFFFLFFFFUUUUBUUUU");
 	}
 	inputFromBox^=true;
 		
@@ -958,8 +949,8 @@ void CubeExplorerWithQt::slotReuseStateChange()
 {
 	cubeExplorerSPFA->reuseFlag ^= true;
 	if(cubeExplorerSPFA->reuseFlag)
-		ui.txt_LogDisplay->insertPlainText(QStringLiteral("[INFO] Admin: 已开启时间复用\n"));
-	else ui.txt_LogDisplay->insertPlainText(QStringLiteral("[INFO] Admin: 已关闭时间复用\n"));
+		ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("[INFO] Admin: 已开启时间复用\n"));
+	else ui.plainTextEdit_SerialRX->insertPlainText(QStringLiteral("[INFO] Admin: 已关闭时间复用\n"));
 }
 
 void CubeExplorerWithQt::slot_comReadyRead()
@@ -973,38 +964,37 @@ void CubeExplorerWithQt::ReadOperationFromPort()
 {
 	static QByteArray comByteBuffer = "";
 	comByteBuffer.append(serialPort->readAll());
-	//ui.txt_LogDisplay->insertPlainText(QString::number(comByteBuffer.size()));
+	//ui.plainTextEdit_SerialRX->insertPlainText(QString::number(comByteBuffer.size()));
 	if (comByteBuffer.contains("\n")) {
 		//QString decodedString = QTextCodec::codecForName("UTF-8")->toUnicode(comByteBuffer);
-		ui.txt_LogDisplay->insertPlainText(QString::fromLatin1(comByteBuffer));
-		QTextCursor cursor = ui.txt_LogDisplay->textCursor();
+		ui.plainTextEdit_SerialRX->insertPlainText(QString::fromLatin1(comByteBuffer));
+		QTextCursor cursor = ui.plainTextEdit_SerialRX->textCursor();
 		cursor.movePosition(QTextCursor::End);
-		ui.txt_LogDisplay->setTextCursor(cursor);
-		ui.txt_LogDisplay->ensureCursorVisible();
+		ui.plainTextEdit_SerialRX->setTextCursor(cursor);
+		ui.plainTextEdit_SerialRX->ensureCursorVisible();
 
-		//ui.txt_LogDisplay->insertPlainText(QString::fromUtf8(comByteBuffer));
-		//ui.txt_LogDisplay->ensureCursorVisible();        // 确保光标可见
+		//ui.plainTextEdit_SerialRX->insertPlainText(QString::fromUtf8(comByteBuffer));
+		//ui.plainTextEdit_SerialRX->ensureCursorVisible();        // 确保光标可见
 		
 		//int status = comByteBuffer.contains("#S");
-		//ui.txt_LogDisplay->insertPlainText(QString::number(status));
+		//ui.plainTextEdit_SerialRX->insertPlainText(QString::number(status));
 		if (comByteBuffer.contains("#Sta")) {//
 			if (hasRobotStarted || !isCameraOpen) {
-				ui.txt_LogDisplay->insertPlainText(hasRobotStarted?QStringLiteral("已经开始复原"):QStringLiteral("摄像头未打开") + "\n");
+				ui.plainTextEdit_SerialRX->insertPlainText(hasRobotStarted?QStringLiteral("已经开始复原"):QStringLiteral("摄像头未打开") + "\n");
 				comByteBuffer.clear();
 				return;
 			}
 			//接收到开始按钮指令，开始复原
 			hasRobotStarted = true;
 			on_btnRestoreClicked();
-			ui.txt_LogDisplay->append(QStringLiteral("[INFO] Solver: 开始复原"));
-			//ui.label_UI_message->setText(QStringLiteral("串口收到开始信号"));
+			ui.label_UI_message->setText(QStringLiteral("串口收到开始信号"));
 		}
 		if (comByteBuffer.contains("#O")) {
 			timer_displayRefresh->stop(); isToRestore = false;
 			//int cnt = cubeExplorer.transCnt;
 			double time = double(int(timer_stopWatch->getTime() * 100)) / 100;
 			//list_restoreRecords.push_back(RestoreRecord(cnt, time));
-			//ui.label_UI_message->setText(QStringLiteral("串口收到结束信号"));
+			ui.label_UI_message->setText(QStringLiteral("串口收到结束信号"));
 			hasRobotStarted = false;
 			handReleaseDalayTimer->start(500);
 		}
@@ -1034,8 +1024,8 @@ void CubeExplorerWithQt::slot_baudRateChanged()
 	int baudRate = ui.comboBox_baudRate->currentText().toInt();
 	serialPort->setBaudRate(baudRate);
 	QString strDis = QStringLiteral("当前波特率：") + to_string(baudRate).c_str();
-	//ui.plainTextEdit_portWrite->setPlainText(strDis);
-	ui.txt_LogDisplay->clear();
+	ui.plainTextEdit_portWrite->setPlainText(strDis);
+	ui.plainTextEdit_SerialRX->clear();
 	switch (baudRate) {
 	case 9600:
 		disconnect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::slot_comReadyRead);

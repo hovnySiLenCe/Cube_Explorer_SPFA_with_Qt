@@ -17,6 +17,7 @@ DataSheetWidget::DataSheetWidget(QSerialPort* serialPort, QWidget* parent) :
     connect(ui->btn_delStrategy, &QPushButton::clicked, this, &DataSheetWidget::onbtnDelStrategyClicked);
     connect(ui->btn_resetStrategy, &QPushButton::clicked, this, &DataSheetWidget::onbtnResetStrategyClicked);
     connect(ui->list_strategy, &QListWidget::itemDoubleClicked, this, &DataSheetWidget::slot_OpenSelectedStrategy);
+    connect(ui->list_strategy, &QListWidget::itemClicked, this, &DataSheetWidget::slot_RefreshStrategyName);
     connect(ui->list_strategy, &QListWidget::itemChanged, this, &DataSheetWidget::onListItemChanged);
     
     // 策略组文件操作
@@ -170,6 +171,11 @@ void DataSheetWidget::slot_OpenSelectedStrategy(QListWidgetItem *item)
     if (IsCurrentSetDiffFromUI() && IsUserCancelAction(QStringLiteral("你有修改未保存"))) return;
     m_currentSet = m_versions.value(item->text());
     UpdateUIFromCurrentSet();
+}
+
+void DataSheetWidget::slot_RefreshStrategyName(QListWidgetItem* item)
+{
+    ui->text_versionName->setText(item->text());
 }
 
 void DataSheetWidget::onbtnExportFileClicked()

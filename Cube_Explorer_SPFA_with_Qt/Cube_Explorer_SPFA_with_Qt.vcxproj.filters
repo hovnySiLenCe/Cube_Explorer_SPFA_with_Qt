@@ -45,9 +45,6 @@
     <ClCompile Include="Algorithm\threadSafeKociemba.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Mainbody\CubeExplorerWithQt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Mainbody\DataSheetWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -88,6 +85,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Kociemba\solve.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mainbody\CubeExplorerWithQt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

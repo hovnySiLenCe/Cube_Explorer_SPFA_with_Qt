@@ -69,6 +69,7 @@ public slots:
 	void onbtnResetStrategyClicked();
 	void onListItemChanged(QListWidgetItem* item);
 	void slot_OpenSelectedStrategy(QListWidgetItem* item);
+	void slot_RefreshStrategyName(QListWidgetItem* item);
 
 	// 策略组文件操作
 	void onbtnExportFileClicked();

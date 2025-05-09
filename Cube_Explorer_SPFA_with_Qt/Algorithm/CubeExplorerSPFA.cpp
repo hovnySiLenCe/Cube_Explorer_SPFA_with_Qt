@@ -66,8 +66,8 @@ string CubeExplorerSPFA::GetAnsOpSequence()
 	std::string tmp = "";
 	for (int i = 0; i < ansOpSequence.length(); i+=3) {
 		tmp += ansOpSequence.substr(i, 2) + " ";
-		if (i / 3 % 10 == 9) {
-			tmp += "\n             ";
+		if (i / 3 % 15 == 14) {
+			tmp += "\n";
 		}
 	}
 	return tmp;
