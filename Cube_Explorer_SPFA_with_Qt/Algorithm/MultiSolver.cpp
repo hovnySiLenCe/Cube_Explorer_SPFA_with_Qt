@@ -77,51 +77,51 @@ CubeExplorerSPFA* MultiSolver::GetMultiThreadPath(const std::string& str, int th
 
 void MultiSolver::GetSinglePosePath(int poseId)
 {
-    ofstream out; out.open("./Data/multiSolver"+to_string(poseId) + ".txt", ios::trunc);
-    int st = clock();
+    //ofstream out; out.open("./Data/multiSolver"+to_string(poseId) + ".txt", ios::trunc);
+    //int st = clock();
 
     char* tmpCubeStatus = new char[cubeStatus.length() + 1];
 
-    out << "tmpCubeStatus Time = " << clock() - st << endl;
+    //out << "tmpCubeStatus Time = " << clock() - st << endl;
     //FILE* out = fopen("MultiSolver.txt", "w");
     //fprintf(out, "cubeStatus = ");
     //for (int i = 0; i < cubeStatus.length(); i++) {
     //    fprintf(out, "%c", cubeStatus[i]);
     //}fprintf(out, "\n");
-    st = clock();
+    //st = clock();
 
     strcpy(tmpCubeStatus, cubePoseTransformer[poseId]->Transform(cubeStatus, poseId).c_str());
 
-    out << "cpy&Transform Time = " << clock() - st << endl;
+    //out << "cpy&Transform Time = " << clock() - st << endl;
     
     //fprintf(out, "tmp = %s\n", tmpCubeStatus);
 
-    st = clock();
+    //st = clock();
     string solKociemba = kociembaSolver[poseId]->cube_solve(tmpCubeStatus, NULL);
-    out << "kociemba Time = " << clock() - st << endl;
+    //out << "kociemba Time = " << clock() - st << endl;
     
     //fprintf(out, "sol = %s\n", tmpCubeStatus);
     //fclose(out);
     //string solKociemba(tmpCubeStatus);
 
-    out << "Kociemba Result : " << solKociemba << endl;
+    //out << "Kociemba Result : " << solKociemba << endl;
     
-    st = clock();
+    //st = clock();
     solKociemba = cubePoseTransformer[poseId]->ReTransform(solKociemba, poseId);
-    out << "ReTransform Time = " << clock() - st << endl;
+    //out << "ReTransform Time = " << clock() - st << endl;
 
-    st = clock();
+    //st = clock();
     
     /*int tmpTime = */
 
     cubeExplorerSPFA[poseId]->GetShortestPath(solKociemba);
-    out << "SPFA Time = " << clock() - st << endl;
+    //out << "SPFA Time = " << clock() - st << endl;
     
-    int targetStep = cubeExplorerSPFA[poseId]->GetTargetStepNumber();
-    int ansOpStep = cubeExplorerSPFA[poseId]->GetAnsOpStepNumber();
+    //int targetStep = cubeExplorerSPFA[poseId]->GetTargetStepNumber();
+    //int ansOpStep = cubeExplorerSPFA[poseId]->GetAnsOpStepNumber();
 
-    out << "Retransform Result : " << solKociemba << " " << targetStep << endl;
-    out << cubeExplorerSPFA[poseId]->GetAnsOpSequence() << " " << ansOpStep << endl;
+    //out << "Retransform Result : " << solKociemba << " " << targetStep << endl;
+    //out << cubeExplorerSPFA[poseId]->GetAnsOpSequence() << " " << ansOpStep << endl;
 
-    out.close();
+    //out.close();
 }
