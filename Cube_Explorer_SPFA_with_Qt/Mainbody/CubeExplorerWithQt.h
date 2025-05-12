@@ -127,7 +127,6 @@ private:
 	
 	int nImgSaved;
 	cv::Mat captureMatSet[4];
-
 	QList<QGraphicsRectItem*> list_samRecItems;			//存储显示在窗口上的采样框指针QByteArray byteTmp;
 
 	void InitTimerComponent();
@@ -140,7 +139,8 @@ private:
 	void LoadRestoreRecordsFromFile();
 	void LoadRestoreRecordsFromCSV(QString filename = "./Data/RestoreRecord.csv");
 	void SaveRestoreRecordsToFile();
-	void AppendRestoreRecordsToCSV(QString str_description, QString filename = "./Data/RestoreRecord.csv");
+	void SaveRestoreRecordsToCSV(QString filename = "./Data/RestoreRecord.csv");
+	void AppendRestoreRecordsToTable(QString str_description);
 	QString FormatCSVField(const QVariant& value);
 
 public slots:

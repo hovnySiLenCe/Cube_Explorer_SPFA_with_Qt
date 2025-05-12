@@ -1279,7 +1279,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>12</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="editable">
@@ -1789,6 +1789,15 @@ QTableCornerButton::section {
     background-color: #3498db;  /* 与水平表头一致 */
     border: 1px solid #2980b9;
 }</string>
+              </property>
+              <property name="textElideMode">
+               <enum>Qt::ElideMiddle</enum>
+              </property>
+              <property name="verticalScrollMode">
+               <enum>QAbstractItemView::ScrollPerPixel</enum>
+              </property>
+              <property name="horizontalScrollMode">
+               <enum>QAbstractItemView::ScrollPerPixel</enum>
               </property>
               <attribute name="verticalHeaderDefaultSectionSize">
                <number>20</number>

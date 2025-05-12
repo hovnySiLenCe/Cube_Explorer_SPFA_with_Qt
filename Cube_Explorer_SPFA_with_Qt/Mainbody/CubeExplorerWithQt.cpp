@@ -43,27 +43,6 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	// 开始复原按钮
 	connect(ui.btn_restore, SIGNAL(clicked()), this, SLOT(on_btnRestoreClicked()));
 
-	// 保存记录按钮
-	connect(ui.btn_addRecord, &QPushButton::clicked, this, [this]() {
-		bool ok;
-		QString description = QInputDialog::getText(this,
-			QStringLiteral("输入描述"),
-			QStringLiteral("请输入描述信息："),
-			QLineEdit::Normal,
-			QString(),
-			&ok);
-		if (ok) {
-			AppendRestoreRecordsToCSV(description);
-			ui.txt_LogDisplay->append(QStringLiteral("[INFO] User: 保存记录成功"));
-		}
-        else {
-			ui.txt_LogDisplay->append(QStringLiteral("[INFO] User: 保存记录取消"));
-		}
-		});
-	connect(ui.record_total_time, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=](double totalTime) {
-		double restoreTime = ui.record_restore_time->text().toDouble();
-		ui.record_manual_time->setText(QString::number(totalTime - restoreTime));
-		});
 	// 普通操作按钮
 	connect(ui.btn_camSwitch, SIGNAL(clicked()), this, SLOT(onbtnCamSwitchClicked()));
 	SetHighlightButtom(ui.btn_camSwitch);
@@ -124,6 +103,40 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	// 初始化复原记录
 	LoadRestoreRecordsFromCSV();
 	LoadRestoreRecordsFromFile();
+	ui.recordTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui.recordTable, &QTableWidget::customContextMenuRequested, this, [this](QPoint pos) {
+		QTableWidgetItem* item = ui.recordTable->itemAt(pos);
+		if (item) {
+			QMenu menu;
+			menu.addAction(QStringLiteral("删除"), [this, item]() {
+				int row = item->row();
+				ui.recordTable->removeRow(row);
+				});
+			menu.exec(ui.recordTable->mapToGlobal(pos));
+			}
+		});
+
+	// 保存记录按钮
+	connect(ui.btn_addRecord, &QPushButton::clicked, this, [this]() {
+		bool ok;
+		QString description = QInputDialog::getText(this,
+			QStringLiteral("输入描述"),
+			QStringLiteral("请输入描述信息："),
+			QLineEdit::Normal,
+			QString(),
+			&ok);
+		if (ok) {
+			AppendRestoreRecordsToTable(description);
+			ui.txt_LogDisplay->append(QStringLiteral("[INFO] User: 保存记录成功"));
+		}
+		else {
+			ui.txt_LogDisplay->append(QStringLiteral("[INFO] User: 保存记录取消"));
+		}
+		});
+	connect(ui.record_total_time, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=](double totalTime) {
+		double restoreTime = ui.record_restore_time->text().toDouble();
+		ui.record_manual_time->setText(QString::number(totalTime - restoreTime));
+		});
 	//on_btnCameraClicked();
 
 	//初始化串口类对象
@@ -142,6 +155,7 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 CubeExplorerWithQt::~CubeExplorerWithQt() {
 
 	SaveRestoreRecordsToFile();
+	SaveRestoreRecordsToCSV();
 
 	if (serialPort->isOpen()) {
 		serialPort->close();
@@ -353,6 +367,9 @@ void CubeExplorerWithQt::LoadRestoreRecordsFromCSV(QString filename)
 	QString headerLine = in.readLine();
 	QStringList headers = headerLine.split(',');  // 假设分隔符为逗号
 
+	// 加载数据前关闭刷新
+	ui.recordTable->setUpdatesEnabled(false);
+
 	ui.recordTable->setColumnCount(headers.size());
 	ui.recordTable->setHorizontalHeaderLabels(headers);
 
@@ -375,12 +392,26 @@ void CubeExplorerWithQt::LoadRestoreRecordsFromCSV(QString filename)
 		ui.recordTable->insertRow(row);
 		for (int col = 0; col < fields.size(); ++col) {
 			QTableWidgetItem* item = new QTableWidgetItem(fields[col]);
+			item->setTextAlignment(Qt::AlignCenter);
 			ui.recordTable->setItem(row, col, item);
 		}
 		row++;
 	}
 
 	file.close();
+
+	// 加载完成后恢复刷新
+	ui.recordTable->setUpdatesEnabled(true);
+
+	// 自动调整列宽（基于内容+表头）
+	ui.recordTable->resizeColumnsToContents();
+
+	// 设置列宽调整策略（允许手动调整+自动最小宽度）
+	ui.recordTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+	ui.recordTable->horizontalHeader()->setMinimumSectionSize(50);
+
+	// 启用滚动条边缘弹性效果（Qt5.7+）
+	ui.recordTable->setProperty("kineticScrolling", true);
 }
 
 void CubeExplorerWithQt::SaveRestoreRecordsToFile()
@@ -400,32 +431,50 @@ void CubeExplorerWithQt::SaveRestoreRecordsToFile()
 	file_record.close();				
 }
 
-void CubeExplorerWithQt::AppendRestoreRecordsToCSV(QString str_description, QString filename)
+void CubeExplorerWithQt::SaveRestoreRecordsToCSV(QString filename)
 {
+
 	QFile file(filename);
-	if (!file.open(QIODevice::Append | QIODevice::Text)) {
-        qDebug() << "Failed to open file for writing.";
-        return;
-    }
-	QTextStream out(&file);
-	if (file.size() > 0) {
-		file.seek(file.size() - 1);
-		QChar lastChar;
-		out >> lastChar;
-		if (lastChar != '\n') {
-			out << "\n";
-		}
-		file.seek(file.size()); // 移回文件末尾
+	bool isNewFile = !file.exists();
+	if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+		QMessageBox::critical(this, "Error", QStringLiteral("保存RestoreRecords时出错，无法打开文件"));
+		return;
 	}
 
-	if (file.size() == 0) {
+	QTextStream out(&file);
+	out.setCodec("UTF-8");  // 保持与读取时一致的编码
+
+	if (isNewFile) {
 		out.setGenerateByteOrderMark(true);
 		QStringList headers = { "Timestamp", "Strategy", "Steps", "Total Time",
 			"Restore Time", "Manual Time", "Description",
-			"Recognize Result", "Kociemba Result", "Solve2", "Calc Time", "Answer Cost"};
+			"Recognize Result", "Kociemba Result", "Solve2", "Calc Time", "Answer Cost" };
 		out << headers.join(",") << "\n";
 	}
 
+	// 写入表头
+	QStringList headers;
+	for (int col = 0; col < ui.recordTable->columnCount(); ++col) {
+		headers << FormatCSVField(ui.recordTable->horizontalHeaderItem(col)->text());
+	}
+	out << headers.join(',') << "\n";
+
+	// 写入数据行
+	for (int row = 0; row < ui.recordTable->rowCount(); ++row) {
+		QStringList rowData;
+		for (int col = 0; col < ui.recordTable->columnCount(); ++col) {
+			QTableWidgetItem* item = ui.recordTable->item(row, col);
+			rowData << FormatCSVField(item ? item->text() : "");
+		}
+		out << rowData.join(',') << "\n";
+	}
+
+	file.close();
+	
+}
+
+void CubeExplorerWithQt::AppendRestoreRecordsToTable(QString str_description)
+{
 	QVariantList record = {
 		QDateTime::currentDateTime(),
 		ui.record_strategy_name->currentText(),
@@ -441,14 +490,16 @@ void CubeExplorerWithQt::AppendRestoreRecordsToCSV(QString str_description, QStr
 		ui.txt_AnswerCost->text()
 	};
 
-	// 构建CSV行
-	QStringList fields;
-	for (const QVariant& field : record) {
-		fields << FormatCSVField(field);
-	}
-	out << fields.join(",") << "\n";
+	QTableWidget* table = ui.recordTable;
 
-	file.close();
+	const int newRow = table->rowCount();
+	table->insertRow(newRow);
+    for (int i = 0; i < record.size(); ++i) {
+		QTableWidgetItem* item = new QTableWidgetItem(FormatCSVField(record[i]));
+		item->setTextAlignment(Qt::AlignCenter);
+		table->setItem(newRow, i, item);
+	}
+	table->scrollToBottom();       // 滚动到底部
 }
 
 QString CubeExplorerWithQt::FormatCSVField(const QVariant& value)
