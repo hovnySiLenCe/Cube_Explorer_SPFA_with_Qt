@@ -35,6 +35,7 @@ public:
 		tp tpTmp = sc::now();
 		dd spanTmp = dd(0);
 		spanTmp = ddSpan + std::chrono::duration<double>(tpTmp - tpBegin);
+		//spanTmp = (int) pow(10, offset) * spanTmp / pow(10, offset);
 		return spanTmp.count();
 	}
 

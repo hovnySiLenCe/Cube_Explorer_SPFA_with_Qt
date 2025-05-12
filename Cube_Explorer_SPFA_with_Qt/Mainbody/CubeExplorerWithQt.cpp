@@ -29,6 +29,8 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	handReleaseDalayTimer = new QTimer(this);
 	handReleaseDalayTimer->setSingleShot(true);
 	connect(handReleaseDalayTimer, &QTimer::timeout, this, [this]() {
+		ui.record_total_time->setValue(timer_stopWatch->getTime());
+		ui.record_restore_time->setText(QString::asprintf("%.2f", timer_stopWatch->getTime()));
 		serialPort->write(QString("#2P0T200\r\n").toLatin1());
 		serialPort->write(QString("#4P0T200\r\n").toLatin1());
 		ui.txt_LogDisplay->append(QStringLiteral("[INFO] Solver: 执行完毕"));
@@ -100,9 +102,9 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	// 初始化摄像头
 	InitCameraEvents();
 
-	// 初始化复原记录
+	// 复原记录相关操作
 	LoadRestoreRecordsFromCSV();
-	LoadRestoreRecordsFromFile();
+	//LoadRestoreRecordsFromFile();
 	ui.recordTable->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui.recordTable, &QTableWidget::customContextMenuRequested, this, [this](QPoint pos) {
 		QTableWidgetItem* item = ui.recordTable->itemAt(pos);
@@ -115,7 +117,6 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 			menu.exec(ui.recordTable->mapToGlobal(pos));
 			}
 		});
-
 	// 保存记录按钮
 	connect(ui.btn_addRecord, &QPushButton::clicked, this, [this]() {
 		bool ok;
@@ -154,7 +155,7 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 
 CubeExplorerWithQt::~CubeExplorerWithQt() {
 
-	SaveRestoreRecordsToFile();
+	//SaveRestoreRecordsToFile();
 	SaveRestoreRecordsToCSV();
 
 	if (serialPort->isOpen()) {
@@ -512,7 +513,7 @@ QString CubeExplorerWithQt::FormatCSVField(const QVariant& value)
 		str = value.toDateTime().toString("yyyy-MM-dd HH:mm:ss");
 		break;
 	case QMetaType::Double:
-		str = QString::number(value.toDouble(), 'f', 6); // 保留6位小数
+		str = QString::number(value.toDouble(), 'f', 3); // 保留6位小数
 		break;
 	default:
 		str = value.toString();
@@ -686,8 +687,8 @@ void CubeExplorerWithQt::SetSolverResultDisplay()
 
 	// 添加记录信息
 	ui.record_steps->setText(QString::number(steps));
-	ui.record_total_time->setValue(timer_stopWatch->getTime());
-	ui.record_restore_time->setText(QString::number(timer_stopWatch->getTime()));
+	ui.record_total_time->setValue(0);
+	ui.record_restore_time->setText("0");
 	ui.record_manual_time->setText("0");
 }
 
@@ -726,7 +727,7 @@ void CubeExplorerWithQt::SolveAndRestore()
 		ShowRecogResultOnScene(recogResult);
 
 		ui.txt_RecogResult->setText(QStringLiteral("识别序列有误！"));
-		ui.txt_LogDisplay->append(QStringLiteral("[FETAL] Solver: 识别序列有误！"));
+		ui.txt_LogDisplay->append(QStringLiteral("[FATAL] Solver: 识别序列有误！"));
 		ui.label_restoreCnt->setText("##");
 
 		timer_displayRefresh->stop(); //停止计时器
@@ -1073,20 +1074,15 @@ void CubeExplorerWithQt::ReadOperationFromPort()
 	//ui.txt_LogDisplay->append(QString::number(comByteBuffer.size()));
 	if (comByteBuffer.contains("\n")) {
 		//QString decodedString = QTextCodec::codecForName("UTF-8")->toUnicode(comByteBuffer);
-		ui.txt_LogDisplay->insertPlainText(QString::fromLatin1(comByteBuffer));
-		QTextCursor cursor = ui.txt_LogDisplay->textCursor();
-		cursor.movePosition(QTextCursor::End);
-		ui.txt_LogDisplay->setTextCursor(cursor);
-		ui.txt_LogDisplay->ensureCursorVisible();
-
-		//ui.txt_LogDisplay->insertPlainText(QString::fromUtf8(comByteBuffer));
-		//ui.txt_LogDisplay->ensureCursorVisible();        // 确保光标可见
+		//QTextCursor cursor(ui.txt_LogDisplay->document());
+		//cursor.movePosition(QTextCursor::End);
 		
-		//int status = comByteBuffer.contains("#S");
-		//ui.txt_LogDisplay->insertPlainText(QString::number(status));
+		int pos = comByteBuffer.lastIndexOf("\n");
+		ui.txt_LogDisplay->append(QString::fromLatin1(comByteBuffer.left(pos-1)));
+
 		if (comByteBuffer.contains("#Sta")) {//
 			if (hasRobotStarted || !isCameraOpen) {
-				ui.txt_LogDisplay->append(hasRobotStarted?QStringLiteral("已经开始复原"):QStringLiteral("摄像头未打开") + "\n");
+				ui.txt_LogDisplay->append(hasRobotStarted?QStringLiteral("[INFO] Solver: 已经开始复原"):QStringLiteral("[FATAL] Solver: 摄像头未打开"));
 				comByteBuffer.clear();
 				return;
 			}
@@ -1109,9 +1105,13 @@ void CubeExplorerWithQt::ReadOperationFromPort()
 			hasRobotStarted = false;
 		}
 		if (comByteBuffer.contains("#Relax")) {
+			timer_stopWatch->stop();
+			ui.record_total_time->setValue(99.999);
+			ui.record_restore_time->setText("99.99");
+			//ui.txt_LogDisplay->append(QStringLiteral("[INFO] User: 紧急停止"));
 			hasRobotStarted = false;
 		}
-		comByteBuffer.clear();
+		comByteBuffer.remove(0, pos+1);
 	}
 }
 
