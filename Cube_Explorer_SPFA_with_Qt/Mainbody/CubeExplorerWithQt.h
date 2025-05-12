@@ -1,5 +1,6 @@
 #pragma once
 #include <QtWidgets/QMainWindow>
+#include <QInputDialog>
 #include <iostream>
 #include <qapplication.h>
 #include <qdatetime.h>
@@ -44,6 +45,7 @@ extern "C" {
 
 #define SCENE_VIEW_WIDTH 320
 #define SCENE_VIEW_HEIGHT 180
+
 struct RestoreRecord {
 	int cnt;
 	double time;
@@ -62,6 +64,7 @@ class CubeExplorerWithQt : public QMainWindow
 	Q_OBJECT
 
 public:
+	CubeExplorerWithQt(QWidget* parent = Q_NULLPTR);
 	virtual ~CubeExplorerWithQt();
 	//void openCamera();
 	
@@ -71,23 +74,15 @@ public:
 	void Sleep(int);
 	void SolveAndRestore();
 
-	cv::Mat QImageToCvMat(const QImage& image); // 将QImage转化为CvMat
+	cv::Mat QImageToCvMat(const QImage& image);						// 将QImage转化为CvMat
 	void SaveCaptureMatToFile(string curPath);
-
-	void LoadRestoreRecordsFromFile();									//从数据文件读取记录
-	void SaveRestoreRecordsToFile();								//将记录写入文件
-	void AppendRestoreRecordsToCSV();
-	QString FormatCSVField(const QVariant &value);
-
-	CubeExplorerWithQt(QWidget* parent = Q_NULLPTR);
 
 private:
 	Ui::CubicExplorerWithQt ui;
 
-	
 	int st, ed;
 	string recogResult; // 识别结果
-	char* kociembaResult;
+	char* kociembaResult; 
 	string ansOpSequence; // Solve2序列
 
 	bool isCameraOpen = false;
@@ -96,15 +91,13 @@ private:
 	bool inputFromBox = false;
 	const int captureInterval = 1000;
 
-	//CubeExplorer  cubeExplorer;						   	//魔方解算
-	/*CubeExplorer1* cubeExplorer1;	*/					//魔方解算
-
-	CubeExplorerSPFA* cubeExplorerSPFA; // ！！new
+	CubeExplorerSPFA* cubeExplorerSPFA;
 	MultiSolver* multiSolver;
 	
-	QTimer* timer_displayRefresh;										//复原计时触发器
-	MyTimer* timer_stopWatch;									//复原计时器
-	QList<RestoreRecord> list_restoreRecords;			//复原记录
+	QTimer* timer_displayRefresh;						// 复原计时触发器
+	MyTimer* timer_stopWatch;							// 复原计时器
+	
+	QList<RestoreRecord> list_restoreRecords;			// 复原记录
 
 	QTimer* timeoutTimer;
 	QTimer* handReleaseDalayTimer;
@@ -115,15 +108,6 @@ private:
 	QSerialPortInfo currentPortInfo;
 	QMap<QString, QSerialPortInfo> list_portInfo;
 
-	//摄像头处理
-	//QGraphicsScene* scene_FR;							//摄像头显示场景
-	//QGraphicsScene* scene_U;							//
-	//QGraphicsScene* scene_BL;							//
-	//QGraphicsScene* scene_D;							//
-	//QGraphicsVideoItem* videoItem_FR;					//摄像头显示载体
-	//QGraphicsVideoItem* videoItem_U;					//
-	//QGraphicsVideoItem* videoItem_BL;					//
-	//QGraphicsVideoItem* videoItem_D;					//
 	QRect rec_tSelect;									//选取框位置临时记录
 	QString curPath;									//当前工作目录
 	
@@ -140,9 +124,6 @@ private:
 
 	QList<QCameraInfo> list_cameraInfo;					//摄像头信息
 	
-	//QList<QVideoProbe*> list_pSnap;
-	//QMap<QString, QGraphicsVideoItem*> videoItems;		//图片名到videoItem指针的映射
-	//QMap<QString, QGraphicsScene*> map_pic_pScene;		//图片名到scene指针的映射
 	
 	int nImgSaved;
 	cv::Mat captureMatSet[4];
@@ -153,11 +134,19 @@ private:
 	void SetHighlightButtom(QPushButton* buttom);
 	void SetCommonStyButtom(QPushButton* buttom);
 
+	void CleanSolverResultDisplay();
+	void SetSolverResultDisplay();
+
+	void LoadRestoreRecordsFromFile();
+	void LoadRestoreRecordsFromCSV(QString filename = "./Data/RestoreRecord.csv");
+	void SaveRestoreRecordsToFile();
+	void AppendRestoreRecordsToCSV(QString str_description, QString filename = "./Data/RestoreRecord.csv");
+	QString FormatCSVField(const QVariant& value);
+
 public slots:
 	//界面按钮槽函数
 	void on_btnTightOrLooseClicked();
 	void on_btnRestoreClicked();
-	void on_btnResetClicked();
 	void on_btnSendSingleClicked();
 	void on_btnDebugClicked();
 	void onbtnCamSwitchClicked();
