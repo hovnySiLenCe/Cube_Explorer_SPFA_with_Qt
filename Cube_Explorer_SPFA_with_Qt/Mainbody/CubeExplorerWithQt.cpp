@@ -1093,13 +1093,14 @@ void CubeExplorerWithQt::ReadOperationFromPort()
 			//ui.label_UI_message->setText(QStringLiteral("串口收到开始信号"));
 		}
 		if (comByteBuffer.contains("#O")) {
-			timer_displayRefresh->stop(); isToRestore = false;
+			timer_stopWatch->stop(), timer_displayRefresh->stop();
+			TimerDisplayRefresh();
+			isToRestore = hasRobotStarted = false;
+			handReleaseDalayTimer->start(500);
 			//int cnt = cubeExplorer.transCnt;
-			double time = double(int(timer_stopWatch->getTime() * 100)) / 100;
+			//double time = double(int(timer_stopWatch->getTime() * 100)) / 100;
 			//list_restoreRecords.push_back(RestoreRecord(cnt, time));
 			//ui.label_UI_message->setText(QStringLiteral("串口收到结束信号"));
-			hasRobotStarted = false;
-			handReleaseDalayTimer->start(500);
 		}
 		if (comByteBuffer.contains("#Reset")) {
 			hasRobotStarted = false;
