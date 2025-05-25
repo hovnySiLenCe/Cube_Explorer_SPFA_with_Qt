@@ -1782,6 +1782,7 @@ QHeaderView::section:vertical {
     padding: 5px;
     border: 1px solid #27ae60;
     font-weight: bold;
+	font-size: 8px;
 }
 
 /* 左上角按钮区域样式 */
