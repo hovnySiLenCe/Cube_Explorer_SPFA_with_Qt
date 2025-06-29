@@ -262,7 +262,8 @@ void DataSheetWidget::LoadKeyFromUI()
     m_keySet.key[02] = ui->label_key02->text();
     m_keySet.key[03] = ui->label_key03->text();
     m_keySet.key[04] = ui->label_key04->text();
-    //m_keySet.key[05] = ui->label_key05->text();
+    m_keySet.key[05] = ui->label_key05->text();
+    m_keySet.key[06] = ui->label_key06->text();
 
     m_keySet.key[10] = ui->label_key10->text();
     m_keySet.key[11] = ui->label_key11->text();
@@ -285,7 +286,8 @@ void DataSheetWidget::UpdateCurrentSetFromUI()
     m_currentSet.param[02] = ui->spin_para02->value();
     m_currentSet.param[03] = ui->spin_para03->value();
     m_currentSet.param[04] = ui->spin_para04->value();
-    //m_currentSet.param[05] = ui->spin_para05->value();
+    m_currentSet.param[05] = ui->spin_para05->value();
+    m_currentSet.param[06] = ui->spin_para06->value();
 
     m_currentSet.param[10] = ui->spin_para10->value();
     m_currentSet.param[11] = ui->spin_para11->value();
@@ -309,6 +311,8 @@ void DataSheetWidget::UpdateUIFromCurrentSet()
     ui->spin_para02->setValue(m_currentSet.param[02]);
     ui->spin_para03->setValue(m_currentSet.param[03]);
     ui->spin_para04->setValue(m_currentSet.param[04]);
+    ui->spin_para05->setValue(m_currentSet.param[05]);
+    ui->spin_para06->setValue(m_currentSet.param[06]);
 
     ui->spin_para10->setValue(m_currentSet.param[10]);
     ui->spin_para11->setValue(m_currentSet.param[11]);
@@ -332,6 +336,8 @@ bool DataSheetWidget::IsCurrentSetDiffFromUI()
     isDiff |= (m_currentSet.param[02] != ui->spin_para02->value());
     isDiff |= (m_currentSet.param[03] != ui->spin_para03->value());
     isDiff |= (m_currentSet.param[04] != ui->spin_para04->value());
+    isDiff |= (m_currentSet.param[05] != ui->spin_para05->value());
+    isDiff |= (m_currentSet.param[06] != ui->spin_para06->value());
     //m_currentSet.param[05] != ui->spin_para05->value();
 
     isDiff |= (m_currentSet.param[10] != ui->spin_para10->value());
@@ -354,6 +360,7 @@ bool DataSheetWidget::IsUserCancelAction(const QString message)
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "confirm", message + QStringLiteral("，确定要执行此操作吗？"),
         QMessageBox::Yes | QMessageBox::No);
+
     return (reply == QMessageBox::No);
 }
 
