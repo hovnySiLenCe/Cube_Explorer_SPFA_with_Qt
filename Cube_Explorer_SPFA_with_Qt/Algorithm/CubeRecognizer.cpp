@@ -15,6 +15,8 @@ static QMap<QString, vector<cv::Mat>> map_face_id_recogMat;		//±£´æµ±Ç°Ê¶±ğ¹ı³ÌÖ
 //new things-----------------------------------------------------------
 static vector<CubeBlock> vec_samBlocks;								//±£´æÅÄÉã²ÉÑùµÄÉ«¿é
 
+static vector<int> add_V;
+
 //vector<pair<QString, int>> vec_index_blockPair;
 //---------------------------------------------------------------------
 
@@ -36,6 +38,9 @@ void iniHSVMap() {
 	list_colorID.append("green");	list_faceID.append("l"); 		//
 	list_colorID.append("yellow");	list_faceID.append("b"); 		//
 	list_colorID.append("white");
+
+	add_V.resize(54);
+	add_V[7] = 70; add_V[5] = 30; add_V[21] = 20;
 
 	//´Ó±¾µØÎÄ¼ş¶ÁÈ¡´æ´¢µÄHSVÊı¾İ
 	QFile file_hsv(QDir::currentPath() + "/data/hsv_threshold.txt");//¶ÁÈ¡ãĞÖµÊı¾İÎÄ¼şµ½ str_hsvData ÒÔ½øĞĞ·Ö¸î¡¢±éÀú
@@ -407,8 +412,8 @@ string recognizeNew() { // £¡£¡ÖØÒªËã·¨
 	}
 
 	int cntWhite = 9, cntRed = 9, cntOrange = 9, cntYellow = 9, cntGreen = 9, cntBlue = 9;
-	//ofstream in;
-	//in.open(".\\Mechanical\\test.txt", ios::trunc);
+	//ofstream out;
+	//out.open(".\\Mechanical\\test.txt", ios::trunc);
 	//int cnt1 = 0;
 	//¼ÆËãµÃµ½¸÷¸ö²ÉÑùÍ¼µÄHSV¾ùÖµ£¬HSVÓĞÉ«µ÷¡¢±¥ºÍ¶È¡¢ÁÁ¶ÈÈıÎ¬£¬Í¨¹ıÈ¡Æ½¾ùÊ¹HSVÖµÆ½¾ù»¯ÓÃÓÚÅÅĞò
 	for (int index = 0; index < vec_samBlocks.size(); index++) {
@@ -437,7 +442,15 @@ string recognizeNew() { // £¡£¡ÖØÒªËã·¨
 		}
 		vec_samBlocks[index].meanH = (float)sumH / cntH;
 		vec_samBlocks[index].meanS = (float)sumS / cntS;
-		vec_samBlocks[index].meanV = (float)sumV / cntV;
+		vec_samBlocks[index].meanV = min((float)255, (float)sumV / cntV + add_V[index]);
+		
+		//out << index << " " << (float)sumV / cntV << " " << add_V[index] << endl;
+
+		// UÃæ²¹Õı
+		//if (index == 5) vec_samBlocks[index].meanV = min(255, vec_samBlocks[index].meanV + 30);
+		//if (index == 7) vec_samBlocks[index].meanV = min(255, vec_samBlocks[index].meanV + 70);
+		
+
 		//vec_samBlocks[index].ratioH170 = (float)cntH170 / cntH;
 
 		//if ((float)cntH150 / cntH > 0.03) {							//ÌôÑ¡³öHÔÚ170-180Ö®¼äµÄºìÉ«¿é£¬±ÜÃâÇø¼äÌøÔ¾µ¼ÖÂµÄ¾ùÖµÊ§Õæ
@@ -446,6 +459,7 @@ string recognizeNew() { // £¡£¡ÖØÒªËã·¨
 		//	cntRed--;
 		//}
 	}
+	//out.close();
 	//in << cnt1 << endl;
 	//int cntjudge = 0;
 	//¶ÔS½øĞĞÅÅĞò£¬È¡×îĞ¡µÄ6¸ö×÷Îª°×É«¿é

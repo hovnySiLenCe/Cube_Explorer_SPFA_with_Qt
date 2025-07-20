@@ -1,12 +1,54 @@
-54
-cntjudge = 9
-i = 9
-cntjudge = 54
-size = 18
-mapsize = 6
-yellow orange blue yellow white red yellow blue white 
-orange white red red blue green white orange blue 
-orange white blue green red yellow blue orange green 
-red white red blue yellow blue green blue yellow 
-green green green orange green white white yellow white 
-yellow yellow red red orange green orange red orange 
+0 255 0
+1 141.896 0
+2 229.693 0
+3 129.477 0
+4 254.988 0
+5 63.4508 30
+6 210.381 0
+7 46.1439 70
+8 254.917 0
+9 180.223 0
+10 138.38 0
+11 118.547 0
+12 168.539 0
+13 148.567 0
+14 124.045 0
+15 147.05 0
+16 127.681 0
+17 120.8 0
+18 167.042 0
+19 200.788 0
+20 230.816 0
+21 172.567 20
+22 201.583 0
+23 207.952 0
+24 181.81 0
+25 193.754 0
+26 198.264 0
+27 137.8 0
+28 188.521 0
+29 144.166 0
+30 255 0
+31 134.287 0
+32 182.46 0
+33 137.234 0
+34 245.326 0
+35 114.705 0
+36 209.848 0
+37 211.207 0
+38 183.097 0
+39 217.991 0
+40 204.854 0
+41 196.393 0
+42 187.174 0
+43 202.038 0
+44 176.304 0
+45 194.106 0
+46 212.047 0
+47 233.495 0
+48 218.681 0
+49 244.567 0
+50 253.729 0
+51 176.214 0
+52 190.008 0
+53 196.479 0
