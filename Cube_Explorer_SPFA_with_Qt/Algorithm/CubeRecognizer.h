@@ -12,6 +12,9 @@
 #include<highgui/highgui.hpp>
 #include<fstream>
 #include<vector>
+#include <QDir>
+#include <QMessageBox>
+#include <opencv2/opencv.hpp>
 
 using namespace std;
 
@@ -58,5 +61,12 @@ void sampleFromPic(cv::Mat image, QString picName);
 string recognizeNew();
 void CreateSceneFromStr(string str);
 string FaceToColor(char s);
+
+//YKJ ADD
+vector<int>& getCorrection_H();
+vector<int>& getCorrection_S();
+vector<int>& getCorrection_V();
+QMap<QString, vector<int> >& getCorreDataMap();
+//YKJ END
 
 #endif

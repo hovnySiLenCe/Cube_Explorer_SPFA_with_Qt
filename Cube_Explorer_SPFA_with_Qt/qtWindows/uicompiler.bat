@@ -1,1 +1,1 @@
-uic -o ui_DataSheetWidget.h DataSheetWidget.ui
+uic -o ui_HSVCorrectionDialog.h HSVCorrectionDialog.ui

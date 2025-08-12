@@ -27,6 +27,7 @@
     <ClCompile Include="Mainbody\CubeExplorerWithQt.cpp" />
     <ClCompile Include="Mainbody\DataSheetWidget.cpp" />
     <ClCompile Include="Mainbody\DebugWidget.cpp" />
+    <ClCompile Include="Mainbody\HSVCorrectionDialog.cpp" />
     <ClCompile Include="Mainbody\HSVDataDialog.cpp" />
     <ClCompile Include="Mainbody\HSVThresholdDialog.cpp" />
     <ClCompile Include="Mainbody\LastSampleDialog.cpp" />
@@ -49,6 +50,7 @@
     <ClInclude Include="GeneratedFiles\ui_CubicExplorerWithQt.h" />
     <ClInclude Include="GeneratedFiles\ui_DataSheetWidget.h" />
     <ClInclude Include="GeneratedFiles\ui_DebugWidget.h" />
+    <ClInclude Include="GeneratedFiles\ui_HSVCorrectionDialog.h" />
     <ClInclude Include="GeneratedFiles\ui_HSVDataDialog.h" />
     <ClInclude Include="GeneratedFiles\ui_HSVThresholdDialog.h" />
     <ClInclude Include="GeneratedFiles\ui_LastSampleDialog.h" />
@@ -63,6 +65,7 @@
     <ClInclude Include="Kociemba\prunetable_helpers.h" />
     <ClInclude Include="Kociemba\search.h" />
     <ClInclude Include="Kociemba\solve.h" />
+    <QtMoc Include="Mainbody\HSVCorrectionDialog.h" />
     <ClInclude Include="Mainbody\MyTimer.h" />
     <QtMoc Include="Mainbody\RecogAreaDialog.h" />
     <QtMoc Include="Mainbody\QMyGraphicsView.h" />
@@ -77,6 +80,7 @@
     <QtUic Include="qtWindows\CubicExplorerWithQt.ui" />
     <QtUic Include="qtWindows\DataSheetWidget.ui" />
     <QtUic Include="qtWindows\DebugWidget.ui" />
+    <QtUic Include="qtWindows\HSVCorrectionDialog.ui" />
     <QtUic Include="qtWindows\HSVDataDialog.ui" />
     <QtUic Include="qtWindows\HSVThresholdDialog.ui" />
     <QtUic Include="qtWindows\LastSampleDialog.ui" />

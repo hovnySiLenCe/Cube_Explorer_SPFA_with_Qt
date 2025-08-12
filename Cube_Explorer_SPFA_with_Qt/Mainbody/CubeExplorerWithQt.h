@@ -32,6 +32,7 @@
 #include "RecogAreaDialog.h"
 #include "HSVDataDialog.h"
 #include "HSVThresholdDialog.h"
+#include "HSVCorrectionDialog.h"
 
 #include "CubeRecognizer.h"	
 #include "CubeExplorer.h"

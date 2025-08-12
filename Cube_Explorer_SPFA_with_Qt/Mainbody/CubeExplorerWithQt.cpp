@@ -857,10 +857,16 @@ void CubeExplorerWithQt::on_btnRecogClicked() {
 }
 
 void CubeExplorerWithQt::on_btnShowSampleResultClicked(){
-	LastSampleDialog lsd(this);
+	/* 旧版显示采样数据 */
+	/*LastSampleDialog lsd(this);
 	lsd.setWindowTitle(QStringLiteral("识别采样"));
 	lsd.show();
-	lsd.exec();
+	lsd.exec();*/
+	/* 新版显示采样数据 */
+	HSVCorrectionDialog hcd(this);
+	hcd.setWindowTitle(QStringLiteral("识别采样"));
+    hcd.show();
+    hcd.exec();
 }
 
 void CubeExplorerWithQt::onSetDataSheetClicked()

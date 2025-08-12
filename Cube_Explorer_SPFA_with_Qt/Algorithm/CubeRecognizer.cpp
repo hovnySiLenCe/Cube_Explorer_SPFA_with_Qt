@@ -2,8 +2,7 @@
 
 static QMap<QString, QMap<QString, HSV>> map_face_color_hsv;		//´æ·ÅhsvãĞÖµÊı¾İµÄÇ¶Ì× map,·ÃÎÊ·½Ê½Îª map[faceName][colorName]
 static QList<QString> list_faceID, list_colorID;					//Á½¸öÏÂ±êlist£¬ÓÃÓÚÍ¨¹ıÕûÊı index È¡µÃ¶ÔÓ¦µÄ×Ö·û´®×÷Îª map µÄkeyÖµÀ´·ÃÎÊ map_face_color_hsv;
-/*
-static QMap<QString, vector<SamRec>> map_pic_id_samRec;				//´æ·Å²ÉÑù¿òÊı¾İµÄ map ,ÆäÖĞÃ¿¸öÔªËØÎª´æ´¢ samRec ÀàĞÍµÄvector£¬¶ÔÓ¦Ò»ÕÅÍ¼Æ¬µÄ18¸ö²ÉÑùÎ»ÖÃ*/
+
 static QMap<QString, vector<SamRec>> map_pic_id_samRec;				//´æ·Å²ÉÑù¿òÊı¾İµÄ map ,ÆäÖĞÃ¿¸öÔªËØÎª´æ´¢ samRec ÀàĞÍµÄvector£¬¶ÔÓ¦Ò»ÕÅÍ¼Æ¬µÄ²ÉÑùÎ»ÖÃ
 QList<QString> list_picID;											//ÓÃÓÚ²ÉÑù¿òmapµÄÏÂ±êlist£¬Í¨¹ıÕûÊı index È¡µÃ¶ÔÓ¦µÄÕÕÆ¬Ãû×÷Îª map µÄkeyÖµÀ´·ÃÎÊ map_pic_id_samRec
 
@@ -15,7 +14,27 @@ static QMap<QString, vector<cv::Mat>> map_face_id_recogMat;		//±£´æµ±Ç°Ê¶±ğ¹ı³ÌÖ
 //new things-----------------------------------------------------------
 static vector<CubeBlock> vec_samBlocks;								//±£´æÅÄÉã²ÉÑùµÄÉ«¿é
 
-static vector<int> add_V;
+// YKJ ADD
+static QMap<QString, vector<int>> map_correData;
+static vector<int> correction_H, correction_S, correction_V;
+// ¶¨ÒåÄ¿±êÎÄ¼şÃûÁĞ±í
+const QList<QString> targetFiles = {
+	"BL",
+	"D",
+	"FR",
+	"U"
+};
+// YKJ END
+
+void iniLastMatImage() {
+	std::map<QString, cv::Mat> images;
+	QDir dir("pic_cam");
+	for (const QString& filename : targetFiles) {
+		QString filePath = dir.filePath("cam_"+filename+".jpg");
+		cv::Mat img = cv::imread(filePath.toStdString(), cv::IMREAD_COLOR);
+		sampleFromPic(img, filename);
+	}
+}
 
 //vector<pair<QString, int>> vec_index_blockPair;
 //---------------------------------------------------------------------
@@ -39,8 +58,13 @@ void iniHSVMap() {
 	list_colorID.append("yellow");	list_faceID.append("b"); 		//
 	list_colorID.append("white");
 
-	add_V.resize(54);
-	add_V[7] = 70; add_V[5] = 30; add_V[21] = 20;
+    correction_H.resize(54);
+	correction_S.resize(54);
+	correction_V.resize(54);
+	correction_V[7] = 70; correction_V[5] = 30; correction_V[21] = 20;
+	map_correData.insert("H", correction_H);
+    map_correData.insert("S", correction_S);
+    map_correData.insert("V", correction_V);
 
 	//´Ó±¾µØÎÄ¼ş¶ÁÈ¡´æ´¢µÄHSVÊı¾İ
 	QFile file_hsv(QDir::currentPath() + "/data/hsv_threshold.txt");//¶ÁÈ¡ãĞÖµÊı¾İÎÄ¼şµ½ str_hsvData ÒÔ½øĞĞ·Ö¸î¡¢±éÀú
@@ -219,6 +243,8 @@ void iniRecogVars() {
 	map_face_id_recogMat.insert("b", vec_mat_fill);
 	map_face_id_recogMat.insert("l", vec_mat_fill);
 	map_face_id_recogMat.insert("d", vec_mat_fill);
+
+	iniLastMatImage();
 
 	//³õÊ¼»¯É«¿éÈİÆ÷
 	vec_samBlocks.resize(54);									//
@@ -440,11 +466,11 @@ string recognizeNew() { // £¡£¡ÖØÒªËã·¨
 				}
 			}
 		}
-		vec_samBlocks[index].meanH = (float)sumH / cntH;
-		vec_samBlocks[index].meanS = (float)sumS / cntS;
-		vec_samBlocks[index].meanV = min((float)255, (float)sumV / cntV + add_V[index]);
+		vec_samBlocks[index].meanH = min(max(0.0, (double)sumH / cntH + map_correData["H"][index]), 255.0);
+		vec_samBlocks[index].meanS = min(max(0.0, (double)sumS / cntS + map_correData["S"][index]), 255.0);
+		vec_samBlocks[index].meanV = min(max(0.0, (double)sumV / cntV + map_correData["V"][index]), 255.0);
 		
-		//out << index << " " << (float)sumV / cntV << " " << add_V[index] << endl;
+		//out << index << " " << (float)sumV / cntV << " " << correction_V[index] << endl;
 
 		// UÃæ²¹Õı
 		//if (index == 5) vec_samBlocks[index].meanV = min(255, vec_samBlocks[index].meanV + 30);
@@ -689,6 +715,26 @@ string FaceToColor(char s)
 	case 'B':str = "#FFFAFA"; break;
 	}
 	return str;
+}
+
+vector<int>& getCorrection_H()
+{
+	return correction_H;
+}
+
+vector<int>& getCorrection_S()
+{
+	return correction_S;
+}
+
+vector<int>& getCorrection_V()
+{
+	return correction_V;
+}
+
+QMap<QString, vector<int>>& getCorreDataMap()
+{
+	return map_correData;
 }
 
 void CreateSceneFromStr(string str)

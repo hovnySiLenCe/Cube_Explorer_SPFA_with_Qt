@@ -90,6 +90,9 @@
     <ClCompile Include="Mainbody\CubeExplorerWithQt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Mainbody\HSVCorrectionDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Algorithm\CubeExplorer.h">
@@ -164,6 +167,9 @@
     <ClInclude Include="GeneratedFiles\ui_RecogAreaDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_HSVCorrectionDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Mainbody\CubeExplorerWithQt.h">
@@ -190,6 +196,9 @@
     <QtMoc Include="Mainbody\RecogAreaDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Mainbody\HSVCorrectionDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="qtWindows\CubicExplorerWithQt.ui">
@@ -211,6 +220,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="qtWindows\RecogAreaDialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="qtWindows\HSVCorrectionDialog.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
