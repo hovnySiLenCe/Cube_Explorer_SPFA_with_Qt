@@ -219,7 +219,7 @@ void HSVCorrectionDialog::calcRealHSV()
 			for (int i = 0; i < mat_hsv.rows; i++) {				//±éÀúÍ¼Æ¬Ã¿¸öÏñËØ
 				for (int j = 0; j < mat_hsv.cols; j++) {
 					cv::Point p(j, i);
-					if (mat_hsv.at<cv::Vec3b>(p)[0] >= 0 && mat_hsv.at<cv::Vec3b>(p)[0] <= 150) {
+					if (mat_hsv.at<cv::Vec3b>(p)[0] >= 0 && mat_hsv.at<cv::Vec3b>(p)[0] <= 255) {
 						sumH += mat_hsv.at<cv::Vec3b>(p)[0];
 						cntH++;
 					}
