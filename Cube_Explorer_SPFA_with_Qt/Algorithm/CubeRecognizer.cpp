@@ -466,7 +466,10 @@ string recognizeNew() { // ！！重要算法
 				}
 			}
 		}
+		
 		vec_samBlocks[index].meanH = min(max(0.0, (double)sumH / cntH + map_correData["H"][index]), 255.0);
+		if (vec_samBlocks[index].meanH >= 140)
+			vec_samBlocks[index].meanH = 0;
 		vec_samBlocks[index].meanS = min(max(0.0, (double)sumS / cntS + map_correData["S"][index]), 255.0);
 		vec_samBlocks[index].meanV = min(max(0.0, (double)sumV / cntV + map_correData["V"][index]), 255.0);
 		
@@ -488,9 +491,10 @@ string recognizeNew() { // ！！重要算法
 	//out.close();
 	//in << cnt1 << endl;
 	//int cntjudge = 0;
-	//对S进行排序，取最小的6个作为白色块
+	//对S进行排序，取最小的7个作为白色块候选
 	sort(vec_samBlocks.begin(), vec_samBlocks.end(), [](CubeBlock& a, CubeBlock& b) {return a.meanS < b.meanS; });
-
+	//再对H值进行排序，去最大的6个作为白色块，避免黄色块过亮产生影响
+	sort(vec_samBlocks.begin(), vec_samBlocks.begin()+7, [](CubeBlock& a, CubeBlock& b) {return a.meanH > b.meanH; });
 	int i = 0;
 	while (cntWhite > 0 && i < vec_samBlocks.size()) {
 		if (vec_samBlocks[i].bJudged == false) {
