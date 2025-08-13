@@ -72,6 +72,9 @@ public slots:
 
 	void onbtnConfModiClicked(); // 当确认修改按钮按下后保存修改
 
+	// 真实值栏刷新按钮
+	void onbtnRefreshDisplayClicked();
+
 	// 校正参数操作
 	void onbtnSaveVersionClicked(); // 当按下保存版本按钮后保存当前参数
 	void onbtnDelVersionClicked(); // 当按下删除版本按钮后删除当前版本

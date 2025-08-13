@@ -38,6 +38,10 @@ HSVCorrectionDialog::HSVCorrectionDialog(QWidget *parent)
 	connect(ui->cBox_faceChoice, &QComboBox::currentTextChanged, this, &HSVCorrectionDialog::displayStandardHighlight);
 	connect(ui->cBox_idChoice, &QComboBox::currentTextChanged, this, &HSVCorrectionDialog::displayStandardHighlight);
 
+	// 显示方式操作
+	connect(ui->cBox_displayChoice, &QComboBox::currentTextChanged, this, &HSVCorrectionDialog::displayRealHSV);
+	connect(ui->btn_refreshDisplay, &QPushButton::clicked, this, &HSVCorrectionDialog::onbtnRefreshDisplayClicked);
+
 	// 保存参数版本操作
 	connect(ui->btn_saveStrategy, &QPushButton::clicked, this, &HSVCorrectionDialog::onbtnSaveVersionClicked);
 	connect(ui->btn_delStrategy, &QPushButton::clicked, this, &HSVCorrectionDialog::onbtnDelVersionClicked);
@@ -242,18 +246,61 @@ void HSVCorrectionDialog::calcRealHSV()
 
 void HSVCorrectionDialog::displayRealHSV()
 {
-	for each (QString strHSV in m_listHSV)
-	{
-		for (int i = 0; i < m_listFace.size(); i++)
+	QString displayType = ui->cBox_displayChoice->currentText();
+
+	if (displayType == QStringLiteral("校正后")) {
+		for each (QString strHSV in m_listHSV)
 		{
-			QGridLayout* layout = this->findChild<QGridLayout*>("gLay_real" + m_listFace[i].toUpper() + "_" + strHSV);
-			for (int j = 0; j < 9; j++)
+			for (int i = 0; i < m_listFace.size(); i++)
 			{
-				QLineEdit* lineEdit = qobject_cast<QLineEdit*>(layout->itemAtPosition(j / 3, j % 3)->widget());
-				lineEdit->setText(QString::number(m_realData[strHSV][i * 9 + j]));
+				QGridLayout* realLayout = this->findChild<QGridLayout*>("gLay_real" + m_listFace[i].toUpper() + "_" + strHSV);
+				QGridLayout* correLayout = this->findChild<QGridLayout*>("gLay_corre" + m_listFace[i].toUpper() + "_" + strHSV);
+				for (int j = 0; j < 9; j++)
+				{
+					QLineEdit* realEdit = qobject_cast<QLineEdit*>(realLayout->itemAtPosition(j / 3, j % 3)->widget());
+					QLineEdit* correEdit = qobject_cast<QLineEdit*>(correLayout->itemAtPosition(j / 3, j % 3)->widget());
+					realEdit->setText(QString::number(m_realData[strHSV][i * 9 + j] + correEdit->text().toInt()));
+				}
 			}
 		}
 	}
+	else {
+		int standValue = 0;
+
+		if (displayType == QStringLiteral("基准值差值")) {
+			QString strFace = standardIndex.first;
+			int index = standardIndex.second;
+			int faceId = 0;
+			while (m_listFace[faceId] != strFace) ++faceId;
+			standValue = m_realData["V"][faceId * 9 + index];
+		}
+		for each (QString strHSV in m_listHSV)
+		{
+			for (int i = 0; i < m_listFace.size(); i++)
+			{
+				QGridLayout* layout = this->findChild<QGridLayout*>("gLay_real" + m_listFace[i].toUpper() + "_" + strHSV);
+				for (int j = 0; j < 9; j++)
+				{
+					QLineEdit* lineEdit = qobject_cast<QLineEdit*>(layout->itemAtPosition(j / 3, j % 3)->widget());
+					lineEdit->setText(QString::number(m_realData[strHSV][i * 9 + j] - standValue));
+				}
+			}
+		}
+	}
+}
+
+void HSVCorrectionDialog::onbtnRefreshDisplayClicked()
+{
+	// 重新获取采样框mat
+	mat_map = getLastRecogMatMap();
+
+	// 重新更新结果布局
+	for each (QString strFace in m_listFace)
+		addButtonToResultGrid(strFace);
+
+	// 显示真实数据结果
+	calcRealHSV();
+	displayRealHSV();
 }
 
 bool HSVCorrectionDialog::IsCurrentSetDiffFromUI()
@@ -445,19 +492,15 @@ void HSVCorrectionDialog::onbtnAutoCorrectClicked()
 {
 	QString strFace = standardIndex.first;
 	int index = standardIndex.second;
-	QGridLayout* layout = this->findChild<QGridLayout*>("gLay_real" + strFace.toUpper() +"_V");
-	QLineEdit* lineEdit = qobject_cast<QLineEdit*>(layout->itemAtPosition(index / 3, index % 3)->widget());
-	
-	int standValue = lineEdit->text().toInt();
+	int faceId = 0;
+	while (m_listFace[faceId] != strFace) ++faceId;
+	int standValue = m_realData["V"][faceId * 9 + index];
 
-	for each(QString strFace in m_listFace) {
-		QGridLayout* realLayout = this->findChild<QGridLayout*>("gLay_real" + strFace.toUpper() + "_V");
-		QGridLayout* correLayout = this->findChild<QGridLayout*>("gLay_corre" + strFace.toUpper() + "_V");
-		
-		for (int i = 0; i < 9; i++) {
-			QLineEdit* realEdit = qobject_cast<QLineEdit*>(realLayout->itemAtPosition(i / 3, i % 3)->widget());
-			QLineEdit* correEdit = qobject_cast<QLineEdit*>(correLayout->itemAtPosition(i / 3, i % 3)->widget());
-            correEdit->setText(QString::number(standValue - realEdit->text().toInt()));
+	for (int i = 0; i < m_listFace.size(); i++) {
+		QGridLayout* correLayout = this->findChild<QGridLayout*>("gLay_corre" + m_listFace[i].toUpper() + "_V");
+		for (int j = 0; j < 9; j++) {
+			QLineEdit* correEdit = qobject_cast<QLineEdit*>(correLayout->itemAtPosition(j / 3, j % 3)->widget());
+            correEdit->setText(QString::number(standValue - m_realData["V"][i * 9 + j]));
 		}
         
 	}
