@@ -16,6 +16,7 @@
     <ClCompile Include="Algorithm\CubePoseTransformer.cpp" />
     <ClCompile Include="Algorithm\CubeRecognizer.cpp" />
     <ClCompile Include="Algorithm\MultiSolver.cpp" />
+    <ClCompile Include="Algorithm\MyThread.cpp" />
     <ClCompile Include="Algorithm\threadSafeKociemba.cpp" />
     <ClCompile Include="Kociemba\coordcube.c" />
     <ClCompile Include="Kociemba\cubiecube.c" />
@@ -45,7 +46,8 @@
     <ClInclude Include="Algorithm\CubeExplorerSPFA.h" />
     <ClInclude Include="Algorithm\CubePoseTransformer.h" />
     <ClInclude Include="Algorithm\CubeRecognizer.h" />
-    <ClInclude Include="Algorithm\MultiSolver.h" />
+    <QtMoc Include="Algorithm\MultiSolver.h" />
+    <QtMoc Include="Algorithm\MyThread.h" />
     <ClInclude Include="Algorithm\threadSafeKociemba.h" />
     <ClInclude Include="GeneratedFiles\ui_CubicExplorerWithQt.h" />
     <ClInclude Include="GeneratedFiles\ui_DataSheetWidget.h" />

@@ -93,6 +93,9 @@
     <ClCompile Include="Mainbody\HSVCorrectionDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Algorithm\MyThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Algorithm\CubeExplorer.h">
@@ -105,9 +108,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Algorithm\CubeRecognizer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Algorithm\MultiSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Algorithm\threadSafeKociemba.h">
@@ -197,6 +197,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Mainbody\HSVCorrectionDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Algorithm\MyThread.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Algorithm\MultiSolver.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
