@@ -5,6 +5,8 @@
 #include<string>
 #include<fstream>
 #include<iostream>
+#include<QDebug>
+
 using namespace std;
 
 #define MAX_CUBE_STEP 51 // 解法的每一步骤
@@ -15,17 +17,30 @@ using namespace std;
 #define MAX_ROTATION 2 // 涉及旋转方向数组
 #define INF 0x7f7f7f7f
 
+// 空 1: 62 / 2 = 31
+// 带 1: 192 / 2 = 96
+// ning 1: 82 / 2 = 42
+// dai 2 136
+// kong 2 59
+// ning 2 L: 68
+// ning 2 R: 79
+// 10c = 27
+// 10o = 38
+// cc+o=80
+// o+c = 53
+// oo+c = 91
+// ooo+c = 129
 
 // 表示各操作权重
-#define HAND_OPEN 10
-#define HAND_CLOSE 6
+#define HAND_OPEN 38
+#define HAND_CLOSE 27
 
-#define HAND_TURN_CUBE_90 13 //魔方整体旋转
-#define HAND_TURN_CUBE_180 16
-#define HAND_TWIST_CUBE_90 12 //拧魔方单面
-#define HAND_TWIST_CUBE_180 16
-#define HAND_TURN_ONLY_90 10
-#define HAND_TURN_ONLY_180 16
+#define HAND_TURN_CUBE_90 96 //魔方整体旋转
+#define HAND_TURN_CUBE_180 136
+#define HAND_TWIST_CUBE_90 42 //拧魔方单面
+#define HAND_TWIST_CUBE_180 68
+#define HAND_TURN_ONLY_90 31
+#define HAND_TURN_ONLY_180 59
 
 #define FACE_U_ID 6
 #define FACE_R_ID 1
@@ -149,17 +164,11 @@ private:
 	vector<string> vecStrSerial;
 	// 从上到下依次为 左爪，逆时针、180和顺时针, 开/合
 	const string commandOp[29] = {
-		"#1P6T200\r\n", "#1P6T200\r\n", "#1P6T200\r\n",
-		"#1P8T200\r\n", "#1P8T200\r\n", "#1P8T200\r\n",
-		"#1P7T200\r\n", "#1P7T200\r\n", "#1P7T200\r\n",
+		"#1P6T200\r\n",	"#1P8T200\r\n", "#1P7T200\r\n",
 		"#2P0T200\r\n", "#2P1T200\r\n",
-		"#1P9T200\r\n","#1P9T200\r\n","#1P9T200\r\n",
-		
-		"#3P6T200\r\n", "#3P6T200\r\n", "#3P6T200\r\n",
-		"#3P8T200\r\n", "#3P8T200\r\n", "#3P8T200\r\n",
-		"#3P7T200\r\n", "#3P7T200\r\n", "#3P7T200\r\n",
-		"#4P0T200\r\n", "#4P1T200\r\n",
-		"#3P9T200\r\n", "#3P9T200\r\n", "#3P9T200\r\n"
+
+		"#3P6T200\r\n",	"#3P8T200\r\n",	"#3P7T200\r\n",
+		"#4P0T200\r\n", "#4P1T200\r\n"
 	};
 
 	inline int GetFaceId(char c);

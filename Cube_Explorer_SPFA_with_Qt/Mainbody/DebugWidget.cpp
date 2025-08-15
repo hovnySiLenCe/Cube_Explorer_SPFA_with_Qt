@@ -700,19 +700,34 @@ void DebugWidget::ClickBtnRight5Circle() {
 }
 
 void DebugWidget::ClickBtntest1() {
-	serialPortDebug->write(QString("#9P6T200\r\n").toLatin1());
+	serialPortDebug->write(QString("#5P6T200\r\n").toLatin1());
 	for (int i = 1; i <= 10; i++) {
-		serialPortDebug->write(QString("#1P6T200\r\n").toLatin1());
-		serialPortDebug->write(QString("#1P7T200\r\n").toLatin1());
+		serialPortDebug->write(QString("#1P8T200\r\n").toLatin1());
+		//serialPortDebug->write(QString("#2P1T200\r\n").toLatin1());
+		//serialPortDebug->write(QString("#2P0T200\r\n").toLatin1());// 62
+		// Пе 1: 62 / 2 = 31
+		// Дј 1: 192 / 2 = 96
+		// ning 1: 82 / 2 = 42
+		// dai 2 136
+		// kong 2 59
+		// ning 2 L: 68
+		// ning 2 R: 79
+		// 10c = 27
+		// 10o = 38
+		// cc+o=80
+		// o+c = 53
+		// oo+c = 91
+		// ooo+c = 129
 	}
 	serialPortDebug->write(QString("#7P6T200\r\n").toLatin1());
 }
 
 void DebugWidget::ClickBtntest2() {
-	serialPortDebug->write(QString("#9P6T200\r\n").toLatin1());
+	serialPortDebug->write(QString("#5P6T200\r\n").toLatin1());
 	for (int i = 1; i <= 10; i++) {
-		serialPortDebug->write(QString("#3P6T200\r\n").toLatin1());
-		serialPortDebug->write(QString("#3P7T200\r\n").toLatin1());
+		serialPortDebug->write(QString("#3P8T200\r\n").toLatin1());
+		//serialPortDebug->write(QString("#4P1T200\r\n").toLatin1());
+		//serialPortDebug->write(QString("#4P0T200\r\n").toLatin1());
 	}
 	serialPortDebug->write(QString("#7P6T200\r\n").toLatin1());
 }

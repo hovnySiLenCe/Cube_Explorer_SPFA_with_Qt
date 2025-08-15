@@ -142,7 +142,8 @@ inline bool CubeExplorerSPFA::StateUpdate(int costTime, int step, int cubeStateI
 	//printf("costTime = %d step = %d state = ", costTime, step); std::cout << ExeState(cubeStateId, handState) <<endl;
 	if (costTime < stepTime[step][cubeStateId][handState]) {
 		stepTime[step][cubeStateId][handState] = costTime;
-		pathList[step][cubeStateId][handState] = Node_List(opId ,preNode);
+		pathList[step][cubeStateId][handState] = Node_List(opId+1, preNode);
+		//qDebug("step = %d cubeStateId = %d handState = %d opId = %d", step, cubeStateId, handState, opId);
 		//opSequence[step][cubeStateId][handState] = curOpSequence;
 		if (!vis[step][cubeStateId][handState]) {
 			vis[step][cubeStateId][handState] = 1;
@@ -170,6 +171,7 @@ void CubeExplorerSPFA::SPFA() {
 	/*0815
 	opSequence[0][eOp.cubeState.id][0] = "";
 	*/
+	pathList[0][eOp.cubeState.id][0].opId = 0;
 	stepTime[0][eOp.cubeState.id][0] = 0;
 	vis[0][eOp.cubeState.id][0] = 1;
 	p.push(eOp);
@@ -197,6 +199,7 @@ void CubeExplorerSPFA::SPFA() {
 			if (ansTime > stepTime[step][cubeState.id][handState]) {
 				ansTime = stepTime[step][cubeState.id][handState];
 				ansPathEnd = &pathList[step][cubeState.id][handState];
+				qDebug("ansTime = %d step = %d cubeState = %d handState = %d", ansTime, step, cubeState.id, handState);
 			}
 			continue;
 		}
@@ -264,7 +267,7 @@ void CubeExplorerSPFA::SPFA() {
 					}
 					*/
 
-					if (StateUpdate(costTime, step, newCubeState.id, newHandState, curNodePoint, (2 - handId) * MAX_OPS_LEN + (1-i) * OP_3_ID))
+					if (StateUpdate(costTime, step, newCubeState.id, newHandState, curNodePoint, (2 - handId) * MAX_OPS_LEN + (1 - i) * OP_3_ID))
 						p.push(Step_State(step, newCubeState, newHandState));
 				}
 
@@ -301,7 +304,7 @@ void CubeExplorerSPFA::SPFA() {
 			costTime = stepTime[step][cubeState.id][handState] + HAND_OPEN;
 			for (int i = 0; i < 2; i++) {
 				newHandState = handState + (4 << i);
-				if (StateUpdate(costTime, step, cubeState.id, newHandState, curNodePoint, (1 - handId) * MAX_OPS_LEN + OP_O_ID)) {
+				if (StateUpdate(costTime, step, cubeState.id, newHandState, curNodePoint, (1 - i) * MAX_OPS_LEN + OP_O_ID)) {
 					p.push(Step_State(step, cubeState, newHandState));
 				}
 			}
@@ -311,8 +314,9 @@ void CubeExplorerSPFA::SPFA() {
 
 	ansOpSequence = "";
 	Node_List* curNode = ansPathEnd;
-	while (curNode) {
-        ansOpSequence = opString[curNode->opId] + ansOpSequence;
+	int stepNum = 0;
+	while (curNode->opId > 0) {
+        ansOpSequence = opString[curNode->opId-1] + ansOpSequence;
         curNode = curNode->preNode;
 	}
 }
