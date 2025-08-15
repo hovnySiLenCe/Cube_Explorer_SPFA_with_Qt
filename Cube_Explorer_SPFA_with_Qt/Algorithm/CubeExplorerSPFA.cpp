@@ -199,7 +199,7 @@ void CubeExplorerSPFA::SPFA() {
 			if (ansTime > stepTime[step][cubeState.id][handState]) {
 				ansTime = stepTime[step][cubeState.id][handState];
 				ansPathEnd = &pathList[step][cubeState.id][handState];
-				qDebug("ansTime = %d step = %d cubeState = %d handState = %d", ansTime, step, cubeState.id, handState);
+				//qDebug("ansTime = %d step = %d cubeState = %d handState = %d", ansTime, step, cubeState.id, handState);
 			}
 			continue;
 		}

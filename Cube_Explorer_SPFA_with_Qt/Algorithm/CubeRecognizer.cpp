@@ -491,10 +491,10 @@ string recognizeNew() { // ！！重要算法
 	//out.close();
 	//in << cnt1 << endl;
 	//int cntjudge = 0;
-	//对S进行排序，取最小的7个作为白色块候选
+	//对S进行排序，取最小的10个作为白色块候选
 	sort(vec_samBlocks.begin(), vec_samBlocks.end(), [](CubeBlock& a, CubeBlock& b) {return a.meanS < b.meanS; });
-	//再对H值进行排序，去最大的6个作为白色块，避免黄色块过亮产生影响
-	sort(vec_samBlocks.begin(), vec_samBlocks.begin()+7, [](CubeBlock& a, CubeBlock& b) {return a.meanH > b.meanH; });
+	//再对H值进行排序，去最大的9个作为白色块，避免黄色块过亮产生影响
+	sort(vec_samBlocks.begin(), vec_samBlocks.begin()+10, [](CubeBlock& a, CubeBlock& b) {return a.meanH > b.meanH; });
 	int i = 0;
 	while (cntWhite > 0 && i < vec_samBlocks.size()) {
 		if (vec_samBlocks[i].bJudged == false) {

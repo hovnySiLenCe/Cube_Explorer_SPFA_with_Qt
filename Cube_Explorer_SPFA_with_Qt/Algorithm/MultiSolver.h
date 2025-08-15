@@ -3,12 +3,14 @@
 #include <QObject>
 #include <QEventLoop>
 #include <QTimer>
+#include <QMutex>
 #include "MyThread.h"
 
 class MultiSolver : public QObject {
 	Q_OBJECT
 
 private:
+	QMutex m_mutex;
 	MyThread* m_thread[24];
 	int ansTime, ansId;
 	int finishedCnt;
