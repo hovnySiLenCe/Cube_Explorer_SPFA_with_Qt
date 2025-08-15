@@ -149,7 +149,7 @@ private:
 	};
 
 	inline int GetFaceId(char c);
-	bool StateUpdate(int costTime, int step, int cubeStateId, int handState, string curOpSequence);
+	bool StateUpdate(int costTime, int step, int cubeStateId, int handState);
 	int CheckFace(int cubeStateId, int face);
 	void SPFA();
 };

@@ -137,12 +137,12 @@ inline string ExeState(int cubeStateId, int handState) {
 	return s;
 }
 
-inline bool CubeExplorerSPFA::StateUpdate(int costTime, int step, int cubeStateId, int handState, string curOpSequence) {
+inline bool CubeExplorerSPFA::StateUpdate(int costTime, int step, int cubeStateId, int handState) {
 	//printf("costTime = %d step = %d cubeStateId = %d handState = %d\n", costTime, step, cubeStateId, handState);
 	//printf("costTime = %d step = %d state = ", costTime, step); std::cout << ExeState(cubeStateId, handState) <<endl;
 	if (costTime < stepTime[step][cubeStateId][handState]) {
 		stepTime[step][cubeStateId][handState] = costTime;
-		opSequence[step][cubeStateId][handState] = curOpSequence;
+		//opSequence[step][cubeStateId][handState] = curOpSequence;
 		if (!vis[step][cubeStateId][handState]) {
 			vis[step][cubeStateId][handState] = 1;
 			return 1;
@@ -201,7 +201,7 @@ void CubeExplorerSPFA::SPFA() {
 			handId = handState >> 2;
 			costTime = stepTime[step][cubeState.id][handState] + HAND_CLOSE;
 			newHandState = handState & 3;
-			if (StateUpdate(costTime, step, cubeState.id, newHandState, curOpSequence + opHandId[handId] + "C "))
+			if (StateUpdate(costTime, step, cubeState.id, newHandState/*, curOpSequence + opHandId[handId] + "C "*/))
 				p.push(Step_State(step, cubeState, newHandState));
 			// 1.2 the hand is open, the change angle can be 90
 			if (handId + (handState & 3) != 3) {
@@ -221,7 +221,7 @@ void CubeExplorerSPFA::SPFA() {
 
 				//printf("why costTime? step=%d cubeState.id = %d handState = %d stepTime = %d\n", step, cubeState.id, handState, stepTime[step][cubeState.id][handState]);
 				newHandState = handState ^ handId;
-				if (StateUpdate(costTime, step, cubeState.id, newHandState, curOpSequence + opHandId[handId] + preOpOrien + char(HAND_TURN_ONLY_90)))
+				if (StateUpdate(costTime, step, cubeState.id, newHandState/*, curOpSequence + opHandId[handId] + preOpOrien + char(HAND_TURN_ONLY_90)*/))
 					p.push(Step_State(step, cubeState, newHandState));
 
 				//2.2.2 also can be 180, the hand with cube is only meaningful.
@@ -250,14 +250,14 @@ void CubeExplorerSPFA::SPFA() {
 						}
 					}
 
-					if (StateUpdate(costTime, step, newCubeState.id, newHandState, curOpSequence + opHandId[handId] + opOrienId[i] + char(HAND_TURN_CUBE_90)))
+					if (StateUpdate(costTime, step, newCubeState.id, newHandState/*, curOpSequence + opHandId[handId] + opOrienId[i] + char(HAND_TURN_CUBE_90)*/))
 						p.push(Step_State(step, newCubeState, newHandState));
 				}
 
 				//2.2 also can be 180, the hand with cube is only meaningful.
 				costTime = stepTime[step][cubeState.id][handState] + HAND_TURN_CUBE_180;
 				newCubeState = cubeState * opOrien[handId][0] * opOrien[handId][0];
-				if (StateUpdate(costTime, step, newCubeState.id, handState, curOpSequence + opHandId[handId] + '2' + char(HAND_TURN_CUBE_180)))
+				if (StateUpdate(costTime, step, newCubeState.id, handState/*, curOpSequence + opHandId[handId] + '2' + char(HAND_TURN_CUBE_180)*/))
 					p.push(Step_State(step, newCubeState, handState));
 			}
 
@@ -279,7 +279,7 @@ void CubeExplorerSPFA::SPFA() {
 						newHandState = handState;
 					}
 					costTime = stepTime[step][cubeState.id][handState] + epsTime;
-					if (StateUpdate(costTime, step + 1, cubeState.id, newHandState, curOpSequence + opHandId[handId] + target[step].dire + char(epsTime)))
+					if (StateUpdate(costTime, step + 1, cubeState.id, newHandState/*, curOpSequence + opHandId[handId] + target[step].dire + char(epsTime)*/))
 						p.push(Step_State(step + 1, cubeState, newHandState));
 				}
 			}
@@ -287,7 +287,7 @@ void CubeExplorerSPFA::SPFA() {
 			costTime = stepTime[step][cubeState.id][handState] + HAND_OPEN;
 			for (int i = 0; i < 2; i++) {
 				newHandState = handState + (4 << i);
-				if (StateUpdate(costTime, step, cubeState.id, newHandState, curOpSequence + ((i) ? "LO " : "RO "))) {
+				if (StateUpdate(costTime, step, cubeState.id, newHandState/*, curOpSequence + ((i) ? "LO " : "RO ")*/)) {
 					p.push(Step_State(step, cubeState, newHandState));
 				}
 			}

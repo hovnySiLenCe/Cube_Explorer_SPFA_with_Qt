@@ -1,5 +1,7 @@
 #include "MultiSolver.h"
 
+#define	MAX_THREAD_NUM 24
+
 MultiSolver::MultiSolver() {
     ansTime = 0x7f7f7f7f;
     ansId = finishedCnt = 0;
@@ -8,7 +10,7 @@ MultiSolver::MultiSolver() {
         bool connected = QObject::connect(
             m_thread[i], &MyThread::sendAns,
             this, &MultiSolver::slot_threadFinished,
-            Qt::QueuedConnection
+            Qt::DirectConnection
         );
         if (!connected) {
             qCritical() << "Failed to connect thread" << i;
@@ -45,7 +47,7 @@ CubeExplorerSPFA* MultiSolver::GetMultiThreadPath(const std::string& str, int th
     
     loop.exec(); // 启动事件循环，等待所有线程完成
 
-    qDebug() << "MultiSolver::GetMultiThreadPath: " << ansId << " " << ansTime << "Time: " << clock();
+    qDebug() << "Final: " << ansId << " " << ansTime << "Time: " << clock();
 
     return m_thread[ansId]->getCubeExplorerSPFA();
     /*

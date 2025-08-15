@@ -5,8 +5,6 @@
 #include <QTimer>
 #include "MyThread.h"
 
-#define	MAX_THREAD_NUM 2
-
 class MultiSolver : public QObject {
 	Q_OBJECT
 
