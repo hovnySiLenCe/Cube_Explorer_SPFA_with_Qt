@@ -137,12 +137,13 @@ inline string ExeState(int cubeStateId, int handState) {
 	return s;
 }
 
-inline bool CubeExplorerSPFA::StateUpdate(int costTime, int step, int cubeStateId, int handState, string curOpSequence) {
+inline bool CubeExplorerSPFA::StateUpdate(int costTime, int step, int cubeStateId, int handState, Node_List* preNode, int opId) {
 	//printf("costTime = %d step = %d cubeStateId = %d handState = %d\n", costTime, step, cubeStateId, handState);
 	//printf("costTime = %d step = %d state = ", costTime, step); std::cout << ExeState(cubeStateId, handState) <<endl;
 	if (costTime < stepTime[step][cubeStateId][handState]) {
 		stepTime[step][cubeStateId][handState] = costTime;
-		opSequence[step][cubeStateId][handState] = curOpSequence;
+		pathList[step][cubeStateId][handState] = Node_List(opId ,preNode);
+		//opSequence[step][cubeStateId][handState] = curOpSequence;
 		if (!vis[step][cubeStateId][handState]) {
 			vis[step][cubeStateId][handState] = 1;
 			return 1;
@@ -157,13 +158,18 @@ void CubeExplorerSPFA::SPFA() {
 	int step, costTime, handId, i;
 	int newHandState, handState;
 	char preOpHand, preOpOrien;
-	string curOpSequence, preOp;
+	Node_List* curNodePoint;
+	//string curOpSequence;
 	queue<Step_State> p;
 
 	ansTime = INF;
 	memset(stepTime, INF, sizeof(stepTime));
 
+	memset(pathList, 0, sizeof(pathList));
+
+	/*0815
 	opSequence[0][eOp.cubeState.id][0] = "";
+	*/
 	stepTime[0][eOp.cubeState.id][0] = 0;
 	vis[0][eOp.cubeState.id][0] = 1;
 	p.push(eOp);
@@ -175,7 +181,11 @@ void CubeExplorerSPFA::SPFA() {
 		handState = currentOp.handState;
 		vis[step][cubeState.id][handState] = 0;
 
+		curNodePoint = &pathList[step][cubeState.id][handState];
+		/* 0815
 		curOpSequence = opSequence[step][cubeState.id][handState];
+		*/
+
 		//curOpSequence = opSequence[step][cubeState.id][handState]+ExeState(cubeState.id,handState)+'\n';
 
 		//currentOp.Out()/*, printf("%s\n", curOpSequence.c_str())*/;
@@ -186,7 +196,7 @@ void CubeExplorerSPFA::SPFA() {
 		if (step == targetStep) {
 			if (ansTime > stepTime[step][cubeState.id][handState]) {
 				ansTime = stepTime[step][cubeState.id][handState];
-				ansOpSequence = curOpSequence;
+				ansPathEnd = &pathList[step][cubeState.id][handState];
 			}
 			continue;
 		}
@@ -201,13 +211,14 @@ void CubeExplorerSPFA::SPFA() {
 			handId = handState >> 2;
 			costTime = stepTime[step][cubeState.id][handState] + HAND_CLOSE;
 			newHandState = handState & 3;
-			if (StateUpdate(costTime, step, cubeState.id, newHandState, curOpSequence + opHandId[handId] + "C "))
+			if (StateUpdate(costTime, step, cubeState.id, newHandState, curNodePoint, (2 - handId) * MAX_OPS_LEN + OP_C_ID))
 				p.push(Step_State(step, cubeState, newHandState));
 			// 1.2 the hand is open, the change angle can be 90
 			if (handId + (handState & 3) != 3) {
 
 				costTime = stepTime[step][cubeState.id][handState] + HAND_TURN_CUBE_90;
 
+				/*
 				if (reuseFlag) { // check whether current step can be reused ( Two different hands in different orientations, with one hand open and the other closed. )
 					preOpHand = curOpSequence[curOpSequence.length() - 3];
 					preOpOrien = curOpSequence[curOpSequence.length() - 2];
@@ -217,11 +228,12 @@ void CubeExplorerSPFA::SPFA() {
 					}
 					else preOpOrien = '1';
 				}
+				*/
 				preOpOrien = '1';
 
 				//printf("why costTime? step=%d cubeState.id = %d handState = %d stepTime = %d\n", step, cubeState.id, handState, stepTime[step][cubeState.id][handState]);
 				newHandState = handState ^ handId;
-				if (StateUpdate(costTime, step, cubeState.id, newHandState, curOpSequence + opHandId[handId] + preOpOrien + char(HAND_TURN_ONLY_90)))
+				if (StateUpdate(costTime, step, cubeState.id, newHandState, curNodePoint, (2 - handId) * MAX_OPS_LEN + OP_1_ID))
 					p.push(Step_State(step, cubeState, newHandState));
 
 				//2.2.2 also can be 180, the hand with cube is only meaningful.
@@ -242,6 +254,7 @@ void CubeExplorerSPFA::SPFA() {
 					newCubeState = cubeState * opOrien[handId][i]; // determined in InitOrientation()
 					costTime = stepTime[step][cubeState.id][handState] + HAND_TURN_CUBE_90;
 					
+					/*
 					if (reuseFlag) {
 						preOpHand = curOpSequence[curOpSequence.length() - 3];
 						preOpOrien = curOpSequence[curOpSequence.length() - 2];
@@ -249,15 +262,16 @@ void CubeExplorerSPFA::SPFA() {
 							costTime = stepTime[step][cubeState.id][handState];
 						}
 					}
+					*/
 
-					if (StateUpdate(costTime, step, newCubeState.id, newHandState, curOpSequence + opHandId[handId] + opOrienId[i] + char(HAND_TURN_CUBE_90)))
+					if (StateUpdate(costTime, step, newCubeState.id, newHandState, curNodePoint, (2 - handId) * MAX_OPS_LEN + (1-i) * OP_3_ID))
 						p.push(Step_State(step, newCubeState, newHandState));
 				}
 
 				//2.2 also can be 180, the hand with cube is only meaningful.
 				costTime = stepTime[step][cubeState.id][handState] + HAND_TURN_CUBE_180;
 				newCubeState = cubeState * opOrien[handId][0] * opOrien[handId][0];
-				if (StateUpdate(costTime, step, newCubeState.id, handState, curOpSequence + opHandId[handId] + '2' + char(HAND_TURN_CUBE_180)))
+				if (StateUpdate(costTime, step, newCubeState.id, handState, curNodePoint, (2 - handId) * MAX_OPS_LEN + OP_2_ID))
 					p.push(Step_State(step, newCubeState, handState));
 			}
 
@@ -279,7 +293,7 @@ void CubeExplorerSPFA::SPFA() {
 						newHandState = handState;
 					}
 					costTime = stepTime[step][cubeState.id][handState] + epsTime;
-					if (StateUpdate(costTime, step + 1, cubeState.id, newHandState, curOpSequence + opHandId[handId] + target[step].dire + char(epsTime)))
+					if (StateUpdate(costTime, step + 1, cubeState.id, newHandState, curNodePoint, (2 - handId) * MAX_OPS_LEN + (target[step].dire - '1')))
 						p.push(Step_State(step + 1, cubeState, newHandState));
 				}
 			}
@@ -287,12 +301,19 @@ void CubeExplorerSPFA::SPFA() {
 			costTime = stepTime[step][cubeState.id][handState] + HAND_OPEN;
 			for (int i = 0; i < 2; i++) {
 				newHandState = handState + (4 << i);
-				if (StateUpdate(costTime, step, cubeState.id, newHandState, curOpSequence + ((i) ? "LO " : "RO "))) {
+				if (StateUpdate(costTime, step, cubeState.id, newHandState, curNodePoint, (1 - handId) * MAX_OPS_LEN + OP_O_ID)) {
 					p.push(Step_State(step, cubeState, newHandState));
 				}
 			}
 		}
 		//printf("end of son.\n\n");
+	}
+
+	ansOpSequence = "";
+	Node_List* curNode = ansPathEnd;
+	while (curNode) {
+        ansOpSequence = opString[curNode->opId] + ansOpSequence;
+        curNode = curNode->preNode;
 	}
 }
 
@@ -313,7 +334,7 @@ void CubeExplorerSPFA::SaveMechanicalStep()
 	out.open(".\\Mechanical\\ControlCommand.txt", ios::trunc);
 #endif // DEBUG
 
-	int handId, opId;
+	int opId;
 	//int cntTurn[2];
 	//memset(cntTurn, 0, sizeof(cntTurn));
 
@@ -326,24 +347,15 @@ void CubeExplorerSPFA::SaveMechanicalStep()
 	for (int i = 0; i < len; i += 3) {
 
 		switch (ansOpSequence[i]) {
-		case 'L':opId = handId = 0; break;
-		case 'R':opId = 14, handId = 1; break;
+		case 'L':opId = 0; break;
+		case 'R':opId = MAX_OPS_LEN; break;
 		}
 		switch (ansOpSequence[i + 1]) {
-		case '1': opId += 0/*, ++cntTurn[handId]*/; break;
-		case '2': 
-			opId += 3;
-			/*if (cntTurn[handId] > 0) opId += 11, cntTurn[handId] -= 2;
-			else opId += 3, cntTurn[handId] += 2;*/
-			break;
-		case '3': opId += 6/*, --cntTurn[handId]*/; break;
-		case 'O': opId += 9; break;
-		case 'C': opId += 10; break;
-		}
-		switch (ansOpSequence[i + 2]) {
-		case ' ':opId += 0; break;
-		case 'O':opId += 1; break;
-		case 'C':opId += 2; break;
+		case '1': opId += OP_1_ID; break;
+		case '2': opId += OP_2_ID; break;
+		case '3': opId += OP_3_ID; break;
+		case 'O': opId += OP_O_ID; break;
+		case 'C': opId += OP_C_ID; break;
 		}
 		//out << cntTurn[0] << " " << cntTurn[1] << " " << ansOpSequence.substr(i, 3) << " " << commandOp[opId];
 		vecStrSerial.push_back(commandOp[opId]);

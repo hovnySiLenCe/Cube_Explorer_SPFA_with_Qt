@@ -13,7 +13,7 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	cubeExplorerSPFA->InitOrientation();
 
 	multiSolver = new MultiSolver();
-	multiSolver->InitSolver();
+	//multiSolver->InitSolver();
 
 	ui.setupUi(this);
 

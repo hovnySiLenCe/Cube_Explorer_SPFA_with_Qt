@@ -1,22 +1,56 @@
 #include "MultiSolver.h"
 
-void MultiSolver::InitSolver() {
+#define	MAX_THREAD_NUM 24
+
+MultiSolver::MultiSolver() {
     ansTime = 0x7f7f7f7f;
-    //kociembaSolver = new threadSafeKociemba();
-    //cubePoseTransformer = new CubePoseTransformer();
-    //cubePoseTransformer->Init();
-    for (int i = 0; i < 24; i++) {
-        cubeExplorerSPFA[i] = new CubeExplorerSPFA();
-        cubeExplorerSPFA[i]->InitOrientation();
-        kociembaSolver[i] = new threadSafeKociemba();
-        cubePoseTransformer[i] = new CubePoseTransformer();
-        cubePoseTransformer[i]->Init();
+    ansId = finishedCnt = 0;
+    for (int i = 0; i < MAX_THREAD_NUM; i++) {
+        m_thread[i] = new MyThread(i);
+        bool connected = QObject::connect(
+            m_thread[i], &MyThread::sendAns,
+            this, &MultiSolver::slot_threadFinished,
+            Qt::DirectConnection
+        );
+        if (!connected) {
+            qCritical() << "Failed to connect thread" << i;
+        }
+        m_thread[i]->start();
     }
-    ansCubeExplorerSPFA = nullptr;
 }
+//void MultiSolver::InitSolver() {
+//    ansTime = 0x7f7f7f7f;
+//    ansId = 0;
+//    //kociembaSolver = new threadSafeKociemba();
+//    //cubePoseTransformer = new CubePoseTransformer();
+//    //cubePoseTransformer->Init();
+//    for (int i = 0; i < 24; i++) {
+//        m_thread[i] = new MyThread(i);
+//    }
+//}
 
 CubeExplorerSPFA* MultiSolver::GetMultiThreadPath(const std::string& str, int threshold, int timeoutTime)
 {
+    finishedCnt = ansId = 0, ansTime = 0x7f7f7f7f;
+
+    QEventLoop loop;  // 局部事件循环
+    connect(this, &MultiSolver::allThreadsFinished, &loop, &QEventLoop::quit);
+
+    //QTimer::singleShot(timeoutTime, &loop, &QEventLoop::quit);
+
+    for (int i = 0; i < MAX_THREAD_NUM; i++) {
+        m_thread[i]->setCubeStatus(str);
+        m_thread[i]->resume();
+    }
+
+    //qDebug() << "---------------- Run Success ----------------";
+    
+    loop.exec(); // 启动事件循环，等待所有线程完成
+
+    //qDebug() << "Final: " << ansId << " " << ansTime << "Time: " << clock();
+
+    return m_thread[ansId]->getCubeExplorerSPFA();
+    /*
     cubeStatus = str; ansTime = 0x7f7f7f7f;
     ansCubeExplorerSPFA = nullptr;
     int st = clock();
@@ -29,99 +63,28 @@ CubeExplorerSPFA* MultiSolver::GetMultiThreadPath(const std::string& str, int th
         if (cubeExplorerSPFA[i]->ansTime < threshold || clock() - st > timeoutTime) return ansCubeExplorerSPFA;
     }
     return ansCubeExplorerSPFA;
-
-    //constexpr int totalTasks = 24;
-    //std::vector<std::thread> threads;
-
-    //// 无锁数据结构
-    //std::atomic<int> bestTime(INT_MAX);
-    //std::atomic<CubeExplorerSPFA*> bestSolution(nullptr);
-    //std::atomic<int> taskIndex(0);
-
-    //auto worker = [&]() {
-    //    while (true) {
-    //        int current = taskIndex.fetch_add(1, std::memory_order_relaxed);
-    //        if (current >= totalTasks) break;
-
-    //        GetSinglePosePath(current);
-
-    //        // 局部变量暂存结果
-    //        int localTime = cubeExplorerSPFA[current]->ansTime;
-    //        CubeExplorerSPFA* localSolution = cubeExplorerSPFA[current];
-
-    //        // 无锁更新最优解
-    //        int currentBest = bestTime.load(std::memory_order_acquire);
-    //        while (localTime < currentBest) {
-    //            if (bestTime.compare_exchange_weak(
-    //                currentBest, localTime,
-    //                std::memory_order_release,
-    //                std::memory_order_relaxed))
-    //            {
-    //                bestSolution.store(localSolution, std::memory_order_release);
-    //                break;
-    //            }
-    //        }
-    //    }
-    //};
-
-    //const int threadsNum = 1;
-    //threads.reserve(threadsNum);
-    //for (int t = 0; t < threadsNum; ++t) {
-    //    threads.emplace_back(worker);
-    //}
-
-    //for (auto& t : threads) t.join();
-
-    //return bestSolution.load(std::memory_order_acquire);
+    */
 }
 
-void MultiSolver::GetSinglePosePath(int poseId)
+void MultiSolver::slot_threadFinished(int id, int costTime)
 {
-    //ofstream out; out.open("./Data/multiSolver"+to_string(poseId) + ".txt", ios::trunc);
-    //int st = clock();
+    if (costTime < ansTime) {
+        ansTime = costTime;
+        ansId = id;
+    }
+    if(++finishedCnt >= MAX_THREAD_NUM)
+        emit allThreadsFinished();
+    //qDebug() << "MultiSolver::slot_threadFinished: " << id << " " << costTime << " " << finishedCnt;
+    //qDebug() << "Current Time: " << clock();
+    //qDebug() << "MultiSolver::slot_threadFinished: " << ansId << " " << ansTime;
+}
 
-    char* tmpCubeStatus = new char[cubeStatus.length() + 1];
-
-    //out << "tmpCubeStatus Time = " << clock() - st << endl;
-    //FILE* out = fopen("MultiSolver.txt", "w");
-    //fprintf(out, "cubeStatus = ");
-    //for (int i = 0; i < cubeStatus.length(); i++) {
-    //    fprintf(out, "%c", cubeStatus[i]);
-    //}fprintf(out, "\n");
-    //st = clock();
-
-    strcpy(tmpCubeStatus, cubePoseTransformer[poseId]->Transform(cubeStatus, poseId).c_str());
-
-    //out << "cpy&Transform Time = " << clock() - st << endl;
-    
-    //fprintf(out, "tmp = %s\n", tmpCubeStatus);
-
-    //st = clock();
-    string solKociemba = kociembaSolver[poseId]->cube_solve(tmpCubeStatus, NULL);
-    //out << "kociemba Time = " << clock() - st << endl;
-    
-    //fprintf(out, "sol = %s\n", tmpCubeStatus);
-    //fclose(out);
-    //string solKociemba(tmpCubeStatus);
-
-    //out << "Kociemba Result : " << solKociemba << endl;
-    
-    //st = clock();
-    solKociemba = cubePoseTransformer[poseId]->ReTransform(solKociemba, poseId);
-    //out << "ReTransform Time = " << clock() - st << endl;
-
-    //st = clock();
-    
-    /*int tmpTime = */
-
-    cubeExplorerSPFA[poseId]->GetShortestPath(solKociemba);
-    //out << "SPFA Time = " << clock() - st << endl;
-    
-    //int targetStep = cubeExplorerSPFA[poseId]->GetTargetStepNumber();
-    //int ansOpStep = cubeExplorerSPFA[poseId]->GetAnsOpStepNumber();
-
-    //out << "Retransform Result : " << solKociemba << " " << targetStep << endl;
-    //out << cubeExplorerSPFA[poseId]->GetAnsOpSequence() << " " << ansOpStep << endl;
-
-    //out.close();
+MultiSolver::~MultiSolver()
+{
+    for (int i = 0; i < MAX_THREAD_NUM; i++) {
+        m_thread[i]->stop();
+        m_thread[i]->wait();
+        //qDebug() << "MultiSolver::~MultiSolver: " << i;
+        delete m_thread[i];
+    }
 }
