@@ -31,6 +31,7 @@ void MyThread::run() {
             //qDebug() << "Thread " << m_poseId << " waiting.";
             m_condition.wait(&m_mutex); // 暂停时阻塞，等待唤醒
         }
+        //qDebug() << "Thread " << m_poseId << " OUT.";
         m_mutex.unlock();
 
         if (m_stop) break;
@@ -53,14 +54,14 @@ void MyThread::run() {
         int ed = clock();
         //qDebug() << "Thread " << m_poseId << " finished.";
         emit sendAns(m_poseId, cubeExplorerSPFA->GetAnsCostTime());
-        qDebug() << "Thread " << m_poseId << " Start Time: " << st << "Finish Time:" << ed;
+        //qDebug() << "Thread " << m_poseId << " Start Time: " << st << "Finish Time:" << ed;
         // 自动暂停
         m_mutex.lock();
         m_paused = true;
         m_mutex.unlock();
 
         // 添加微小延迟，防止立即重新获取锁导致CPU占用过高
-        QThread::usleep(1000); // 1毫秒
+        //QThread::usleep(1000); // 1毫秒
     }
 }
 

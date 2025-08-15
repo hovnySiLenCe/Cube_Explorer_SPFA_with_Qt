@@ -43,6 +43,12 @@ struct Hand_State {
 	}
 };
 
+struct Node_List {
+	int opId;
+	Node_List* preNode;
+	Node_List(int id = 0, Node_List* p = nullptr): opId(id), preNode(p) { }
+};
+
 class CubeExplorerSPFA {
 public:
 	//CubeExplorerSPFA() {
@@ -127,8 +133,16 @@ private:
 	int stepTime[MAX_CUBE_STEP][MAX_CUBE_STATE][MAX_HAND_STATE];
 	bool vis[MAX_CUBE_STEP][MAX_CUBE_STATE][MAX_HAND_STATE];
 
-	string opSequence[MAX_CUBE_STEP][MAX_CUBE_STATE][MAX_HAND_STATE];
+	Node_List* ansPathEnd;
+	Node_List pathList[MAX_CUBE_STEP][MAX_CUBE_STATE][MAX_HAND_STATE];
 
+	string opString[29] = {
+		"L1 ", "L2 ", "L3 ", "LO ", "LC ",
+		"R1 ", "R2 ", "R3 ", "RO ", "RC "
+	};
+	/*0815
+	string opSequence[MAX_CUBE_STEP][MAX_CUBE_STATE][MAX_HAND_STATE];
+	*/
 	const char opHandId[MAX_HAND] = { ' ', 'R', 'L' };
 	const char opOrienId[MAX_ROTATION] = { '3', '1' };
 
@@ -149,7 +163,14 @@ private:
 	};
 
 	inline int GetFaceId(char c);
-	bool StateUpdate(int costTime, int step, int cubeStateId, int handState);
+	bool StateUpdate(int costTime, int step, int cubeStateId, int handState, Node_List* preNode, int opId);
 	int CheckFace(int cubeStateId, int face);
 	void SPFA();
 };
+
+#define MAX_OPS_LEN 5
+#define OP_1_ID 0
+#define OP_2_ID 1
+#define OP_3_ID 2
+#define OP_O_ID 3
+#define OP_C_ID 4

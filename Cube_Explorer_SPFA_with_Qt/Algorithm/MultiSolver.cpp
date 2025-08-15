@@ -47,7 +47,7 @@ CubeExplorerSPFA* MultiSolver::GetMultiThreadPath(const std::string& str, int th
     
     loop.exec(); // 启动事件循环，等待所有线程完成
 
-    qDebug() << "Final: " << ansId << " " << ansTime << "Time: " << clock();
+    //qDebug() << "Final: " << ansId << " " << ansTime << "Time: " << clock();
 
     return m_thread[ansId]->getCubeExplorerSPFA();
     /*
@@ -74,15 +74,17 @@ void MultiSolver::slot_threadFinished(int id, int costTime)
     }
     if(++finishedCnt >= MAX_THREAD_NUM)
         emit allThreadsFinished();
-    qDebug() << "MultiSolver::slot_threadFinished: " << id << " " << costTime << " " << finishedCnt;
-    qDebug() << "Current Time: " << clock();
-    qDebug() << "MultiSolver::slot_threadFinished: " << ansId << " " << ansTime;
+    //qDebug() << "MultiSolver::slot_threadFinished: " << id << " " << costTime << " " << finishedCnt;
+    //qDebug() << "Current Time: " << clock();
+    //qDebug() << "MultiSolver::slot_threadFinished: " << ansId << " " << ansTime;
 }
 
 MultiSolver::~MultiSolver()
 {
     for (int i = 0; i < MAX_THREAD_NUM; i++) {
         m_thread[i]->stop();
+        m_thread[i]->wait();
+        //qDebug() << "MultiSolver::~MultiSolver: " << i;
         delete m_thread[i];
     }
 }
