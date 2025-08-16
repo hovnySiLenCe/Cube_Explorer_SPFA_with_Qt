@@ -1,9 +1,8 @@
 #include "MultiSolver.h"
 
-#define	MAX_THREAD_NUM 24
-
 MultiSolver::MultiSolver() {
-    ansTime = 0x7f7f7f7f;
+    ansCubeExplorerSPFA = new CubeExplorerSPFA();
+    ansCubeExplorerSPFA->ansTime = 0x7f7f7f7f;
     ansId = finishedCnt = 0;
     for (int i = 0; i < MAX_THREAD_NUM; i++) {
         m_thread[i] = new MyThread(i);
@@ -31,7 +30,7 @@ MultiSolver::MultiSolver() {
 
 CubeExplorerSPFA* MultiSolver::GetMultiThreadPath(const std::string& str, int threshold, int timeoutTime)
 {
-    finishedCnt = ansId = 0, ansTime = 0x7f7f7f7f;
+    finishedCnt = ansId = 0, ansCubeExplorerSPFA->ansTime = 0x7f7f7f7f;
 
     QEventLoop loop;  // 局部事件循环
     connect(this, &MultiSolver::allThreadsFinished, &loop, &QEventLoop::quit);
@@ -43,13 +42,13 @@ CubeExplorerSPFA* MultiSolver::GetMultiThreadPath(const std::string& str, int th
         m_thread[i]->resume();
     }
 
-    //qDebug() << "---------------- Run Success ----------------";
+    qDebug() << "---------------- Run Success ----------------";
     
     loop.exec(); // 启动事件循环，等待所有线程完成
 
-    //qDebug() << "Final: " << ansId << " " << ansTime << "Time: " << clock();
+    qDebug() << "Final: " << ansId << " " << ansCubeExplorerSPFA->ansTime << "Time: " << clock();
 
-    return m_thread[ansId]->getCubeExplorerSPFA();
+    return ansCubeExplorerSPFA;
     /*
     cubeStatus = str; ansTime = 0x7f7f7f7f;
     ansCubeExplorerSPFA = nullptr;
@@ -66,17 +65,19 @@ CubeExplorerSPFA* MultiSolver::GetMultiThreadPath(const std::string& str, int th
     */
 }
 
-void MultiSolver::slot_threadFinished(int id, int costTime)
+void MultiSolver::slot_threadFinished(int id, int costTime, string ansOpseq)
 {
+    qDebug() << "Current Time: " << clock() << "MultiSolver::slot_threadFinished: " << id << " " << costTime << " " << finishedCnt;
+    //if (finishedCnt) return;
     QMutexLocker locker(&m_mutex);
-    if (costTime < ansTime) {
-        ansTime = costTime;
+    if (costTime < ansCubeExplorerSPFA->ansTime) {
+        ansCubeExplorerSPFA->ansTime = costTime;
+        ansCubeExplorerSPFA->ansOpSequence = ansOpseq;
         ansId = id;
     }
-    if(++finishedCnt >= MAX_THREAD_NUM)
-        emit allThreadsFinished();
-    qDebug() << "Current Time: " << clock() << "MultiSolver::slot_threadFinished: " << id << " " << costTime << " " << finishedCnt;
-    qDebug() << "MultiSolver::slot_threadFinished: " << ansId << " " << ansTime;
+    //if (!finishedCnt++) emit allThreadsFinished();
+    if(++finishedCnt >= MAX_TASK_NUM) emit allThreadsFinished();
+    qDebug() << "MultiSolver::slot_threadFinished: " << ansId << " " << ansCubeExplorerSPFA->ansTime;
 }
 
 MultiSolver::~MultiSolver()

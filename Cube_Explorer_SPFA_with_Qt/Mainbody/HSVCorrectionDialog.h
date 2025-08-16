@@ -35,7 +35,7 @@ public:
 	// 实际值栏高亮
 	void displayStandardHighlight(); // 将基准值的lineEdit高亮显示
 	// 实际值栏值计算
-	void calcRealHSV();
+	void calcRealHSV(int H_theroshold = 150);
 	void displayRealHSV();
 
 	// 在单个Layout布局中更新或读取参数

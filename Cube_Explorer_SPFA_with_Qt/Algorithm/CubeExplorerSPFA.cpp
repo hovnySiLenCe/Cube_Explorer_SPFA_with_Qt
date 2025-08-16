@@ -61,7 +61,18 @@ void CubeExplorerSPFA::InitOrientation() {
 	return;
 }
 
+void CubeExplorerSPFA::SetAnsOpSequence(string str)
+{
+	ansOpSequence = str;
+}
+
 string CubeExplorerSPFA::GetAnsOpSequence()
+{
+	return ansOpSequence;
+}
+
+
+string CubeExplorerSPFA::GetAnsOpSequenceFormat()
 {
 	std::string tmp = "";
 	for (int i = 0; i < ansOpSequence.length(); i+=3) {

@@ -212,7 +212,7 @@ void HSVCorrectionDialog::displayStandardHighlight()
 	standardIndex = make_pair(strFace, index);
 }
 
-void HSVCorrectionDialog::calcRealHSV()
+void HSVCorrectionDialog::calcRealHSV(int H_theroshold)
 {
 	for (int faceId = 0; faceId < m_listFace.size(); faceId++) {
 		for (int index = 0; index < 9; index++) {
@@ -223,7 +223,7 @@ void HSVCorrectionDialog::calcRealHSV()
 			for (int i = 0; i < mat_hsv.rows; i++) {				//遍历图片每个像素
 				for (int j = 0; j < mat_hsv.cols; j++) {
 					cv::Point p(j, i);
-					if (mat_hsv.at<cv::Vec3b>(p)[0] >= 0 && mat_hsv.at<cv::Vec3b>(p)[0] <= 255) {
+					if (mat_hsv.at<cv::Vec3b>(p)[0] >= 0 && mat_hsv.at<cv::Vec3b>(p)[0] <= H_theroshold) {
 						sumH += mat_hsv.at<cv::Vec3b>(p)[0];
 						cntH++;
 					}
@@ -273,6 +273,9 @@ void HSVCorrectionDialog::displayRealHSV()
 			int faceId = 0;
 			while (m_listFace[faceId] != strFace) ++faceId;
 			standValue = m_realData["V"][faceId * 9 + index];
+		}
+		else if (displayType == QStringLiteral("采样值")) {
+			calcRealHSV(255);
 		}
 		for each (QString strHSV in m_listHSV)
 		{

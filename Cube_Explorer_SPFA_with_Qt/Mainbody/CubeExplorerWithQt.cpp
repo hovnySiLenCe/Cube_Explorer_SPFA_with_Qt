@@ -670,13 +670,13 @@ void CubeExplorerWithQt::CleanSolverResultDisplay()
 
 void CubeExplorerWithQt::SetSolverResultDisplay()
 {
-	ansOpSequence = cubeExplorerSPFA->GetAnsOpSequence();
+	//ansOpSequence = cubeExplorerSPFA->GetAnsOpSequenceFormat();
 	int steps = cubeExplorerSPFA->GetAnsOpStepNumber();
 
 	// 在当前结果区显示计算结果
 	ui.txt_RecogResult->setText(QString::fromStdString(recogResult));
 	ui.txt_KociembaResult->setText(QString::fromStdString(kociembaResult));
-	ui.txt_AnsOpSequence->setText(QString::fromStdString(cubeExplorerSPFA->GetAnsOpSequence()));
+	ui.txt_AnsOpSequence->setText(QString::fromStdString(cubeExplorerSPFA->GetAnsOpSequenceFormat()));
 	ui.txt_AnswerCost->setText(QString::number(cubeExplorerSPFA->GetAnsCostTime()) + ((cubeExplorerSPFA->reuseFlag == true) ? " (True)" : " (False)"));
 	ui.txt_TotalSteps->setText(QString::number(steps) + "steps");
 	ui.txt_CalcTime->setText(QString::number(ed - st) + "ms");

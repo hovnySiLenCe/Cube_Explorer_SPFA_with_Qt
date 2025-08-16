@@ -84,7 +84,7 @@ private:
 	int st, ed;
 	string recogResult; // 识别结果
 	char* kociembaResult; 
-	string ansOpSequence; // Solve2序列
+	//string ansOpSequence; // Solve2序列
 
 	bool isCameraOpen = false;
 	bool isToRestore = false;

@@ -9,6 +9,9 @@
 #include "CubePoseTransformer.h"
 #include "CubeExplorerSPFA.h"
 
+#define MAX_THREAD_NUM 12
+#define MAX_TASK_NUM 24
+
 class MyThread: public QThread {
     Q_OBJECT
 
@@ -23,7 +26,7 @@ protected:
     void run() override;
 
 signals:
-    void sendAns(int poseId, int ansTime);
+    void sendAns(int poseId, int ansTime, string ansOpSeq);
 
 private:
     QMutex m_mutex;

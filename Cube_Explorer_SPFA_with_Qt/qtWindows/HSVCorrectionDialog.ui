@@ -9968,6 +9968,11 @@
                 </item>
                 <item>
                  <property name="text">
+                  <string>排序使用值</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
                   <string>校正后</string>
                  </property>
                 </item>

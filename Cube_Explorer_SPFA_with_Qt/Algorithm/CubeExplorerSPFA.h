@@ -35,10 +35,16 @@ using namespace std;
 #define HAND_OPEN 38
 #define HAND_CLOSE 27
 
-#define HAND_TURN_CUBE_90 96 //魔方整体旋转
-#define HAND_TURN_CUBE_180 136
-#define HAND_TWIST_CUBE_90 42 //拧魔方单面
-#define HAND_TWIST_CUBE_180 68
+//#define HAND_TURN_CUBE_90 96 //魔方整体旋转
+//#define HAND_TURN_CUBE_180 136
+#define HAND_TURN_CUBE_90 56 //魔方整体旋转
+#define HAND_TURN_CUBE_180 88
+//#define HAND_TWIST_CUBE_90 42 //拧魔方单面
+//#define HAND_TWIST_CUBE_180 68
+//#define HAND_TURN_ONLY_90 31
+//#define HAND_TURN_ONLY_180 59
+#define HAND_TWIST_CUBE_90 31 //拧魔方单面
+#define HAND_TWIST_CUBE_180 59
 #define HAND_TURN_ONLY_90 31
 #define HAND_TURN_ONLY_180 59
 
@@ -74,13 +80,16 @@ public:
 	void InitOrientation();
 	void SaveMechanicalStep();
 
+	void SetAnsOpSequence(string str);
 	string GetAnsOpSequence();
+	string GetAnsOpSequenceFormat();
 	int GetAnsOpStepNumber();
 	int GetTargetStepNumber();
 	int GetAnsCostTime();
 	vector<string>& GetVecStrSerial();
 
 	int ansTime;
+	string ansOpSequence;
 	bool reuseFlag = false;
 
 	Hand_State hand_state;
@@ -139,7 +148,7 @@ private:
 	}eOp;
 
 	int targetStep;
-	string ansOpSequence, exeOpSequence;
+	//string ansOpSequence;
 	bool exeFlag;
 
 	int opCheckHand[MAX_CUBE_STATE][MAX_HAND];
