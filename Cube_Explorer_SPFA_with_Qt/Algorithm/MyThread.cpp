@@ -20,7 +20,6 @@ MyThread::MyThread(int poseId) {
     cubePoseTransformer->Init();
     
 }
-#define MAX_TASK_NUM 24
 void MyThread::run() {
     while (!m_stop) {
         //qDebug() << "Thread " << m_poseId << " pause Flag: " << m_paused;
@@ -38,6 +37,7 @@ void MyThread::run() {
 
         //qDebug() << "Thread " << m_poseId << " started.";
         int st = clock();
+        qDebug() << "Thread " << m_poseId << " Start Time: " << st;
         std::string transformed;
         std::string solKociemba;
         // ---- 核心逻辑（无动态内存分配）----
@@ -47,6 +47,10 @@ void MyThread::run() {
             solKociemba = kociembaSolver->cube_solve(
                 const_cast<char*>(transformed.c_str()),
                 nullptr);
+            if (solKociemba.empty()) {
+                emit sendAns(i, -1, "");
+                break;
+            }
             solKociemba = cubePoseTransformer->ReTransform(solKociemba, i);
             cubeExplorerSPFA->GetShortestPath(solKociemba);
             emit sendAns(i, cubeExplorerSPFA->GetAnsCostTime(), cubeExplorerSPFA->GetAnsOpSequence());
@@ -56,7 +60,7 @@ void MyThread::run() {
         int ed = clock();
         //qDebug() << "Thread " << m_poseId << " finished.";
         //emit sendAns(m_poseId, cubeExplorerSPFA->GetAnsCostTime());
-        qDebug() << "Thread " << m_poseId << " Start Time: " << st << "Finish Time:" << ed << "Duration: " << ed - st;
+        qDebug() << "Thread " << m_poseId << "Finish Time:" << ed << "Duration: " << ed - st;
         // 自动暂停
         //m_mutex.lock();
         m_paused = true;

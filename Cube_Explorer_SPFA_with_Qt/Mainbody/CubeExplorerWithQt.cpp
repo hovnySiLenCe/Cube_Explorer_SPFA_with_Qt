@@ -675,7 +675,7 @@ void CubeExplorerWithQt::SetSolverResultDisplay()
 
 	// 在当前结果区显示计算结果
 	ui.txt_RecogResult->setText(QString::fromStdString(recogResult));
-	ui.txt_KociembaResult->setText(QString::fromStdString(kociembaResult));
+	//ui.txt_KociembaResult->setText(QString::fromStdString(kociembaResult));
 	ui.txt_AnsOpSequence->setText(QString::fromStdString(cubeExplorerSPFA->GetAnsOpSequenceFormat()));
 	ui.txt_AnswerCost->setText(QString::number(cubeExplorerSPFA->GetAnsCostTime()) + ((cubeExplorerSPFA->reuseFlag == true) ? " (True)" : " (False)"));
 	ui.txt_TotalSteps->setText(QString::number(steps) + "steps");
@@ -707,7 +707,7 @@ void CubeExplorerWithQt::on_btnRestoreClicked() {
 #define REALRU
 void CubeExplorerWithQt::SolveAndRestore()
 {
-	char* cp;
+	//char* cp;
 
 	// 1.进行识别得到识别字符串
 	if (inputFromBox) recogResult = ui.txt_RecogResult->text().toStdString();
@@ -717,13 +717,19 @@ void CubeExplorerWithQt::SolveAndRestore()
 
 	// 2. 进行解算得到Solve6移动序列
 	st = ed = clock();
-	cp = new char[recogResult.length() + 1];
+	//cp = new char[recogResult.length() + 1];
 	ui.txt_LogDisplay->append(QStringLiteral("[INFO] Solver: 正在计算"));
-	strcpy(cp, recogResult.c_str());
-	kociembaResult = CubeSolver(cp, NULL);
+	//strcpy(cp, recogResult.c_str());
+	qDebug() << "On Clicked Time:" << st;
+	//kociembaResult = CubeSolver(cp, NULL);
 
 	// 3. 如果解算失败，则显示识别结果，并返回
-	if (!kociembaResult) {
+	
+	ed = clock();
+	qDebug() << "Finish Procession Time:" << ed << " Duration: " << ed - st;
+	// 4. 通过SPFA算法得到最短路径
+	cubeExplorerSPFA = multiSolver->GetMultiThreadPath(recogResult);
+	if (cubeExplorerSPFA->ansTime == -1) {
 		ShowRecogResultOnScene(recogResult);
 
 		ui.txt_RecogResult->setText(QStringLiteral("识别序列有误！"));
@@ -738,10 +744,9 @@ void CubeExplorerWithQt::SolveAndRestore()
 		return;
 	}
 
-	// 4. 通过SPFA算法得到最短路径
-	cubeExplorerSPFA = multiSolver->GetMultiThreadPath(recogResult);
 	cubeExplorerSPFA->SaveMechanicalStep();
-
+	ed = clock();
+	qDebug() << "Finish SaveStep Time:" << ed << " Duration: " << ed - st;
 	//cubeExplorerSPFA->GetShortestPath(res);
 	//if (cubeExplorerSPFA->GetAnsOpStepNumber() > 77) {
 	//	cubeExplorerSPFA = multiSolver->GetMultiThreadPath(strRec);
