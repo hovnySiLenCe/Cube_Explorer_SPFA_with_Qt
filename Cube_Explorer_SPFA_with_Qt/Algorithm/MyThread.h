@@ -9,7 +9,7 @@
 #include "CubePoseTransformer.h"
 #include "CubeExplorerSPFA.h"
 
-#define MAX_THREAD_NUM 24
+#define MAX_THREAD_NUM 12
 #define MAX_TASK_NUM 24
 
 // FLDBULUFLDBRDRFRULFDBRFRDLBLFUUDBRLUUDLBLUDFFFDRRBRBUB
