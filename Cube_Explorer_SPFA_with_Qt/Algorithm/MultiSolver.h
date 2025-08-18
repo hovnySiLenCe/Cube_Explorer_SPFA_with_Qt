@@ -14,6 +14,7 @@ private:
 	TaskQueue taskQueue;
 	QMutex m_mutex;
 	MyThread* m_thread[24];
+	QEventLoop m_loop;  // 局部事件循环
 	string ansOpsequence;
 	int ansId;
 	int finishedCnt;

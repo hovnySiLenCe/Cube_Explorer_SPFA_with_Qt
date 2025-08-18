@@ -712,7 +712,7 @@ void CubeExplorerWithQt::SolveAndRestore()
 	// 1.进行识别得到识别字符串
 	if (inputFromBox) recogResult = ui.txt_RecogResult->text().toStdString();
 	else recogResult = recognizeNew();
-
+	//qDebug() << "Recog Result:" << QString::fromStdString(recogResult);
 	CleanSolverResultDisplay();
 
 	// 2. 进行解算得到Solve6移动序列
@@ -720,13 +720,13 @@ void CubeExplorerWithQt::SolveAndRestore()
 	//cp = new char[recogResult.length() + 1];
 	ui.txt_LogDisplay->append(QStringLiteral("[INFO] Solver: 正在计算"));
 	//strcpy(cp, recogResult.c_str());
-	qDebug() << "On Clicked Time:" << st;
+	//qDebug() << "On Clicked Time:" << st;
 	//kociembaResult = CubeSolver(cp, NULL);
 
 	// 3. 如果解算失败，则显示识别结果，并返回
 	
 	ed = clock();
-	qDebug() << "Finish Procession Time:" << ed << " Duration: " << ed - st;
+	//qDebug() << "Finish Procession Time:" << ed << " Duration: " << ed - st;
 	// 4. 通过SPFA算法得到最短路径
 	cubeExplorerSPFA = multiSolver->GetMultiThreadPath(recogResult);
 	if (cubeExplorerSPFA->ansTime == -1) {
@@ -746,7 +746,7 @@ void CubeExplorerWithQt::SolveAndRestore()
 
 	cubeExplorerSPFA->SaveMechanicalStep();
 	ed = clock();
-	qDebug() << "Finish SaveStep Time:" << ed << " Duration: " << ed - st;
+	//qDebug() << "Finish SaveStep Time:" << ed << " Duration: " << ed - st;
 	//cubeExplorerSPFA->GetShortestPath(res);
 	//if (cubeExplorerSPFA->GetAnsOpStepNumber() > 77) {
 	//	cubeExplorerSPFA = multiSolver->GetMultiThreadPath(strRec);

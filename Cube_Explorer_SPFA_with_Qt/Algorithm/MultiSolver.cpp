@@ -4,6 +4,9 @@ MultiSolver::MultiSolver() {
     ansCubeExplorerSPFA = new CubeExplorerSPFA();
     ansCubeExplorerSPFA->ansTime = 0x7f7f7f7f;
     ansId = finishedCnt = 0;
+
+    connect(this, &MultiSolver::allThreadsFinished, &m_loop, &QEventLoop::quit);
+
     for (int i = 0; i < MAX_THREAD_NUM; i++) {
         m_thread[i] = new MyThread(i, &taskQueue);
         bool connected = QObject::connect(
@@ -32,8 +35,10 @@ CubeExplorerSPFA* MultiSolver::GetMultiThreadPath(const std::string& str, int th
 {
     finishedCnt = ansId = 0, ansCubeExplorerSPFA->ansTime = 0x7f7f7f7f;
 
-    QEventLoop loop;  // 局部事件循环
-    connect(this, &MultiSolver::allThreadsFinished, &loop, &QEventLoop::quit);
+    if (str.size() != 54) {
+        ansCubeExplorerSPFA->ansTime = -1;
+        return ansCubeExplorerSPFA;
+    }
 
     //QTimer::singleShot(timeoutTime, &loop, &QEventLoop::quit);
 
@@ -46,7 +51,7 @@ CubeExplorerSPFA* MultiSolver::GetMultiThreadPath(const std::string& str, int th
 
     //qDebug() << "---------------- Run Success ----------------";
     
-    loop.exec(); // 启动事件循环，等待所有线程完成
+    m_loop.exec(); // 启动事件循环，等待所有线程完成
 
     //qDebug() << "Final: " << ansId << " " << ansCubeExplorerSPFA->ansTime << "Time: " << clock();
 
