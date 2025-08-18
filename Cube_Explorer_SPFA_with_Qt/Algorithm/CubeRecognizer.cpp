@@ -39,6 +39,53 @@ void iniLastMatImage() {
 //vector<pair<QString, int>> vec_index_blockPair;
 //---------------------------------------------------------------------
 
+//YKJ ADD
+void LoadCorreDataFromFile(const QString& filename) {
+	QString realPath = filename;
+	if (!realPath.contains(":")) realPath = "./Data/" + realPath;
+	QFile file(realPath);
+	map_correData.clear(); // 清空现有数据
+
+	if (!file.open(QIODevice::ReadOnly)) {
+		qDebug() << "Recognizor: " << QStringLiteral("文件打开失败！");
+		return;
+	}
+
+	// 读取并解析 JSON
+	QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+	if (doc.isNull()) {
+		qDebug() << "Recognizor: " << QStringLiteral("JSON 解析失败！");
+		return;
+	}
+
+	QJsonObject rootObj = doc.object();
+	for (auto itOuter = rootObj.begin(); itOuter != rootObj.end(); ++itOuter) {
+		QString outerKey = itOuter.key();
+		QJsonObject innerObj = itOuter.value().toObject();
+
+		QMap<QString, vector<int>> innerMap;
+
+		// 遍历内层 QJsonObject
+		for (auto itInner = innerObj.begin(); itInner != innerObj.end(); ++itInner) {
+			QString innerKey = itInner.key();
+			QJsonArray jsonArray = itInner.value().toArray();
+
+			vector<int> vec;
+			for (const QJsonValue& val : jsonArray) {
+				vec.push_back(val.toInt());
+			}
+
+			innerMap[innerKey] = vec;
+		}
+		if (outerKey == QStringLiteral("默认参数")) {
+			map_correData = innerMap;
+			break;
+		}
+	}
+}
+//YKJ END
+
+
 //HSV模块
 void iniHSVMap() {
 	//初始化整个存储hsv数据的map，先添加六个面对应的次级空map到其中，以面名为key进行索引
@@ -65,6 +112,7 @@ void iniHSVMap() {
 	map_correData.insert("H", correction_H);
     map_correData.insert("S", correction_S);
     map_correData.insert("V", correction_V);
+    LoadCorreDataFromFile("correctionDataset.json");
 
 	//从本地文件读取存储的HSV数据
 	QFile file_hsv(QDir::currentPath() + "/data/hsv_threshold.txt");//读取阈值数据文件到 str_hsvData 以进行分割、遍历

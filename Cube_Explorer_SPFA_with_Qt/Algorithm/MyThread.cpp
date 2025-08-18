@@ -37,13 +37,14 @@ void MyThread::run() {
         if (m_stop) break;
 
         //qDebug() << "Thread " << m_poseId << " started.";
-        //int st = clock();
-
+        int st = clock();
+        std::string transformed;
+        std::string solKociemba;
         // ---- 核心逻辑（无动态内存分配）----
         for (int i = m_poseId; i < MAX_TASK_NUM; i += MAX_THREAD_NUM) {
-            qDebug() << "Thread " << m_poseId << " processing pose " << i << "Status " << QString::fromStdString(m_cubeStatus);
-            std::string transformed = cubePoseTransformer->Transform(m_cubeStatus, i);
-            std::string solKociemba = kociembaSolver->cube_solve(
+            //qDebug() << "Thread " << m_poseId << " processing pose " << i << "Status " << QString::fromStdString(m_cubeStatus);
+            transformed = cubePoseTransformer->Transform(m_cubeStatus, i);
+            solKociemba = kociembaSolver->cube_solve(
                 const_cast<char*>(transformed.c_str()),
                 nullptr);
             solKociemba = cubePoseTransformer->ReTransform(solKociemba, i);
@@ -52,14 +53,14 @@ void MyThread::run() {
         }
         // ---------------------------------
 
-        //int ed = clock();
+        int ed = clock();
         //qDebug() << "Thread " << m_poseId << " finished.";
         //emit sendAns(m_poseId, cubeExplorerSPFA->GetAnsCostTime());
-        //qDebug() << "Thread " << m_poseId << " Start Time: " << st << "Finish Time:" << ed;
+        qDebug() << "Thread " << m_poseId << " Start Time: " << st << "Finish Time:" << ed << "Duration: " << ed - st;
         // 自动暂停
-        m_mutex.lock();
+        //m_mutex.lock();
         m_paused = true;
-        m_mutex.unlock();
+        //m_mutex.unlock();
 
         // 添加微小延迟，防止立即重新获取锁导致CPU占用过高
         //QThread::usleep(1000); // 1毫秒

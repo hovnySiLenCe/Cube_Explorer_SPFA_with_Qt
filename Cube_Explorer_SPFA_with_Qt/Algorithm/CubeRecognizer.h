@@ -15,6 +15,10 @@
 #include <QDir>
 #include <QMessageBox>
 #include <opencv2/opencv.hpp>
+#include <QDebug>
+#include <qjsondocument.h>
+#include <qjsonarray.h>
+#include <qjsonobject.h>
 
 using namespace std;
 

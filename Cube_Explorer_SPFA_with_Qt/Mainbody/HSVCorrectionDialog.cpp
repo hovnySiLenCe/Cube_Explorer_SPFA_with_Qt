@@ -412,6 +412,8 @@ void HSVCorrectionDialog::LoadCorreDataFromFile(const QString& filename) {
 			ui->list_strategy->addItem(item);
 		}
 	}
+	m_curData = m_correDataset[QStringLiteral("历史恢复数据")];
+    UpdateUIFromCurrentSet();
 }
 
 bool HSVCorrectionDialog::SaveCorreDataToFile(const QString& filename) {
