@@ -38,7 +38,7 @@ void MyThread::run() {
         int st = clock();
         //qDebug() << "Thread " << m_poseId << " Start Time: " << st;
         std::string transformed = "";
-        std::string solKociemba = "";
+        char* solKociemba;
         // ---- 核心逻辑（无动态内存分配）----
 //        for (int i = m_poseId; i < MAX_TASK_NUM; i += MAX_THREAD_NUM) {
         while (true)
@@ -46,19 +46,19 @@ void MyThread::run() {
             auto task = m_queue->pop(m_stop);
             if (task==-1) break; // stop时退出
             int i = task;
-            //qDebug() << "Thread " << m_poseId << " processing pose " << i;
-            //qDebug() << "Status " << QString::fromStdString(m_cubeStatus);
+            qDebug() << "Thread " << m_poseId << " processing pose " << i;
+            qDebug() << "Status " << QString::fromStdString(m_cubeStatus);
             transformed = cubePoseTransformer->Transform(m_cubeStatus, i);
-            //qDebug() << "transformed " << QString::fromStdString(transformed);
+            qDebug() << "transformed " << QString::fromStdString(transformed);
             solKociemba = kociembaSolver->cube_solve(
                 const_cast<char*>(transformed.c_str()),
                 nullptr);
-            if (solKociemba.empty()) {
+            qDebug() << "solKociemba " << solKociemba;
+            if (!solKociemba) {
                 emit sendAns(i, -1, "");
                 break;
             }
-            solKociemba = cubePoseTransformer->ReTransform(solKociemba, i);
-            cubeExplorerSPFA->GetShortestPath(solKociemba);
+            cubeExplorerSPFA->GetShortestPath(cubePoseTransformer->ReTransform(solKociemba, i));
             emit sendAns(i, cubeExplorerSPFA->GetAnsCostTime(), cubeExplorerSPFA->GetAnsOpSequence());
         }
         // ---------------------------------

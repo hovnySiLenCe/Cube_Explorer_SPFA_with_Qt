@@ -161,8 +161,8 @@ private:
 	Node_List pathList[MAX_CUBE_STEP][MAX_CUBE_STATE][MAX_HAND_STATE];
 
 	string opString[29] = {
-		"L1 ", "L2 ", "L3 ", "LO ", "LC ",
-		"R1 ", "R2 ", "R3 ", "RO ", "RC "
+		"L1 ", "L2 ", "L3 ", "LO ", "LC ", "L9 ",
+		"R1 ", "R2 ", "R3 ", "RO ", "RC ", "R9 "
 	};
 	/*0815
 	string opSequence[MAX_CUBE_STEP][MAX_CUBE_STATE][MAX_HAND_STATE];
@@ -174,10 +174,10 @@ private:
 	// 从上到下依次为 左爪，逆时针、180和顺时针, 开/合
 	const string commandOp[29] = {
 		"#1P6T200\r\n",	"#1P8T200\r\n", "#1P7T200\r\n",
-		"#2P0T200\r\n", "#2P1T200\r\n",
+		"#2P0T200\r\n", "#2P1T200\r\n", "#1P9T200\r\n",
 
 		"#3P6T200\r\n",	"#3P8T200\r\n",	"#3P7T200\r\n",
-		"#4P0T200\r\n", "#4P1T200\r\n"
+		"#4P0T200\r\n", "#4P1T200\r\n", "#3P9T200\r\n"
 	};
 
 	inline int GetFaceId(char c);
@@ -186,9 +186,10 @@ private:
 	void SPFA();
 };
 
-#define MAX_OPS_LEN 5
+#define MAX_OPS_LEN 6
 #define OP_1_ID 0
 #define OP_2_ID 1
 #define OP_3_ID 2
 #define OP_O_ID 3
 #define OP_C_ID 4
+#define OP_TO90_ID 5

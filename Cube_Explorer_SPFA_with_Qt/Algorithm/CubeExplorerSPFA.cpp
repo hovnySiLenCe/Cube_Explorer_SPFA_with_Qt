@@ -247,7 +247,7 @@ void CubeExplorerSPFA::SPFA() {
 
 				//printf("why costTime? step=%d cubeState.id = %d handState = %d stepTime = %d\n", step, cubeState.id, handState, stepTime[step][cubeState.id][handState]);
 				newHandState = handState ^ handId;
-				if (StateUpdate(costTime, step, cubeState.id, newHandState, curNodePoint, (2 - handId) * MAX_OPS_LEN + OP_1_ID))
+				if (StateUpdate(costTime, step, cubeState.id, newHandState, curNodePoint, (2 - handId) * MAX_OPS_LEN + OP_TO90_ID))
 					p.push(Step_State(step, cubeState, newHandState));
 
 				//2.2.2 also can be 180, the hand with cube is only meaningful.
@@ -371,6 +371,7 @@ void CubeExplorerSPFA::SaveMechanicalStep()
 		case '3': opId += OP_3_ID; break;
 		case 'O': opId += OP_O_ID; break;
 		case 'C': opId += OP_C_ID; break;
+		case '9': opId += OP_TO90_ID; break;
 		}
 		//out << cntTurn[0] << " " << cntTurn[1] << " " << ansOpSequence.substr(i, 3) << " " << commandOp[opId];
 		vecStrSerial.push_back(commandOp[opId]);

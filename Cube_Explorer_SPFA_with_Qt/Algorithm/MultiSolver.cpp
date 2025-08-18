@@ -74,7 +74,7 @@ CubeExplorerSPFA* MultiSolver::GetMultiThreadPath(const std::string& str, int th
 
 void MultiSolver::slot_threadFinished(int id, int costTime, string ansOpseq)
 {
-    //qDebug() << "Current Time: " << clock() << "MultiSolver::slot_threadFinished: " << id << " " << costTime << " " << finishedCnt;
+    qDebug() << "Current Time: " << clock() << "MultiSolver::slot_threadFinished: " << id << " " << costTime << " " << finishedCnt;
     //if (finishedCnt) return;
     QMutexLocker locker(&m_mutex);
     if (costTime < ansCubeExplorerSPFA->ansTime) {
@@ -83,7 +83,7 @@ void MultiSolver::slot_threadFinished(int id, int costTime, string ansOpseq)
         ansId = id;
     }
     //if (!finishedCnt++) emit allThreadsFinished();
-    if(++finishedCnt >= MAX_TASK_NUM) emit allThreadsFinished();
+    if(++finishedCnt >= MAX_TASK_NUM || ansCubeExplorerSPFA->ansTime < 0) emit allThreadsFinished();
     //qDebug() << "MultiSolver::slot_threadFinished: " << ansId << " " << ansCubeExplorerSPFA->ansTime;
 }
 
