@@ -48,6 +48,7 @@
     <ClInclude Include="Algorithm\CubeRecognizer.h" />
     <QtMoc Include="Algorithm\MultiSolver.h" />
     <QtMoc Include="Algorithm\MyThread.h" />
+    <ClInclude Include="Algorithm\MyTaskQueue.h" />
     <ClInclude Include="Algorithm\threadSafeKociemba.h" />
     <ClInclude Include="GeneratedFiles\ui_CubicExplorerWithQt.h" />
     <ClInclude Include="GeneratedFiles\ui_DataSheetWidget.h" />

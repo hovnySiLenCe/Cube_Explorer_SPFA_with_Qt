@@ -1,9 +1,8 @@
 #include "MyThread.h"
 
-MyThread::MyThread(int poseId) {
-    // 设置线程编号
-    m_poseId = poseId;
-
+MyThread::MyThread(int poseId, TaskQueue* q):
+    m_poseId(poseId), m_queue(q)
+{
     // 设置初始状态
     m_paused = true;
     m_stop = false;
@@ -41,8 +40,14 @@ void MyThread::run() {
         std::string transformed;
         std::string solKociemba;
         // ---- 核心逻辑（无动态内存分配）----
-        for (int i = m_poseId; i < MAX_TASK_NUM; i += MAX_THREAD_NUM) {
-            //qDebug() << "Thread " << m_poseId << " processing pose " << i << "Status " << QString::fromStdString(m_cubeStatus);
+//        for (int i = m_poseId; i < MAX_TASK_NUM; i += MAX_THREAD_NUM) {
+        while (true)
+        {
+            auto task = m_queue->pop(m_stop);
+            if (task==-1) break; // stop时退出
+            int i = task;
+            qDebug() << "Thread " << m_poseId << " processing pose " << i;
+            //<< "Status " << QString::fromStdString(m_cubeStatus);
             transformed = cubePoseTransformer->Transform(m_cubeStatus, i);
             solKociemba = kociembaSolver->cube_solve(
                 const_cast<char*>(transformed.c_str()),

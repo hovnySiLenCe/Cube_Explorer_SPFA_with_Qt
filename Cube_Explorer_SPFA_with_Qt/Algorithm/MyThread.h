@@ -9,7 +9,9 @@
 #include "CubePoseTransformer.h"
 #include "CubeExplorerSPFA.h"
 
-#define MAX_THREAD_NUM 12
+#include "MyTaskQueue.h"
+
+#define MAX_THREAD_NUM 8
 #define MAX_TASK_NUM 24
 
 // FLDBULUFLDBRDRFRULFDBRFRDLBLFUUDBRLUUDLBLUDFFFDRRBRBUB
@@ -18,7 +20,7 @@ class MyThread: public QThread {
     Q_OBJECT
 
 public:
-    explicit MyThread(int poseId);
+    explicit MyThread(int poseId, TaskQueue* q);
     void setCubeStatus(const std::string& status); // 设置新数据
     void resume();  // 恢复线程运行一次
     void stop();    // 完全停止线程
@@ -37,6 +39,7 @@ private:
 
     std::string m_cubeStatus; // 避免重复分配内存
     int m_poseId;
+    TaskQueue* m_queue;
 
     // 求解相关容器
     threadSafeKociemba* kociembaSolver;

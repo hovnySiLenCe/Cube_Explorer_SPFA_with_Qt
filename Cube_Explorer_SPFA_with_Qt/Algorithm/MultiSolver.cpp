@@ -5,7 +5,7 @@ MultiSolver::MultiSolver() {
     ansCubeExplorerSPFA->ansTime = 0x7f7f7f7f;
     ansId = finishedCnt = 0;
     for (int i = 0; i < MAX_THREAD_NUM; i++) {
-        m_thread[i] = new MyThread(i);
+        m_thread[i] = new MyThread(i, &taskQueue);
         bool connected = QObject::connect(
             m_thread[i], &MyThread::sendAns,
             this, &MultiSolver::slot_threadFinished,
@@ -36,6 +36,8 @@ CubeExplorerSPFA* MultiSolver::GetMultiThreadPath(const std::string& str, int th
     connect(this, &MultiSolver::allThreadsFinished, &loop, &QEventLoop::quit);
 
     //QTimer::singleShot(timeoutTime, &loop, &QEventLoop::quit);
+
+    for (int i = 0; i < MAX_TASK_NUM; ++i) taskQueue.push(i);
 
     for (int i = 0; i < MAX_THREAD_NUM; i++) {
         m_thread[i]->setCubeStatus(str);

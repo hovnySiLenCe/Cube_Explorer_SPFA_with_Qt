@@ -5,11 +5,13 @@
 #include <QTimer>
 #include <QMutex>
 #include "MyThread.h"
+#include "MyTaskQueue.h"
 
 class MultiSolver : public QObject {
 	Q_OBJECT
 
 private:
+	TaskQueue taskQueue;
 	QMutex m_mutex;
 	MyThread* m_thread[24];
 	string ansOpsequence;
