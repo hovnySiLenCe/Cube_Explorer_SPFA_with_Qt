@@ -46,14 +46,14 @@ void MyThread::run() {
             auto task = m_queue->pop(m_stop);
             if (task==-1) break; // stopÊ±ÍË³ö
             int i = task;
-            qDebug() << "Thread " << m_poseId << " processing pose " << i;
-            qDebug() << "Status " << QString::fromStdString(m_cubeStatus);
+            //qDebug() << "Thread " << m_poseId << " processing pose " << i;
+            //qDebug() << "Status " << QString::fromStdString(m_cubeStatus);
             transformed = cubePoseTransformer->Transform(m_cubeStatus, i);
-            qDebug() << "transformed " << QString::fromStdString(transformed);
+            //qDebug() << "transformed " << QString::fromStdString(transformed);
             solKociemba = kociembaSolver->cube_solve(
                 const_cast<char*>(transformed.c_str()),
                 nullptr);
-            qDebug() << "solKociemba " << solKociemba;
+            //qDebug() << "solKociemba " << solKociemba;
             if (!solKociemba) {
                 emit sendAns(i, -1, "");
                 break;
