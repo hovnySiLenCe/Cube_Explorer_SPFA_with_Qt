@@ -97,6 +97,8 @@ private:
 	
 	QTimer* timer_displayRefresh;						// 复原计时触发器
 	MyTimer* timer_stopWatch;							// 复原计时器
+	MyTimer* timer_cp_stopWatch;						// 竞速模式电脑计时器
+	MyTimer* timer_user_stopWatch;						// 竞速模式玩家计时器
 	
 	QList<RestoreRecord> list_restoreRecords;			// 复原记录
 
@@ -130,6 +132,17 @@ private:
 	cv::Mat captureMatSet[4];
 	QList<QGraphicsRectItem*> list_samRecItems;			//存储显示在窗口上的采样框指针QByteArray byteTmp;
 
+	// 打乱序列生成
+	const QString actCommandStr[10] = {
+		"L1", "L2", "L3", "LC", "LO",
+		"R1", "R2", "R3", "RC", "RO" };
+
+	int actSeq[503];
+	int seqsLength;
+	QString displaySeqs;
+
+	int handAngle[2];
+
 	void InitTimerComponent();
 	void SetHighlightButtom(QPushButton* buttom);
 	void SetCommonStyButtom(QPushButton* buttom);
@@ -144,6 +157,9 @@ private:
 	void AppendRestoreRecordsToTable(QString str_description);
 	QString FormatCSVField(const QVariant& value);
 
+protected:
+	void keyPressEvent(QKeyEvent* event) override;
+
 public slots:
 	//界面按钮槽函数
 	void on_btnTightOrLooseClicked();
@@ -155,6 +171,18 @@ public slots:
 	void on_btnRecogClicked();
 	void on_btnShowSampleResultClicked();
 	void onSetDataSheetClicked();
+	void slot_btnResetClicked();
+	void slot_btnHandOCClicked();
+
+	// 打乱序列生成
+	void resetAngle(int handId, bool isTwist);
+	void turn(int handId, int turnId);
+	void twist(int handId, int turnId);
+	void slot_btnRandCreateClicked();
+	void slot_btnRandRunClicked();
+
+	// 交互-竞速模式函数
+	void slot_btnCompStartClicked();
 
 	//摄像头View鼠标响应槽函数
 	void slot_mouseReleasedInCameraViews(QRect rec_select);

@@ -58,9 +58,7 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 
 	// 下位机操作按钮
 	//connect(ui.btn_reset, SIGNAL(clicked()), this, SLOT(onbtnResetClicked()));
-	connect(ui.btn_reset, &QPushButton::clicked, this, [this]() {
-        serialPort->write(QString("#9P0T000\r\n").toLatin1());
-		});
+	connect(ui.btn_reset, SIGNAL(clicked()), this, SLOT(slot_btnResetClicked()));
 	//connect(ui.btn_stop, SIGNAL(clicked()), this, SLOT(onbtnStopClicked()));
 	connect(ui.btn_stop, &QPushButton::clicked, this, [this]() {
 		serialPort->write(QString("#8P0T000\n\r").toLatin1());
@@ -70,6 +68,46 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 		});
     connect(ui.btn_handsClose, &QPushButton::clicked, this, [this]() {
 		serialPort->write(QString("#2P6T000\r\n").toLatin1());
+		});
+
+	/* 交互 - 竞速界面按钮 */
+	connect(ui.comp_btn_reset, SIGNAL(clicked()), this, SLOT(slot_btnResetClicked()));
+	connect(ui.comp_btn_handsOC, SIGNAL(clicked()), this, SLOT(slot_btnHandOCClicked()));
+	connect(ui.comp_btn_randRefresh, SIGNAL(clicked()), this, SLOT(slot_btnRandCreateClicked()));
+    connect(ui.comp_btn_randRun, SIGNAL(clicked()), this, SLOT(slot_btnRandRunClicked()));
+
+	connect(ui.comp_btn_start, SIGNAL(clicked()), this, SLOT(slot_btnCompStartClicked()));
+	connect(ui.comp_btn_speed, &QPushButton::clicked, this, [this]() {
+		//qDebug() << QString("#F%1\n\r").arg(ui.comp_slider_speed->value(), 6, 10, QLatin1Char('0')).toLatin1();
+		serialPort->write(QString("#F%1\n\r").arg(ui.comp_slider_speed->value(), 6, 10, QLatin1Char('0')).toLatin1());
+		});
+	connect(ui.comp_slider_speed, &QSlider::valueChanged, this, [this](int value) {
+		ui.comp_LCD_speed->display(value);
+		});
+
+	/* 交互 - 控制界面按钮 */
+	connect(ui.ctrl_btn_reset, SIGNAL(clicked()), this, SLOT(slot_btnResetClicked())); // 复位
+	connect(ui.ctrl_btn_handsOC, SIGNAL(clicked()), this, SLOT(slot_btnHandOCClicked())); // 手部开合
+	connect(ui.ctrl_btn_rand, &QPushButton::clicked, this, [this]() { // 打乱序列和运行
+		slot_btnRandCreateClicked(), slot_btnRandRunClicked();
+		serialPort->write(QString("#F000100\n\r").toLatin1()); // 注意恢复原速
+		});
+	connect(ui.ctrl_btn_modeling, &QPushButton::clicked, this, [this]() {
+		
+		});
+
+	connect(ui.ctrl_btn_start, &QPushButton::clicked, this, [this]() {
+		if (ui.ctrl_btn_start->text() == QStringLiteral("开始")) {
+			timer_stopWatch->reset(), timer_stopWatch->start();
+			timer_displayRefresh->start();
+			ui.ctrl_btn_start->setText(QStringLiteral("停止"));
+		}
+		else {
+			timer_stopWatch->stop(), timer_displayRefresh->stop();
+			TimerDisplayRefresh();
+            ui.ctrl_btn_start->setText(QStringLiteral("开始"));
+		}
+		serialPort->write(QString("#8P0T000\n\r").toLatin1());
 		});
 
 	// 动作按钮
@@ -170,6 +208,49 @@ CubeExplorerWithQt::~CubeExplorerWithQt() {
 	delete byteTmp;
 	delete timeoutTimer;
 	delete handReleaseDalayTimer;
+}
+
+void CubeExplorerWithQt::keyPressEvent(QKeyEvent* event)
+{
+	if (ui.ctrl_btn_start->text() == QStringLiteral("开始")) {
+		QMainWindow::keyPressEvent(event); // 不监听时交给基类处理
+		return;
+	}
+
+	QString command;
+	switch (event->key()) {
+		case Qt::Key_W:
+			command = "#2P0T200\r\n"; // 左开
+			break;
+		case Qt::Key_A:
+			command = "#1P7T200\r\n"; // 左逆
+			break;
+		case Qt::Key_S:
+			command = "#2P1T200\r\n"; // 左闭
+			break;
+		case Qt::Key_D:
+			command = "#1P6T200\r\n"; // 左顺
+			break;
+		case Qt::Key_Up:
+			command = "#4P0T200\r\n"; // 右开
+			break;
+		case Qt::Key_Down:
+			command = "#4P1T200\r\n"; // 右闭
+			break;
+		case Qt::Key_Left:
+			command = "#3P7T200\r\n"; // 右逆
+			break;
+		case Qt::Key_Right:
+			command = "#3P6T200\r\n"; // 右顺
+			break;
+		default:
+			QMainWindow::keyPressEvent(event);
+			return;
+		}
+	//qDebug() << command;
+	// 发送指令
+	serialPort->write(QString(command).toLatin1());
+	event->accept(); // 表明事件已处理
 }
 
 void CubeExplorerWithQt::InitCameraEvents()
@@ -601,15 +682,26 @@ void CubeExplorerWithQt::InitTimerComponent()
 {
 	timer_displayRefresh = new QTimer(this);			//构造并绑定计时器槽函数
 	timer_displayRefresh->setInterval(15); //设置计时器间隔，用于刷新显示复原用时
+
+	connect(timer_displayRefresh, &QTimer::timeout, this, &CubeExplorerWithQt::TimerDisplayRefresh);
 	
 	timer_stopWatch = new MyTimer();
-	connect(timer_displayRefresh, &QTimer::timeout, this, &CubeExplorerWithQt::TimerDisplayRefresh);
-
+	timer_cp_stopWatch = new MyTimer();
+	timer_user_stopWatch = new MyTimer();
+	
 	static QIcon icon_start("./qtWindows/source/start.png");
 	static QIcon icon_stop("./qtWindows/source/stop.png");
 	static QIcon icon_reset("./qtWindows/source/reset.png");
     ui.btn_timerStop->setIcon(icon_start);
 	ui.btn_timerReset->setIcon(icon_reset);
+
+	// 交互界面
+	ui.comp_btn_cp_timerStop->setIcon(icon_start);
+	ui.comp_btn_cp_timerReset->setIcon(icon_reset);
+	ui.comp_btn_user_timerStop->setIcon(icon_start);
+	ui.comp_btn_user_timerReset->setIcon(icon_reset);
+
+	// 演示模式计时器
 	connect(ui.btn_timerStop, &QPushButton::clicked, [this]() {
 		if (timer_stopWatch->isRunning()) {
 			timer_stopWatch->stop();
@@ -626,6 +718,36 @@ void CubeExplorerWithQt::InitTimerComponent()
 		timer_stopWatch->reset();
 		timer_displayRefresh->stop();
 		TimerDisplayRefresh();
+		});
+	
+	// 竞速模式计时器
+	/*电脑计时器*/
+	connect(ui.comp_btn_cp_timerStop, &QPushButton::clicked, [this]() {
+		if (timer_cp_stopWatch->isRunning()) {
+			timer_cp_stopWatch->stop();
+			ui.comp_btn_cp_timerStop->setIcon(icon_start);
+		}
+		else {
+			timer_cp_stopWatch->start(), timer_displayRefresh->start();
+			ui.comp_btn_cp_timerStop->setIcon(icon_stop);
+		}
+		});
+	connect(ui.comp_btn_cp_timerReset, &QPushButton::clicked, [this]() {
+		timer_cp_stopWatch->reset(), TimerDisplayRefresh();
+		});
+	/*玩家计时器*/
+	connect(ui.comp_btn_user_timerStop, &QPushButton::clicked, [this]() {
+		if (timer_user_stopWatch->isRunning()) {
+			timer_user_stopWatch->stop();
+			ui.comp_btn_user_timerStop->setIcon(icon_start);
+		}
+		else {
+			timer_user_stopWatch->start(), timer_displayRefresh->start();
+			ui.comp_btn_user_timerStop->setIcon(icon_stop);
+		}
+		});
+	connect(ui.comp_btn_user_timerReset, &QPushButton::clicked, [this]() {
+		timer_user_stopWatch->reset(), TimerDisplayRefresh();
 		});
 }
 
@@ -680,6 +802,14 @@ void CubeExplorerWithQt::SetSolverResultDisplay()
 	ui.txt_AnswerCost->setText(QString::number(cubeExplorerSPFA->GetAnsCostTime()) + ((cubeExplorerSPFA->reuseFlag == true) ? " (True)" : " (False)"));
 	ui.txt_TotalSteps->setText(QString::number(steps) + "steps");
 	ui.txt_CalcTime->setText(QString::number(ed - st) + "ms");
+
+	// 交互1中显示计算结果
+	ui.comp_txt_RecogResult->setText(QString::fromStdString(recogResult));
+	//ui.txt_KociembaResult->setText(QString::fromStdString(kociembaResult));
+	ui.comp_txt_AnsOpSequence->setText(QString::fromStdString(cubeExplorerSPFA->GetAnsOpSequenceFormat()));
+	ui.comp_txt_AnswerCost->setText(QString::number(cubeExplorerSPFA->GetAnsCostTime()) + ((cubeExplorerSPFA->reuseFlag == true) ? " (True)" : " (False)"));
+	ui.comp_txt_TotalSteps->setText(QString::number(steps) + "steps");
+	ui.comp_txt_CalcTime->setText(QString::number(ed - st) + "ms");
 
 	// 在计时器区域显示计算结果
 	ui.label_restoreCnt->setText(QString::number(steps));
@@ -886,6 +1016,167 @@ void CubeExplorerWithQt::onSetDataSheetClicked()
 	connect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::ReadOperationFromPort);
 }
 
+void CubeExplorerWithQt::slot_btnResetClicked()
+{
+	serialPort->write(QString("#9P0T000\r\n").toLatin1());
+}
+
+void CubeExplorerWithQt::slot_btnHandOCClicked()
+{
+	QPushButton* senderButton = qobject_cast<QPushButton*>(sender());
+	if (senderButton->text() == QStringLiteral("闭合")) {
+		ui.comp_btn_handsOC->setText(QStringLiteral("打开"));
+		ui.ctrl_btn_handsOC->setText(QStringLiteral("打开"));
+		serialPort->write(QString("#2P6T000\r\n").toLatin1());
+	}
+	else {
+		ui.comp_btn_handsOC->setText(QStringLiteral("闭合"));
+		ui.ctrl_btn_handsOC->setText(QStringLiteral("闭合"));
+		serialPort->write(QString("#2P7T000\r\n").toLatin1());
+	}
+}
+
+void CubeExplorerWithQt::resetAngle(int handId, bool isTwist)
+{
+	//qDebug() << "reset" << handId << isTwist;
+	actSeq[++seqsLength] = 5 * handId + 4;
+	actSeq[++seqsLength] = 5 * handId + ((handAngle[handId] > 0) ? 2 : 0);
+	handAngle[handId] += (handAngle[handId] > 0) ? -1 : 1;
+	if (isTwist) actSeq[++seqsLength] = 5 * handId + 3;
+}
+
+void CubeExplorerWithQt::turn(int handId, int turnId)
+{
+	//qDebug() << "turn" << handId << turnId;
+	if (handAngle[handId ^ 1] % 2) resetAngle(handId ^ 1, false);
+	else actSeq[++seqsLength] = 5 * (handId ^ 1) + 4; // 对侧爪打开
+
+	//qDebug() << "seqsLength: " << seqsLength;
+
+	actSeq[++seqsLength] = 5 * handId + turnId;
+	//qDebug() << "seqsLength: " << seqsLength;
+
+	if (turnId == 1) handAngle[handId] += 2 * ((handAngle[handId] > 0) ? -1 : 1);
+	else handAngle[handId] += 1 - turnId;
+
+	actSeq[++seqsLength] = 5 * (handId ^ 1) + 3; // 对侧爪闭合
+	//qDebug() << "seqsLength: " << seqsLength;
+}
+
+void CubeExplorerWithQt::twist(int handId, int turnId)
+{
+	//qDebug() << "twist" << handId << turnId;
+	if (handAngle[handId ^ 1] % 2) resetAngle(handId ^ 1, true);
+	actSeq[++seqsLength] = 5 * handId + turnId;
+	if (turnId == 1) handAngle[handId] += 2 * ((handAngle[handId] > 0) ? -1 : 1);
+	else handAngle[handId] += 1 - turnId;
+}
+
+void CubeExplorerWithQt::slot_btnRandCreateClicked()
+{
+	qsrand(time(0));
+	seqsLength = handAngle[0] = handAngle[1] = 0;
+	int turnActionNum = 23;
+	int preTurnHand = -1, curTurnHand, turnAngle; // 0 左 1 右
+
+	displaySeqs = QStringLiteral("生成操作序列的拧动次数：") + QString::number(turnActionNum) + "\n";
+	/*
+	动作及含义： 1. 拧动时有角度需求； 2. 空转时无角度需求； 3. 带转时有角度需求
+	每次假设某侧拧动，则前次拧动的可能性有同侧/异侧，分别讨论：
+	(一)假设是同侧拧动，本侧所有状态均有可能，但异侧保证为水平。
+		1. 异侧翻转。为了避免无效拧动，必须先让异侧带动魔方翻面，翻面最好为90度，否则仍有可能进入无效操作（对称面重复操作）；
+		异侧带动魔方旋转前，需要检查本侧爪子状态是否为垂直：
+			1.1 若为垂直，同侧爪开并运行到水平状态，异侧翻转，同侧爪闭合；
+			1.2 若为水平，开爪后直接异侧翻转；
+			1.3 该阶段两爪必闭合。
+		2. 同侧拧动。翻面后，进行同侧的拧动，如果异侧为垂直状态，需要先调整状态；然后进行拧动，拧动完成两爪必闭合。
+		3. 拧动结束后，本侧爪均有可能出现，但异侧爪保证水平。
+	(二)假设是异侧拧动，本侧肯定水平，但异侧均有可能。
+		0. 异侧拧动不存在抵消状态，直接拧动即可（但拧动前翻面也有意义）；
+		1. 检查异侧状态，若为垂直，则先进行调整，若为水平，直接拧动；
+		2. 拧动完成后，本侧爪均有可能，但异侧爪保证水平
+	*/
+	for (int i = 0; i < turnActionNum; i++)
+	{
+		curTurnHand = rand() % 2;
+		turnAngle = (rand() % 3);
+		//qDebug() << "i: " << i << " preTurnHand:" << preTurnHand << " curTurnHand:" << curTurnHand << " turnAngle:" << turnAngle;
+
+		if (!(~preTurnHand)) {
+			twist(curTurnHand, turnAngle);
+			preTurnHand = curTurnHand;
+			continue;
+		}
+		if (preTurnHand == curTurnHand /* || (rand() % 2) */) // 同侧移动需要带转，异侧拧动是否带转均可
+			turn(curTurnHand ^ 1, (rand() % 3));
+		twist(curTurnHand, turnAngle);
+		preTurnHand = curTurnHand;
+		//qDebug() << endl;
+	}
+
+	for (int i = 1; i <= seqsLength; i++) displaySeqs += actCommandStr[actSeq[i]] + ((i % 18) ? " " : "\n");
+	ui.comp_txt_randSequence->setPlainText(displaySeqs);
+}
+
+void CubeExplorerWithQt::slot_btnRandRunClicked()
+{
+	// 预定义常用指令
+	const QByteArray cmdList[] = {
+		"#1P6T200\r\n",
+		"#1P8T200\r\n",
+		"#1P7T200\r\n",
+		"#2P1T200\r\n",
+		"#2P0T200\r\n",
+		"#3P6T200\r\n",
+		"#3P8T200\r\n",
+		"#3P7T200\r\n",
+		"#4P1T200\r\n",
+		"#4P0T200\r\n"
+	};
+
+	serialPort->write("#F000100\r\n", 9); // 恢复原速
+
+	serialPort->write("#2P1T200\r\n", 9);
+	serialPort->write("#4P1T200\r\n", 9);
+
+	// 发送Move相关指令
+	for (int i = 1; i <= seqsLength; i++) {
+		if (actSeq[i] >= 0 && actSeq[i] <= 9) {
+			serialPort->write(cmdList[actSeq[i]]);
+		}
+		else {
+			// 处理非法值，可以选择记录日志或采取默认动作
+			qWarning() << "Invalid Move value at index" << i << ": " << actSeq[i];
+		}
+	}
+
+	serialPort->write("#2P0T200\r\n", 9);
+	serialPort->write("#4P0T200\r\n", 9);
+
+	serialPort->write("#F00050\r\n", 9); // 恢复设置速度
+}
+
+void CubeExplorerWithQt::slot_btnCompStartClicked()
+{
+	static QIcon icon_start("./qtWindows/source/start.png");
+	static QIcon icon_stop("./qtWindows/source/stop.png");
+
+	if (ui.comp_btn_start->text() == QStringLiteral("开始")) {
+		timer_cp_stopWatch->reset(), timer_cp_stopWatch->start(), ui.comp_btn_cp_timerStop->setIcon(icon_stop); // 重置电脑计时器
+		timer_user_stopWatch->reset(), timer_user_stopWatch->start(), ui.comp_btn_user_timerStop->setIcon(icon_stop); // 重置玩家计时器
+
+		timer_displayRefresh->start(); // 开始动态显示计时器
+
+		ui.comp_btn_start->setText(QStringLiteral("结束"));
+	}
+	else {
+		timer_cp_stopWatch->stop(), timer_user_stopWatch->stop(), ui.comp_btn_cp_timerStop->setIcon(icon_start);
+		timer_displayRefresh->stop(), TimerDisplayRefresh(), ui.comp_btn_user_timerStop->setIcon(icon_start);
+
+        ui.comp_btn_start->setText(QStringLiteral("开始"));
+    }
+}
+
 //右键菜单响应槽函数
 void CubeExplorerWithQt::slot_mouseReleasedInCameraViews(QRect rec_select)
 {
@@ -1034,9 +1325,25 @@ void CubeExplorerWithQt::slot_cameraInfoChanged(const QString & text)
 }
 
 void CubeExplorerWithQt::TimerDisplayRefresh() {
+	if (ui.tabWidget_mode->currentIndex() == 1)  {// 0: 演示模式； 1: 竞速模式； 2: 控制模式
+		double cp_second = timer_cp_stopWatch->getTime();
+        ui.comp_lineEdit_cp_second1->setText(QString::asprintf("%d", int(cp_second)));
+		ui.comp_lineEdit_cp_second2->setText(QString::asprintf("%02d", int((cp_second - int(cp_second)) * 100)));
+
+		double user_second = timer_user_stopWatch->getTime();
+        ui.comp_lineEdit_user_second1->setText(QString::asprintf("%d", int(user_second)));
+        ui.comp_lineEdit_user_second2->setText(QString::asprintf("%02d", int((user_second-int(user_second))*100)));
+		return;
+	}
 	double second = timer_stopWatch->getTime();
-	ui.lineEdit_second1->setText(QString::asprintf("%d", int(second)));
-	ui.lineEdit_second2->setText(QString::asprintf("%02d", int((second-int(second))*100)));
+	if (ui.tabWidget_mode->currentIndex() == 0) {
+		ui.lineEdit_second1->setText(QString::asprintf("%d", int(second)));
+		ui.lineEdit_second2->setText(QString::asprintf("%02d", int((second - int(second)) * 100)));
+	}
+	else {
+		ui.ctrl_lineEdit_second1->setText(QString::asprintf("%d", int(second)));
+        ui.ctrl_lineEdit_second2->setText(QString::asprintf("%02d", int((second - int(second)) * 100)));
+	}
 }
 
 void CubeExplorerWithQt::WaitForPortReadTimeout()
@@ -1104,7 +1411,9 @@ void CubeExplorerWithQt::ReadOperationFromPort()
 			//ui.label_UI_message->setText(QStringLiteral("串口收到开始信号"));
 		}
 		if (comByteBuffer.contains("#O")) {
-			timer_stopWatch->stop(), timer_displayRefresh->stop();
+			timer_stopWatch->stop(), timer_cp_stopWatch->stop();
+			if (ui.tabWidget_mode->currentIndex() != 1)
+				timer_displayRefresh->stop();
 			TimerDisplayRefresh();
 			isToRestore = hasRobotStarted = false;
 			handReleaseDalayTimer->start(500);
