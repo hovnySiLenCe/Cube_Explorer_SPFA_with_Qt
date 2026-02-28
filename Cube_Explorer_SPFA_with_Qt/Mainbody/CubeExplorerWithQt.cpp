@@ -78,7 +78,7 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 
 	connect(ui.comp_btn_start, SIGNAL(clicked()), this, SLOT(slot_btnCompStartClicked()));
 	connect(ui.comp_btn_speed, &QPushButton::clicked, this, [this]() {
-		//qDebug() << QString("#F%1\n\r").arg(ui.comp_slider_speed->value(), 6, 10, QLatin1Char('0')).toLatin1();
+		qDebug() << QString("#F%1\n\r").arg(ui.comp_slider_speed->value(), 6, 10, QLatin1Char('0')).toLatin1();
 		serialPort->write(QString("#F%1\n\r").arg(ui.comp_slider_speed->value(), 6, 10, QLatin1Char('0')).toLatin1());
 		});
 	connect(ui.comp_slider_speed, &QSlider::valueChanged, this, [this](int value) {
@@ -101,13 +101,13 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 			timer_stopWatch->reset(), timer_stopWatch->start();
 			timer_displayRefresh->start();
 			ui.ctrl_btn_start->setText(QStringLiteral("停止"));
+			setFocus();
 		}
 		else {
 			timer_stopWatch->stop(), timer_displayRefresh->stop();
 			TimerDisplayRefresh();
             ui.ctrl_btn_start->setText(QStringLiteral("开始"));
 		}
-		serialPort->write(QString("#8P0T000\n\r").toLatin1());
 		});
 
 	// 动作按钮
@@ -216,7 +216,7 @@ void CubeExplorerWithQt::keyPressEvent(QKeyEvent* event)
 		QMainWindow::keyPressEvent(event); // 不监听时交给基类处理
 		return;
 	}
-
+	qDebug() << "Key pressed:" << event->key() << "Text:" << event->text();
 	QString command;
 	switch (event->key()) {
 		case Qt::Key_W:
@@ -247,7 +247,7 @@ void CubeExplorerWithQt::keyPressEvent(QKeyEvent* event)
 			QMainWindow::keyPressEvent(event);
 			return;
 		}
-	//qDebug() << command;
+	qDebug() << command;
 	// 发送指令
 	serialPort->write(QString(command).toLatin1());
 	event->accept(); // 表明事件已处理
@@ -1113,7 +1113,8 @@ void CubeExplorerWithQt::slot_btnRandCreateClicked()
 		preTurnHand = curTurnHand;
 		//qDebug() << endl;
 	}
-
+	if (handAngle[0] & 1) resetAngle(0, 0);
+	if (handAngle[1] & 1) resetAngle(1, 0);
 	for (int i = 1; i <= seqsLength; i++) displaySeqs += actCommandStr[actSeq[i]] + ((i % 18) ? " " : "\n");
 	ui.comp_txt_randSequence->setPlainText(displaySeqs);
 }
