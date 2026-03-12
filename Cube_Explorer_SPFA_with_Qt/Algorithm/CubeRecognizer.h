@@ -73,4 +73,6 @@ vector<int>& getCorrection_V();
 QMap<QString, vector<int> >& getCorreDataMap();
 //YKJ END
 
+QString getRecognizeColorResult();
+
 #endif

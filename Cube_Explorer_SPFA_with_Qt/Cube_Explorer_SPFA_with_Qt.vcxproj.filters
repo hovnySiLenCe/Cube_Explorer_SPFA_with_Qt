@@ -96,6 +96,9 @@
     <ClCompile Include="Algorithm\MyThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="qtWindows\MyOpenGLWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Algorithm\CubeExplorer.h">
@@ -206,6 +209,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Algorithm\MultiSolver.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="qtWindows\MyOpenGLWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

@@ -6,189 +6,19 @@ extern QList<QString> list_picID;
 CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 	: QMainWindow(parent)
 {
-	//构造CubicExplorer对象
-	//cubeExplorer = CubeExplorer();
-
-	cubeExplorerSPFA = new CubeExplorerSPFA();
-	cubeExplorerSPFA->InitOrientation();
-
-	multiSolver = new MultiSolver();
-	//multiSolver->InitSolver();
-
 	ui.setupUi(this);
-
-	curPath = QDir::currentPath();		//获取当前工作路径
-
-	// 串口延时接收计时器
-	byteTmp = new QByteArray(); // 用于接收串口信息
-	timeoutTimer = new QTimer(this);
-	timeoutTimer->setSingleShot(true);
-	connect(timeoutTimer, &QTimer::timeout, this, &CubeExplorerWithQt::WaitForPortReadTimeout);
-
-	// 延时松手计时器
-	handReleaseDalayTimer = new QTimer(this);
-	handReleaseDalayTimer->setSingleShot(true);
-	connect(handReleaseDalayTimer, &QTimer::timeout, this, [this]() {
-		ui.record_total_time->setValue(timer_stopWatch->getTime());
-		ui.record_restore_time->setText(QString::asprintf("%.2f", timer_stopWatch->getTime()));
-		serialPort->write(QString("#2P0T200\r\n").toLatin1());
-		serialPort->write(QString("#4P0T200\r\n").toLatin1());
-		ui.txt_LogDisplay->append(QStringLiteral("[INFO] Solver: 执行完毕"));
-		isToRestore = false;
-	});
-
-	/*connect(ui.btn_tightOrLoose, SIGNAL(clicked()), this, SLOT(on_btnTightOrLooseClicked()));*/
 	
 	// 计时器组件
 	InitTimerComponent();
 
-	// 开始复原按钮
-	connect(ui.btn_restore, SIGNAL(clicked()), this, SLOT(on_btnRestoreClicked()));
+	// 初始化演示组件
+	InitDemoComponent();
 
-	// 普通操作按钮
-	connect(ui.btn_camSwitch, SIGNAL(clicked()), this, SLOT(onbtnCamSwitchClicked()));
-	SetHighlightButtom(ui.btn_camSwitch);
-
-	connect(ui.btn_showSamRecs, SIGNAL(clicked()), this, SLOT(on_btnShowSamRecsClicked()));
-	SetHighlightButtom(ui.btn_showSamRecs);
-
-	connect(ui.btn_debug, SIGNAL(clicked()), this, SLOT(on_btnDebugClicked()));
-	connect(ui.btn_showSampleResult, SIGNAL(clicked()), this, SLOT(on_btnShowSampleResultClicked()));
-	connect(ui.btn_setDataSheet, SIGNAL(clicked()), this, SLOT(onSetDataSheetClicked()));
-
-	// 下位机操作按钮
-	//connect(ui.btn_reset, SIGNAL(clicked()), this, SLOT(onbtnResetClicked()));
-	connect(ui.btn_reset, SIGNAL(clicked()), this, SLOT(slot_btnResetClicked()));
-	//connect(ui.btn_stop, SIGNAL(clicked()), this, SLOT(onbtnStopClicked()));
-	connect(ui.btn_stop, &QPushButton::clicked, this, [this]() {
-		serialPort->write(QString("#8P0T000\n\r").toLatin1());
-		});
-	connect(ui.btn_handsOpen, &QPushButton::clicked, this, [this]() {
-		serialPort->write(QString("#2P7T000\r\n").toLatin1());
-		});
-    connect(ui.btn_handsClose, &QPushButton::clicked, this, [this]() {
-		serialPort->write(QString("#2P6T000\r\n").toLatin1());
-		});
-
-	/* 交互 - 竞速界面按钮 */
-	connect(ui.comp_btn_reset, SIGNAL(clicked()), this, SLOT(slot_btnResetClicked()));
-	connect(ui.comp_btn_handsOC, SIGNAL(clicked()), this, SLOT(slot_btnHandOCClicked()));
-	connect(ui.comp_btn_randRefresh, SIGNAL(clicked()), this, SLOT(slot_btnRandCreateClicked()));
-    connect(ui.comp_btn_randRun, SIGNAL(clicked()), this, SLOT(slot_btnRandRunClicked()));
-
-	connect(ui.comp_btn_start, SIGNAL(clicked()), this, SLOT(slot_btnCompStartClicked()));
-	connect(ui.comp_btn_speed, &QPushButton::clicked, this, [this]() {
-		qDebug() << QString("#F%1\n\r").arg(ui.comp_slider_speed->value(), 6, 10, QLatin1Char('0')).toLatin1();
-		serialPort->write(QString("#F%1\n\r").arg(ui.comp_slider_speed->value(), 6, 10, QLatin1Char('0')).toLatin1());
-		});
-	connect(ui.comp_slider_speed, &QSlider::valueChanged, this, [this](int value) {
-		ui.comp_LCD_speed->display(value);
-		});
-
-	/* 交互 - 控制界面按钮 */
-	connect(ui.ctrl_btn_reset, SIGNAL(clicked()), this, SLOT(slot_btnResetClicked())); // 复位
-	connect(ui.ctrl_btn_handsOC, SIGNAL(clicked()), this, SLOT(slot_btnHandOCClicked())); // 手部开合
-	connect(ui.ctrl_btn_rand, &QPushButton::clicked, this, [this]() { // 打乱序列和运行
-		slot_btnRandCreateClicked(), slot_btnRandRunClicked();
-		serialPort->write(QString("#F000100\n\r").toLatin1()); // 注意恢复原速
-		});
-	connect(ui.ctrl_btn_modeling, &QPushButton::clicked, this, [this]() {
-		
-		});
-
-	connect(ui.ctrl_btn_start, &QPushButton::clicked, this, [this]() {
-		if (ui.ctrl_btn_start->text() == QStringLiteral("开始")) {
-			timer_stopWatch->reset(), timer_stopWatch->start();
-			timer_displayRefresh->start();
-			ui.ctrl_btn_start->setText(QStringLiteral("停止"));
-			setFocus();
-		}
-		else {
-			timer_stopWatch->stop(), timer_displayRefresh->stop();
-			TimerDisplayRefresh();
-            ui.ctrl_btn_start->setText(QStringLiteral("开始"));
-		}
-		});
-
-	// 动作按钮
-	connect(ui.btn_recog, SIGNAL(clicked()), this, SLOT(on_btnRecogClicked()));
-	connect(ui.btn_sendSingle, SIGNAL(clicked()), this, SLOT(on_btnSendSingleClicked()));
-	connect(ui.btn_sendAll, SIGNAL(clicked()), this, SLOT(slot_sendOperationSerial()));
-
-	// 可选择项
-	connect(ui.inputCheckBox, SIGNAL(clicked()), this, SLOT(slotInputStateChange()));
-	connect(ui.reuseCheckBox, SIGNAL(clicked()), this, SLOT(slotReuseStateChange()));
-
-	// 消息框类
-	connect(ui.btn_clearMessage, &QPushButton::clicked, ui.txt_LogDisplay, &QTextBrowser::clear);
-
-	//COM口操作相关
-	connect(ui.btn_portOpen_close, SIGNAL(clicked()), this, SLOT(on_btnPortOpenClicked()));
-	SetHighlightButtom(ui.btn_portOpen_close);
-
-	connect(ui.btn_portRefresh, SIGNAL(clicked()), this, SLOT(on_btnPortRefreshClicked()));
-	connect(ui.btn_portSend, SIGNAL(clicked()), this, SLOT(on_btnPortSendClicked()));
-	connect(ui.comboBox_baudRate, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_baudRateChanged()));
-	//connect(ui.btn_stratagyConfirm, SIGNAL(clicked()), this, SLOT(on_btnStrategyConfirm()));
-	ui.comboBox_coms->clear();
-	foreach(QSerialPortInfo info, QSerialPortInfo::availablePorts()) {
-		ui.comboBox_coms->addItem(info.portName());
-	}
-	ui.comboBox_coms->setCurrentIndex(1);
-	connect(ui.comboBox_coms, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_portInfoChanged()));
+	// 初始化交互模式组件
+	InitInteractiveComponent();
 	
 	// 初始化摄像头
 	InitCameraEvents();
-
-	// 复原记录相关操作
-	LoadRestoreRecordsFromCSV();
-	//LoadRestoreRecordsFromFile();
-	ui.recordTable->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui.recordTable, &QTableWidget::customContextMenuRequested, this, [this](QPoint pos) {
-		QTableWidgetItem* item = ui.recordTable->itemAt(pos);
-		if (item) {
-			QMenu menu;
-			menu.addAction(QStringLiteral("删除"), [this, item]() {
-				int row = item->row();
-				ui.recordTable->removeRow(row);
-				});
-			menu.exec(ui.recordTable->mapToGlobal(pos));
-			}
-		});
-	// 保存记录按钮
-	connect(ui.btn_addRecord, &QPushButton::clicked, this, [this]() {
-		bool ok;
-		QString description = QInputDialog::getText(this,
-			QStringLiteral("输入描述"),
-			QStringLiteral("请输入描述信息："),
-			QLineEdit::Normal,
-			QString(),
-			&ok);
-		if (ok) {
-			AppendRestoreRecordsToTable(description);
-			ui.txt_LogDisplay->append(QStringLiteral("[INFO] User: 保存记录成功"));
-		}
-		else {
-			ui.txt_LogDisplay->append(QStringLiteral("[INFO] User: 保存记录取消"));
-		}
-		});
-	connect(ui.record_total_time, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=](double totalTime) {
-		double restoreTime = ui.record_restore_time->text().toDouble();
-		ui.record_manual_time->setText(QString::number(totalTime - restoreTime));
-		});
-	//on_btnCameraClicked();
-
-	//初始化串口类对象
-	serialPort = new QSerialPort();
-
-	serialPort->setBaudRate(QSerialPort::Baud9600);
-	serialPort->setDataBits(QSerialPort::Data8);
-	serialPort->setParity(QSerialPort::NoParity);
-	serialPort->setStopBits(QSerialPort::OneStop);
-	serialPort->setFlowControl(QSerialPort::NoFlowControl);
-
-	connect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::ReadOperationFromPort);
-
 }
 
 CubeExplorerWithQt::~CubeExplorerWithQt() {
@@ -212,6 +42,11 @@ CubeExplorerWithQt::~CubeExplorerWithQt() {
 
 void CubeExplorerWithQt::keyPressEvent(QKeyEvent* event)
 {
+	if (event->key() == Qt::Key_Space && ui.comp_btn_start->text() == QStringLiteral("停止")) {
+		slot_btnCompStartClicked();
+		return;
+	}
+
 	if (ui.ctrl_btn_start->text() == QStringLiteral("开始")) {
 		QMainWindow::keyPressEvent(event); // 不监听时交给基类处理
 		return;
@@ -220,29 +55,59 @@ void CubeExplorerWithQt::keyPressEvent(QKeyEvent* event)
 	QString command;
 	switch (event->key()) {
 		case Qt::Key_W:
-			command = "#2P0T200\r\n"; // 左开
+			if (!ishandOpen) {
+				command = "#2P0T200\r\n"; // 左开
+				ishandOpen = 2;
+				ui.ctrl_openGLWidget->openGripperF();
+			}
+			else return;
 			break;
 		case Qt::Key_A:
+			if (ishandVertical & 1) return;
 			command = "#1P7T200\r\n"; // 左逆
+			ishandVertical ^= 2;
+			ui.ctrl_openGLWidget->rotateGripperF(-90.0f);
 			break;
 		case Qt::Key_S:
 			command = "#2P1T200\r\n"; // 左闭
+			ishandOpen &= 1;
+			ui.ctrl_openGLWidget->closeGripperF();
 			break;
 		case Qt::Key_D:
+			if (ishandVertical & 1) return;
 			command = "#1P6T200\r\n"; // 左顺
+			ishandVertical ^= 2;
+			ui.ctrl_openGLWidget->rotateGripperF(90.0f);
 			break;
 		case Qt::Key_Up:
-			command = "#4P0T200\r\n"; // 右开
+			if (!ishandOpen) {
+				command = "#4P0T200\r\n"; // 右开
+				ishandOpen = 1;
+				ui.ctrl_openGLWidget->openGripperR();
+			}
+			else return;
 			break;
 		case Qt::Key_Down:
 			command = "#4P1T200\r\n"; // 右闭
+			ishandOpen &= 2;
+			ui.ctrl_openGLWidget->closeGripperR();
 			break;
 		case Qt::Key_Left:
+			if (ishandVertical & 2) return;
+			ishandVertical ^= 1;
 			command = "#3P7T200\r\n"; // 右逆
+			ui.ctrl_openGLWidget->rotateGripperR(-90.0f);
 			break;
 		case Qt::Key_Right:
+			if (ishandVertical & 2) return;
+			ishandVertical ^= 1;
 			command = "#3P6T200\r\n"; // 右顺
+			ui.ctrl_openGLWidget->rotateGripperR(90.0f);
 			break;
+		//case Qt::Key_Space:
+		//	command = "#2P7T200\r\n"; // 抓取
+		//	slot_btnCtrlStartClicked();
+		//	break;
 		default:
 			QMainWindow::keyPressEvent(event);
 			return;
@@ -701,6 +566,9 @@ void CubeExplorerWithQt::InitTimerComponent()
 	ui.comp_btn_user_timerStop->setIcon(icon_start);
 	ui.comp_btn_user_timerReset->setIcon(icon_reset);
 
+	ui.ctrl_btn_timerStop->setIcon(icon_start);
+	ui.ctrl_btn_timerReset->setIcon(icon_reset);
+
 	// 演示模式计时器
 	connect(ui.btn_timerStop, &QPushButton::clicked, [this]() {
 		if (timer_stopWatch->isRunning()) {
@@ -749,6 +617,243 @@ void CubeExplorerWithQt::InitTimerComponent()
 	connect(ui.comp_btn_user_timerReset, &QPushButton::clicked, [this]() {
 		timer_user_stopWatch->reset(), TimerDisplayRefresh();
 		});
+
+	// 控制模式计时器
+	connect(ui.ctrl_btn_timerStop, &QPushButton::clicked, [this]() {
+		if (timer_stopWatch->isRunning()) {
+			timer_stopWatch->stop();
+			timer_displayRefresh->stop();
+			ui.ctrl_btn_timerStop->setIcon(icon_start);
+		}
+		else {
+			timer_stopWatch->start();
+			timer_displayRefresh->start();
+			ui.ctrl_btn_timerStop->setIcon(icon_stop);
+		}
+		});
+	connect(ui.ctrl_btn_timerReset, &QPushButton::clicked, [this]() {
+		timer_stopWatch->reset();
+		timer_displayRefresh->stop();
+		TimerDisplayRefresh();
+		});
+}
+
+void CubeExplorerWithQt::InitDemoComponent()
+{
+	//构造CubicExplorer对象
+	//cubeExplorer = CubeExplorer();
+
+	cubeExplorerSPFA = new CubeExplorerSPFA();
+	cubeExplorerSPFA->InitOrientation();
+
+	multiSolver = new MultiSolver();
+	curPath = QDir::currentPath();		//获取当前工作路径
+
+	// 串口延时接收计时器
+	byteTmp = new QByteArray(); // 用于接收串口信息
+	timeoutTimer = new QTimer(this);
+	timeoutTimer->setSingleShot(true);
+	connect(timeoutTimer, &QTimer::timeout, this, &CubeExplorerWithQt::WaitForPortReadTimeout);
+
+	// 延时松手计时器
+	handReleaseDalayTimer = new QTimer(this);
+	handReleaseDalayTimer->setSingleShot(true);
+	connect(handReleaseDalayTimer, &QTimer::timeout, this, [this]() {
+		ui.record_total_time->setValue(timer_stopWatch->getTime());
+		ui.record_restore_time->setText(QString::asprintf("%.2f", timer_stopWatch->getTime()));
+		serialPort->write(QString("#2P0T200\r\n").toLatin1());
+		serialPort->write(QString("#4P0T200\r\n").toLatin1());
+		ui.txt_LogDisplay->append(QStringLiteral("[INFO] Solver: 执行完毕"));
+		isToRestore = false;
+		});
+
+	/*connect(ui.btn_tightOrLoose, SIGNAL(clicked()), this, SLOT(on_btnTightOrLooseClicked()));*/
+
+	// 开始复原按钮
+	connect(ui.btn_restore, SIGNAL(clicked()), this, SLOT(on_btnRestoreClicked()));
+
+	// 普通操作按钮
+	connect(ui.btn_camSwitch, SIGNAL(clicked()), this, SLOT(onbtnCamSwitchClicked()));
+	SetHighlightButtom(ui.btn_camSwitch);
+
+	connect(ui.btn_showSamRecs, SIGNAL(clicked()), this, SLOT(on_btnShowSamRecsClicked()));
+	SetHighlightButtom(ui.btn_showSamRecs);
+
+	connect(ui.btn_debug, SIGNAL(clicked()), this, SLOT(on_btnDebugClicked()));
+	connect(ui.btn_showSampleResult, SIGNAL(clicked()), this, SLOT(on_btnShowSampleResultClicked()));
+	connect(ui.btn_setDataSheet, SIGNAL(clicked()), this, SLOT(onSetDataSheetClicked()));
+
+	// 下位机操作按钮
+	//connect(ui.btn_reset, SIGNAL(clicked()), this, SLOT(onbtnResetClicked()));
+	connect(ui.btn_reset, SIGNAL(clicked()), this, SLOT(slot_btnResetClicked()));
+	//connect(ui.btn_stop, SIGNAL(clicked()), this, SLOT(onbtnStopClicked()));
+	connect(ui.btn_stop, &QPushButton::clicked, this, [this]() {
+		serialPort->write(QString("#8P0T000\n\r").toLatin1());
+		});
+	connect(ui.btn_handsOpen, &QPushButton::clicked, this, [this]() {
+		serialPort->write(QString("#2P7T000\r\n").toLatin1());
+		});
+	connect(ui.btn_handsClose, &QPushButton::clicked, this, [this]() {
+		serialPort->write(QString("#2P6T000\r\n").toLatin1());
+		});
+
+	// 动作按钮
+	connect(ui.btn_recog, SIGNAL(clicked()), this, SLOT(on_btnRecogClicked()));
+	connect(ui.btn_sendSingle, SIGNAL(clicked()), this, SLOT(on_btnSendSingleClicked()));
+	connect(ui.btn_sendAll, SIGNAL(clicked()), this, SLOT(slot_sendOperationSerial()));
+
+	// 可选择项
+	connect(ui.inputCheckBox, SIGNAL(clicked()), this, SLOT(slotInputStateChange()));
+	connect(ui.reuseCheckBox, SIGNAL(clicked()), this, SLOT(slotReuseStateChange()));
+
+	// 消息框类
+	connect(ui.btn_clearMessage, &QPushButton::clicked, ui.txt_LogDisplay, &QTextBrowser::clear);
+
+	//COM口操作相关
+	connect(ui.btn_portOpen_close, SIGNAL(clicked()), this, SLOT(on_btnPortOpenClicked()));
+	SetHighlightButtom(ui.btn_portOpen_close);
+
+	connect(ui.btn_portRefresh, SIGNAL(clicked()), this, SLOT(on_btnPortRefreshClicked()));
+	connect(ui.btn_portSend, SIGNAL(clicked()), this, SLOT(on_btnPortSendClicked()));
+	connect(ui.comboBox_baudRate, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_baudRateChanged()));
+	//connect(ui.btn_stratagyConfirm, SIGNAL(clicked()), this, SLOT(on_btnStrategyConfirm()));
+	ui.comboBox_coms->clear();
+	foreach(QSerialPortInfo info, QSerialPortInfo::availablePorts()) {
+		ui.comboBox_coms->addItem(info.portName());
+	}
+	ui.comboBox_coms->setCurrentIndex(1);
+	connect(ui.comboBox_coms, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_portInfoChanged()));
+
+	// 复原记录相关操作
+	LoadRestoreRecordsFromCSV();
+	//LoadRestoreRecordsFromFile();
+	ui.recordTable->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(ui.recordTable, &QTableWidget::customContextMenuRequested, this, [this](QPoint pos) {
+		QTableWidgetItem* item = ui.recordTable->itemAt(pos);
+		if (item) {
+			QMenu menu;
+			menu.addAction(QStringLiteral("删除"), [this, item]() {
+				int row = item->row();
+				ui.recordTable->removeRow(row);
+				});
+			menu.exec(ui.recordTable->mapToGlobal(pos));
+		}
+		});
+	// 保存记录按钮
+	connect(ui.btn_addRecord, &QPushButton::clicked, this, [this]() {
+		bool ok;
+		QString description = QInputDialog::getText(this,
+			QStringLiteral("输入描述"),
+			QStringLiteral("请输入描述信息："),
+			QLineEdit::Normal,
+			QString(),
+			&ok);
+		if (ok) {
+			AppendRestoreRecordsToTable(description);
+			ui.txt_LogDisplay->append(QStringLiteral("[INFO] User: 保存记录成功"));
+		}
+		else {
+			ui.txt_LogDisplay->append(QStringLiteral("[INFO] User: 保存记录取消"));
+		}
+		});
+	connect(ui.record_total_time, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [=](double totalTime) {
+		double restoreTime = ui.record_restore_time->text().toDouble();
+		ui.record_manual_time->setText(QString::number(totalTime - restoreTime));
+		});
+	//on_btnCameraClicked();
+
+	//初始化串口类对象
+	serialPort = new QSerialPort();
+
+	serialPort->setBaudRate(QSerialPort::Baud9600);
+	serialPort->setDataBits(QSerialPort::Data8);
+	serialPort->setParity(QSerialPort::NoParity);
+	serialPort->setStopBits(QSerialPort::OneStop);
+	serialPort->setFlowControl(QSerialPort::NoFlowControl);
+
+	connect(serialPort, &QSerialPort::readyRead, this, &CubeExplorerWithQt::ReadOperationFromPort);
+}
+
+void CubeExplorerWithQt::InitInteractiveComponent()
+{
+	// 0：交互 - 标签页变换
+	connect(ui.tabWidget_mode, &QTabWidget::currentChanged, this, [this](int index) {
+		int value = 100;
+		switch (index) {
+		case 0:
+			value = 100;
+			break;
+		case 1:
+			value = ui.comp_spinBox_speed->value();
+			break;
+		case 2:
+			value = ui.ctrl_spinBox_speed->value();
+			break;
+		default:
+			value = 100;
+			break;
+		}
+		RobotSpeedChange(value);
+		});
+
+	// 1：交互 - 竞速界面按钮
+	connect(ui.comp_btn_reset, SIGNAL(clicked()), this, SLOT(slot_btnResetClicked()));
+	connect(ui.comp_btn_handsOC, SIGNAL(clicked()), this, SLOT(slot_btnHandOCClicked()));
+	connect(ui.comp_btn_randRefresh, SIGNAL(clicked()), this, SLOT(slot_btnRandCreateClicked()));
+	connect(ui.comp_btn_randRun, SIGNAL(clicked()), this, SLOT(slot_btnRandRunClicked()));
+	connect(ui.comp_btn_start, SIGNAL(clicked()), this, SLOT(slot_btnCompStartClicked()));
+	/*速度联动显示*/
+	connect(ui.comp_slider_speed, &QSlider::valueChanged, this, [this](int value) {
+		ui.comp_spinBox_speed->setValue(value);
+		});
+	connect(ui.comp_spinBox_speed, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [this](int value) {
+		ui.comp_slider_speed->setValue(value);
+		});
+	/*速度及时改变*/
+	connect(ui.comp_spinBox_speed, &QSpinBox::editingFinished, this, [this]() {
+		RobotSpeedChange(ui.comp_spinBox_speed->value());
+		});
+	connect(ui.comp_slider_speed, &QSlider::sliderReleased, this, [this]() {
+		RobotSpeedChange(ui.comp_slider_speed->value());
+		});
+	connect(ui.comp_btn_speed, &QPushButton::clicked, this, [this]() {
+		RobotSpeedChange(ui.comp_spinBox_speed->value());
+		});
+
+	// 2：交互 - 控制界面按钮
+	connect(ui.ctrl_slider_speed, &QSlider::valueChanged, this, [this](int value) {
+		ui.ctrl_spinBox_speed->setValue(value);
+		});
+	connect(ui.ctrl_spinBox_speed, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [this](int value) {
+		ui.ctrl_slider_speed->setValue(value);
+		});
+
+	/*速度及时改变*/
+	connect(ui.ctrl_spinBox_speed, &QSpinBox::editingFinished, this, [this]() {
+		RobotSpeedChange(ui.ctrl_spinBox_speed->value());
+		});
+	connect(ui.ctrl_slider_speed, &QSlider::sliderReleased, this, [this]() {
+		RobotSpeedChange(ui.ctrl_slider_speed->value());
+		});
+	connect(ui.ctrl_btn_speed, &QPushButton::clicked, this, [this]() {
+		RobotSpeedChange(ui.ctrl_spinBox_speed->value());
+		});
+
+	connect(ui.ctrl_btn_reset, SIGNAL(clicked()), this, SLOT(slot_btnResetClicked())); // 复位
+	connect(ui.ctrl_btn_handsOC, SIGNAL(clicked()), this, SLOT(slot_btnHandOCClicked())); // 手部开合
+	connect(ui.ctrl_btn_rand, &QPushButton::clicked, this, [this]() { // 打乱序列和运行
+		slot_btnRandCreateClicked(), slot_btnRandRunClicked();
+		});
+
+	connect(ui.ctrl_btn_modeling, &QPushButton::clicked, this, [this]() {
+		SetRecogResultOn3DScene("RRRRYRRRRGGGGRGGGGWWWWBWWWWOOOOWOOOOBBBBOBBBBYYYYGYYYY");
+		return;
+		isToRestore = false, isToModeling = true;
+		if (isCameraOpen) CaptureImage();
+		else QMessageBox::warning(this, "warning", QStringLiteral("请先打开摄像头"));
+		});
+
+	connect(ui.ctrl_btn_start, SIGNAL(clicked()), this, SLOT(slot_btnCtrlStartClicked()));
 }
 
 void CubeExplorerWithQt::SetHighlightButtom(QPushButton* buttom)
@@ -811,6 +916,9 @@ void CubeExplorerWithQt::SetSolverResultDisplay()
 	ui.comp_txt_TotalSteps->setText(QString::number(steps) + "steps");
 	ui.comp_txt_CalcTime->setText(QString::number(ed - st) + "ms");
 
+	// 交互2中显示计算结果
+	ui.ctrl_txt_AnsOpSequence->setText(QString::fromStdString(cubeExplorerSPFA->GetAnsOpSequenceFormat()));
+	if (isToModeling) SetRecogResultOn3DScene(getRecognizeColorResult());
 	// 在计时器区域显示计算结果
 	ui.label_restoreCnt->setText(QString::number(steps));
 	ui.txt_LogDisplay->append(QStringLiteral("[SUCCESS] Solver: 识别正确！"));
@@ -862,9 +970,15 @@ void CubeExplorerWithQt::SolveAndRestore()
 	if (cubeExplorerSPFA->ansTime == -1) {
 		ShowRecogResultOnScene(recogResult);
 
-		ui.txt_RecogResult->setText(QStringLiteral("识别序列有误！"));
-		ui.txt_LogDisplay->append(QStringLiteral("[FATAL] Solver: 识别序列有误！"));
-		ui.label_restoreCnt->setText("##");
+		if (ui.tabWidget_mode->currentIndex() == 0) {
+			ui.txt_RecogResult->setText(QStringLiteral("识别序列有误！"));
+			ui.txt_LogDisplay->append(QStringLiteral("[FATAL] Solver: 识别序列有误！"));
+			ui.label_restoreCnt->setText("##");
+		}
+		else if (ui.tabWidget_mode->currentIndex() == 1) {
+			ui.comp_txt_AnsOpSequence->setText(QStringLiteral("识别序列有误！"));
+		}
+		else ui.ctrl_txt_AnsOpSequence->setText(QStringLiteral("识别序列有误！"));
 
 		timer_displayRefresh->stop(); //停止计时器
 		hasRobotStarted = false;
@@ -1135,7 +1249,7 @@ void CubeExplorerWithQt::slot_btnRandRunClicked()
 		"#4P0T200\r\n"
 	};
 
-	serialPort->write("#F000100\r\n", 9); // 恢复原速
+	RobotSpeedChange(100);
 
 	serialPort->write("#2P1T200\r\n", 9);
 	serialPort->write("#4P1T200\r\n", 9);
@@ -1154,7 +1268,10 @@ void CubeExplorerWithQt::slot_btnRandRunClicked()
 	serialPort->write("#2P0T200\r\n", 9);
 	serialPort->write("#4P0T200\r\n", 9);
 
-	serialPort->write("#F00050\r\n", 9); // 恢复设置速度
+	if (ui.tabWidget_mode->currentIndex() == 1)
+		RobotSpeedChange(ui.comp_spinBox_speed->value());
+	else
+		RobotSpeedChange(ui.ctrl_spinBox_speed->value());
 }
 
 void CubeExplorerWithQt::slot_btnCompStartClicked()
@@ -1176,6 +1293,76 @@ void CubeExplorerWithQt::slot_btnCompStartClicked()
 
         ui.comp_btn_start->setText(QStringLiteral("开始"));
     }
+}
+
+void CubeExplorerWithQt::slot_btnCtrlStartClicked()
+{
+	static QIcon icon_start("./qtWindows/source/start.png");
+    static QIcon icon_stop("./qtWindows/source/stop.png");
+
+	if (ui.ctrl_btn_start->text() == QStringLiteral("开始")) {
+		timer_stopWatch->reset(), timer_stopWatch->start();
+		timer_displayRefresh->start();
+		ui.ctrl_btn_start->setText(QStringLiteral("停止"));
+		ui.ctrl_btn_timerStop->setIcon(icon_stop);
+		setFocus();
+		ishandOpen = ishandVertical = 0;
+	}
+	else {
+		timer_stopWatch->stop(), timer_displayRefresh->stop();
+		ui.ctrl_btn_timerStop->setIcon(icon_start);
+		TimerDisplayRefresh();
+		ui.ctrl_btn_start->setText(QStringLiteral("开始"));
+		serialPort->write(QString("#2P7T200\r\n").toLatin1());
+		ishandOpen = 3;
+		ui.ctrl_openGLWidget->openGripperF();
+		ui.ctrl_openGLWidget->openGripperR();
+	}
+}
+
+void CubeExplorerWithQt::RobotSpeedChange(int speed)
+{
+	qDebug() << "RobotSpeedChange" << QString("#F%1\n\r").arg(speed, 6, 10, QLatin1Char('0'));
+	serialPort->write(QString("#F%1\n\r").arg(speed, 6, 10, QLatin1Char('0')).toLatin1());
+}
+
+void CubeExplorerWithQt::SetRecogResultOn3DScene(QString recogResult)
+{
+	// 1. 检查输入长度
+	if (recogResult.length() != 54) {
+		qWarning() << "Invalid recogResult length:" << recogResult.length();
+		return;
+	}
+
+	// 2. 建立颜色映射表（字符 -> QColor）
+	static const QMap<QChar, QColor> colorMap = {
+		{'W', Qt::white},
+		{'Y', Qt::yellow},
+		{'O', QColor(255, 165, 0)},   // 橙色
+		{'R', Qt::red},
+		{'B', Qt::blue},
+		{'G', Qt::green}
+	};
+
+	// 3. 将字符串转换为颜色列表（顺序保持不变）
+	QVector<QColor> colors;
+	colors.reserve(54);
+	for (int i = 0; i < 54; ++i) {
+		QChar ch = recogResult.at(i);
+		if (!colorMap.contains(ch)) {
+			qWarning() << "Unknown color character:" << ch << "at index" << i;
+			return;
+		}
+		colors.append(colorMap.value(ch));
+	}
+
+	// 4. 将颜色列表传递给 OpenGL 窗口部件（假设其指针为 m_ctrl_openGLWidget）
+	if (ui.ctrl_openGLWidget) {
+		ui.ctrl_openGLWidget->setFaceColors(colors);
+	}
+	else {
+		qWarning() << "ctrl_openGLWidget is null!";
+	}
 }
 
 //右键菜单响应槽函数

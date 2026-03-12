@@ -88,6 +88,7 @@ private:
 
 	bool isCameraOpen = false;
 	bool isToRestore = false;
+	bool isToModeling = false;
 	bool hasRobotStarted = false;
 	bool inputFromBox = false;
 	const int captureInterval = 1000;
@@ -141,9 +142,11 @@ private:
 	int seqsLength;
 	QString displaySeqs;
 
-	int handAngle[2];
+	int handAngle[2], ishandOpen, ishandVertical; // 机器人状态
 
-	void InitTimerComponent();
+	void InitTimerComponent(); // 计时组件初始化
+	void InitDemoComponent(); // 初始化延时模式组件
+	void InitInteractiveComponent(); // 交互模式组件
 	void SetHighlightButtom(QPushButton* buttom);
 	void SetCommonStyButtom(QPushButton* buttom);
 
@@ -181,8 +184,11 @@ public slots:
 	void slot_btnRandCreateClicked();
 	void slot_btnRandRunClicked();
 
-	// 交互-竞速模式函数
+	// 交互模式函数
 	void slot_btnCompStartClicked();
+	void slot_btnCtrlStartClicked();
+	void RobotSpeedChange(int speed);
+	void SetRecogResultOn3DScene(QString recogResult);
 
 	//摄像头View鼠标响应槽函数
 	void slot_mouseReleasedInCameraViews(QRect rec_select);

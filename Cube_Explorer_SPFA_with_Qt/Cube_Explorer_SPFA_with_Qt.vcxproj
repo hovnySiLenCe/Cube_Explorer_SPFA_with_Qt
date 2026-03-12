@@ -34,6 +34,7 @@
     <ClCompile Include="Mainbody\LastSampleDialog.cpp" />
     <ClCompile Include="Mainbody\QMyGraphicsView.cpp" />
     <ClCompile Include="Mainbody\RecogAreaDialog.cpp" />
+    <ClCompile Include="qtWindows\MyOpenGLWidget.cpp" />
     <ClCompile Include="qtWindows\qrc_CubicExplorerWithQt.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </PrecompiledHeader>
@@ -46,6 +47,7 @@
     <ClInclude Include="Algorithm\CubeExplorerSPFA.h" />
     <ClInclude Include="Algorithm\CubePoseTransformer.h" />
     <ClInclude Include="Algorithm\CubeRecognizer.h" />
+    <QtMoc Include="qtWindows\MyOpenGLWidget.h" />
     <QtMoc Include="Algorithm\MultiSolver.h" />
     <QtMoc Include="Algorithm\MyThread.h" />
     <ClInclude Include="Algorithm\MyTaskQueue.h" />
@@ -125,7 +127,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <OutDir>Execution\</OutDir>
     <IntDir>GeneratedFiles\$(Configuration)\</IntDir>
-    <IncludePath>.\Algorithm;.\Mainbody;C:\OpenCV\opencv\build\include\opencv;C:\OpenCV\opencv\build\include;C:\OpenCV\opencv\build\include\opencv2;.\Kociemba;.\GeneratedFiles;C:\Qt\Qt5.9.1\5.9.1\msvc2017_64\bin;C:\Qt\Qt5.9.1\5.9.1\msvc2017_64\include;$(IncludePath)</IncludePath>
+    <IncludePath>.\Algorithm;.\Mainbody;C:\OpenCV\opencv\build\include\opencv;C:\OpenCV\opencv\build\include;C:\OpenCV\opencv\build\include\opencv2;.\Kociemba;.\GeneratedFiles;C:\Qt\Qt5.9.1\5.9.1\msvc2017_64\bin;C:\Qt\Qt5.9.1\5.9.1\msvc2017_64\include;.\qtWindows;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Qt\Qt5.9.1\5.9.1\msvc2017_64\lib;C:\OpenCV\opencv\build\x64\vc15\lib;C:\OpenCV\opencv\build\x64\vc15\bin;C:\OpenCV\opencv\build\x64\vc14\lib;C:\OpenCV\opencv\build\x64\vc14\bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">

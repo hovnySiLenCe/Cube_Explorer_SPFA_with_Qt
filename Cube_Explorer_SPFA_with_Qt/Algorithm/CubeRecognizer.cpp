@@ -789,6 +789,15 @@ QMap<QString, vector<int>>& getCorreDataMap()
 	return map_correData;
 }
 
+QString getRecognizeColorResult()
+{
+	QString res = "";
+	for (int index = 0; index < 54; index++) {
+		res.append(map_face_id_recogRes[list_faceID[index / 9]][index % 9][0].toUpper());
+	}
+	return res;
+}
+
 void CreateSceneFromStr(string str)
 {
 	for (int i = 0; i < 6; i++) {
