@@ -4,6 +4,7 @@ int faceTrans[4][54] = {
     {11, 14, 17, 10, 13, 16, 9, 12, 15, 29, 32, 35, 28, 31, 34, 27, 30, 33, 20, 23, 26, 19, 22, 25, 18, 21, 24, 38, 41, 44, 37, 40, 43, 36, 39, 42, 2, 5, 8, 1, 4, 7, 0, 3, 6, 51, 48, 45, 52, 49, 46, 53, 50, 47},
     {0, 1, 2, 3, 4, 5, 9, 12, 15, 29, 10, 11, 28, 13, 14, 27, 16, 17, 20, 23, 26, 19, 22, 25, 18, 21, 24, 38, 41, 44, 30, 31, 32, 33, 34, 35, 36, 37, 8, 39, 40, 7, 42, 43, 6, 45, 46, 47, 48, 49, 50, 51, 52, 53},
     {53, 52, 51, 50, 49, 48, 47, 46, 45, 11, 14, 17, 10, 13, 16, 9, 12, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 18, 19, 20, 21, 22, 23, 24, 25, 26, 42, 39, 36, 43, 40, 37, 44, 41, 38, 35, 34, 33, 32, 31, 30, 29, 28, 27},
+    {0, 1, 51, 3, 4, 48, 6, 7, 45, 11, 14, 17, 10, 13, 16, 9, 12, 15, 18, 19, 2, 21, 22, 5, 24, 25, 8, 27, 28, 20, 30, 31, 23, 33, 34, 26, 36, 37, 38, 39, 40, 41, 42, 43, 44, 35, 46, 47, 32, 49, 50, 29, 52, 53}
 };
 // 为了方便，这里采用立即模式（兼容 OpenGL 2.1+），你也可以使用 VBO/VAO 提高性能
 MyOpenGLWidget::MyOpenGLWidget(QWidget* parent)
@@ -72,14 +73,16 @@ void MyOpenGLWidget::openGripperR()
 void MyOpenGLWidget::rotateGripperF(float angle)
 {
     m_gripperF.rotationAngle += angle;
-    // 可在此添加魔方 F 面旋转逻辑
+    if (m_gripperF.openAmount == 0.0f)
+        transformFaceColors(( (angle < 0) ? 1 : 0 ) + ((m_gripperR.openAmount > 0.0f)? 0: 2) );
     update();
 }
 
 void MyOpenGLWidget::rotateGripperR(float angle)
 {
     m_gripperR.rotationAngle += angle;
-    // 可在此添加魔方 R 面旋转逻辑
+    if (m_gripperR.openAmount == 0.0f)
+        transformFaceColors(((angle < 0) ? 1 : 0) + ((m_gripperF.openAmount > 0.0f) ? 4 : 6));
     update();
 }
 
@@ -341,6 +344,25 @@ void MyOpenGLWidget::paintGL()
     // 绘制两个夹爪
     drawGripper(m_gripperF);
     drawGripper(m_gripperR);
+}
+
+void MyOpenGLWidget::transformFaceColors(int type)
+{
+    QVector<QColor> tmp(m_faceColors);
+    // 根据 type 应用颜色变换（使用 faceTrans 表）
+    // type: 0=F 顺时针 带转，2=F 顺时针拧动，4=R 顺时针 带转，6=R 顺时针 拧动
+    if (type&1) { // 逆时针拧动
+        type >>= 1;
+        for (int i = 0; i < 54; ++i) {
+            m_faceColors[i] = tmp[faceTrans[type][i]];
+        }
+    }
+    else { // 顺时针拧动
+        type >>= 1;
+        for (int i = 0; i < 54; ++i) {
+            m_faceColors[faceTrans[type][i]] = tmp[i];
+        }
+    }
 }
 
 // 可选：添加鼠标旋转交互

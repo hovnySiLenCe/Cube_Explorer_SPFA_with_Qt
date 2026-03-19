@@ -88,6 +88,7 @@ private:
     // 夹爪控制
     int m_activeGripper;     // 当前激活的夹爪 0=无，1=F 面，2=R 面
 
+    void transformFaceColors(int type);
     void drawGripper(const DualFingerGripper& gripper);
     void drawGripperFinger(const GripperFinger& finger,
         const QVector3D& openDir,
