@@ -1114,7 +1114,7 @@
     <enum>Qt::LeftToRight</enum>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_presentation">
     <property name="font">
@@ -4702,16 +4702,6 @@ p, li { white-space: pre-wrap; }
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="MyOpenGLWidget" name="ctrl_openGLWidget">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QGroupBox" name="groupBox_10">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -5622,11 +5612,6 @@ p, li { white-space: pre-wrap; }
    <class>QMyGraphicsView</class>
    <extends>QGraphicsView</extends>
    <header>QMyGraphicsView.h</header>
-  </customwidget>
-  <customwidget>
-   <class>MyOpenGLWidget</class>
-   <extends>QOpenGLWidget</extends>
-   <header>MyOpenGLWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>

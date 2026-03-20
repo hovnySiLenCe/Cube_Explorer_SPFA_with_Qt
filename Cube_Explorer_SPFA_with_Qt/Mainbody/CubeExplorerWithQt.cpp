@@ -58,7 +58,7 @@ void CubeExplorerWithQt::keyPressEvent(QKeyEvent* event)
 			if (!ishandOpen) {
 				command = "#2P0T200\r\n"; // 左开
 				ishandOpen = 2;
-				ui.ctrl_openGLWidget->openGripperF();
+				//ui.ctrl_openGLWidget->openGripperF();
 			}
 			else return;
 			break;
@@ -66,43 +66,43 @@ void CubeExplorerWithQt::keyPressEvent(QKeyEvent* event)
 			if (ishandVertical & 1) return;
 			command = "#1P7T200\r\n"; // 左逆
 			ishandVertical ^= 2;
-			ui.ctrl_openGLWidget->rotateGripperF(-90.0f);
+			//ui.ctrl_openGLWidget->rotateGripperF(-90.0f);
 			break;
 		case Qt::Key_S:
 			command = "#2P1T200\r\n"; // 左闭
 			ishandOpen &= 1;
-			ui.ctrl_openGLWidget->closeGripperF();
+			//ui.ctrl_openGLWidget->closeGripperF();
 			break;
 		case Qt::Key_D:
 			if (ishandVertical & 1) return;
 			command = "#1P6T200\r\n"; // 左顺
 			ishandVertical ^= 2;
-			ui.ctrl_openGLWidget->rotateGripperF(90.0f);
+			//ui.ctrl_openGLWidget->rotateGripperF(90.0f);
 			break;
 		case Qt::Key_Up:
 			if (!ishandOpen) {
 				command = "#4P0T200\r\n"; // 右开
 				ishandOpen = 1;
-				ui.ctrl_openGLWidget->openGripperR();
+				//ui.ctrl_openGLWidget->openGripperR();
 			}
 			else return;
 			break;
 		case Qt::Key_Down:
 			command = "#4P1T200\r\n"; // 右闭
 			ishandOpen &= 2;
-			ui.ctrl_openGLWidget->closeGripperR();
+			//ui.ctrl_openGLWidget->closeGripperR();
 			break;
 		case Qt::Key_Left:
 			if (ishandVertical & 2) return;
 			ishandVertical ^= 1;
 			command = "#3P7T200\r\n"; // 右逆
-			ui.ctrl_openGLWidget->rotateGripperR(-90.0f);
+			//ui.ctrl_openGLWidget->rotateGripperR(-90.0f);
 			break;
 		case Qt::Key_Right:
 			if (ishandVertical & 2) return;
 			ishandVertical ^= 1;
 			command = "#3P6T200\r\n"; // 右顺
-			ui.ctrl_openGLWidget->rotateGripperR(90.0f);
+			//ui.ctrl_openGLWidget->rotateGripperR(90.0f);
 			break;
 		//case Qt::Key_Space:
 		//	command = "#2P7T200\r\n"; // 抓取
@@ -1315,8 +1315,8 @@ void CubeExplorerWithQt::slot_btnCtrlStartClicked()
 		ui.ctrl_btn_start->setText(QStringLiteral("开始"));
 		serialPort->write(QString("#2P7T200\r\n").toLatin1());
 		ishandOpen = 3;
-		ui.ctrl_openGLWidget->openGripperF();
-		ui.ctrl_openGLWidget->openGripperR();
+		//ui.ctrl_openGLWidget->openGripperF();
+		//ui.ctrl_openGLWidget->openGripperR();
 	}
 }
 
@@ -1357,12 +1357,12 @@ void CubeExplorerWithQt::SetRecogResultOn3DScene(QString recogResult)
 	}
 
 	// 4. 将颜色列表传递给 OpenGL 窗口部件（假设其指针为 m_ctrl_openGLWidget）
-	if (ui.ctrl_openGLWidget) {
+	/*if (ui.ctrl_openGLWidget) {
 		ui.ctrl_openGLWidget->setFaceColors(colors);
 	}
 	else {
 		qWarning() << "ctrl_openGLWidget is null!";
-	}
+	}*/
 }
 
 //右键菜单响应槽函数
