@@ -16,7 +16,7 @@ CubeExplorerWithQt::CubeExplorerWithQt(QWidget *parent)
 
 	// 初始化交互模式组件
 	InitInteractiveComponent();
-	
+
 	// 初始化摄像头
 	InitCameraEvents();
 }
@@ -120,6 +120,9 @@ void CubeExplorerWithQt::keyPressEvent(QKeyEvent* event)
 
 void CubeExplorerWithQt::InitCameraEvents()
 {
+	ui.ctrl_openGLWidget->setUpdatesEnabled(false);
+
+
     // 定义相机名称和对应的UI组件映射
 	cameraCombos = {
 		ui.comboBox_cameraFR,
@@ -168,6 +171,11 @@ void CubeExplorerWithQt::InitCameraEvents()
     // 菜单动作绑定
     connect(ui.actSetBlock, SIGNAL(triggered()), this, SLOT(slot_menuSetRecTriggered()));
     connect(ui.actShowHSV, SIGNAL(triggered()), this, SLOT(slot_menuShowHSVTriggered()));
+
+	// 摄像头稳定后恢复OpenGL
+	QTimer::singleShot(1000, [this]() {
+		ui.ctrl_openGLWidget->setUpdatesEnabled(true);
+		});
 }
 
 
