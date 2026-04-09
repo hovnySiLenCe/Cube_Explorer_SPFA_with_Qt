@@ -167,6 +167,9 @@ void CubeExplorerWithQt::InitCameraEvents()
         cameraVideoItems.append(videoItem);
     }
 
+
+
+
     // 菜单动作绑定
     connect(ui.actSetBlock, SIGNAL(triggered()), this, SLOT(slot_menuSetRecTriggered()));
     connect(ui.actShowHSV, SIGNAL(triggered()), this, SLOT(slot_menuShowHSVTriggered()));
